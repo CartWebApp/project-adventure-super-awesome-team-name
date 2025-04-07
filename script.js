@@ -16,6 +16,8 @@ let lastTime = 0;
 let screen = 2;
 let grass = []
 
+let bg = new Image();
+
 
 playerImage = new Image();
 playerImage.src = 'img/player/idle.png';
@@ -128,30 +130,51 @@ function updateAnimation() {
     }
 }
 
-let bg = new Image();
 
-
-if (screen == 2) {
-    grass = [
-        createGrass(1030, 330, 0, 0),
-        createGrass(870, 330, 1155, 0),
-        createGrass(870, 160, 0, 480),
-        createGrass(770, 160, 1255, 480),
-    ];
-    bg.src = "img/bg/bg3.png";
+function screenChange(screen){
+    if(screen === 1){
+        bg = new Image();
+        bg.src = "img/bg/bg2.png";
+    }
+    else if(screen === 2){
+        grass = [
+            createGrass(1030, 330, 0, 0),
+            createGrass(870, 330, 1155, 0),
+            createGrass(870, 160, 0, 480),
+            createGrass(770, 160, 1255, 480),
+            createGrass(870, 210, 1155, 785),
+            createGrass(870, 210, 0, 785),
+        ];
+        bg = new Image();
+        bg.src = "img/bg/bg3.png";
+    }
 }
+
+
 
 
 function loop() {
     updateAnimation();
     context.drawImage(bg, 0, 0, context.canvas.width, context.canvas.height);
 
-
     let inGrassSpeed = 1
     let scaleFactor = 0.4;
 
 
+    if((player.x > 941 && player.x < 1089) && (player.y >= 993) && screen == 2){
+        screen = 1
+        console.log("test")
+        screenChange(1)
+        player.y = 0
+    }
 
+
+    if (screen == 2) {
+        screenChange(2)
+    }
+    
+
+    
 
 
 
@@ -161,16 +184,10 @@ function loop() {
         if (collisionDetection(player, grass)) {
             inGrassSpeed = 0.7;
         }
-        context.fillStyle = "green";
-        context.beginPath();
-        context.rect(grass.x, grass.y, grass.width, grass.height);
-        context.fill();
-
-        context.strokeStyle = "red";
-        context.lineWidth = 2;
-        context.strokeRect(grass.x, grass.y, grass.width, grass.height);
+        
     })
     
+
 
     if (controller.left) {
         player.x -= 6 * inGrassSpeed;
@@ -236,38 +253,15 @@ window.requestAnimationFrame(loop);
 
 
 function collisionDetection(obj1, obj2) {
-
-    let topBottom = Math.abs(obj1.y - (obj2.y + obj2.height));
-    let rightLeft = Math.abs((obj1.x + obj1.width) - obj2.x);
-    let leftRight = Math.abs(obj1.x - (obj2.x + obj2.width));
-    let bottomTop = Math.abs((obj1.y + obj1.height) - obj2.y);
-
-    if (obj1.x + obj1.width < obj2.x || obj1.x > obj2.x + obj2.width || obj1.y + obj1.height < obj2.y || obj1.y > obj2.y + obj2.height) {
-        return false;
-    }
-
-
-
-    if ((obj1.y <= obj2.y + obj2.height && obj1.y + obj1.height > obj2.y + obj2.height) && (topBottom < rightLeft && topBottom < leftRight)) {
-        return true;
-    }
-
-
-    if ((obj1.y + obj1.height >= obj2.y && obj1.y < obj2.y) && (bottomTop < rightLeft && bottomTop < leftRight)) {
-        return true;
-    }
-
-
-    if ((obj1.x + obj1.width >= obj2.x && obj1.x < obj2.x) && (rightLeft < topBottom && rightLeft < bottomTop)) {
-        return true;
-    }
-
-
-    if ((obj1.x <= obj2.x + obj2.width && obj1.x + obj1.width > obj2.x + obj2.width) && (leftRight < topBottom && leftRight < bottomTop)) {
-        return true;
+    if (obj1.x < obj2.x + obj2.width) {
+        if (obj1.x + obj1.width > obj2.x) {
+            if (obj1.y < obj2.y + obj2.height) {
+                if (obj1.y + obj1.height > obj2.y) {
+                    return true;
+                }
+            }
+        }
     }
 
     return false;
-
 }
-
