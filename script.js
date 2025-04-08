@@ -15,6 +15,7 @@ let lastTime = 0;
 
 let screen = 2;
 let grass = []
+let homes
 
 let bg = new Image();
 
@@ -42,14 +43,23 @@ function createGrass(width, height, xPosition, yPosition) {
     };
 }
 
-function createPath(width, height, xPosition, yPosition) {
+function createHome(width, height, x, y, backImgSrc, frontImgSrc) {
+    const backImage = new Image();
+    const frontImage = new Image();
+    backImage.src = backImgSrc;
+    frontImage.src = frontImgSrc;
+
     return {
-        height: height,
-        width: width,
-        x: xPosition,
-        y: yPosition
+        width, 
+        height,
+        x, 
+        y,
+        backImage,
+        frontImage
     };
 }
+
+
 
 
 // Load the image
@@ -134,7 +144,17 @@ function updateAnimation() {
 function screenChange(screen){
     if(screen === 1){
         bg = new Image();
-        bg.src = "img/bg/bg2.png";
+        bg.src = "img/bg/bg5.png";
+        grass = [
+            createGrass(980, 409, 0, 0),
+            createGrass(1040, 409, 0, 560),
+            createGrass(830, 409, 1195, 0),
+            createGrass(840, 409, 1185, 560),
+        ];
+
+        homes = [
+            createHome(600, 500, 200, 100, "img/homes/home1_back.png", "img/homes/home1_front.png"),
+        ];
     }
     else if(screen === 2){
         grass = [
@@ -147,6 +167,8 @@ function screenChange(screen){
         ];
         bg = new Image();
         bg.src = "img/bg/bg3.png";
+
+
     }
 }
 
@@ -158,7 +180,7 @@ function loop() {
     context.drawImage(bg, 0, 0, context.canvas.width, context.canvas.height);
 
     let inGrassSpeed = 1
-    let scaleFactor = 0.4;
+    let scaleFactor = 0.35;
 
 
     if((player.x > 941 && player.x < 1089) && (player.y >= 993) && screen == 2){
@@ -174,7 +196,9 @@ function loop() {
     }
     
 
-    
+    screen = 1
+        
+        screenChange(1)
 
 
 
@@ -184,8 +208,17 @@ function loop() {
         if (collisionDetection(player, grass)) {
             inGrassSpeed = 0.7;
         }
+
+        // context.fillStyle = "green";
+        // context.beginPath();
+        // context.rect(grass.x, grass.y, grass.width, grass.height);
+        // context.fill();
         
     })
+
+
+    
+    
     
 
 
@@ -209,6 +242,13 @@ function loop() {
 
 
 
+    homes.forEach(home => {
+        if (home.backImage.complete) {
+            context.drawImage(home.backImage, home.x, home.y, home.width, home.height);
+        }
+    });
+
+
     if (playerImage.complete) {
 
         let scaledWidth = frameWidth * scaleFactor;
@@ -230,15 +270,17 @@ function loop() {
             scaledHeight
         );
 
-        context.strokeStyle = "red";
-        context.lineWidth = 2;
-        context.strokeRect(player.x, player.y, scaledWidth, scaledHeight);
+       
    
         
     }
 
     
-
+    homes.forEach(home => {
+        if (home.frontImage.complete) {
+            context.drawImage(home.frontImage, home.x, home.y, home.width, home.height);
+        }
+    });
 
 
 
