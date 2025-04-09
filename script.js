@@ -15,7 +15,8 @@ let lastTime = 0;
 
 let screen = 2;
 let grass = []
-let homes
+let homes = []
+let barrier = []
 
 let bg = new Image();
 
@@ -59,6 +60,14 @@ function createHome(width, height, x, y, backImgSrc, frontImgSrc) {
     };
 }
 
+function createBarrier(width, height, x, y) {
+    return {
+        width, 
+        height,
+        x, 
+        y
+    };
+}
 
 
 
@@ -153,8 +162,12 @@ function screenChange(screen){
         ];
 
         homes = [
-            createHome(600, 500, 200, 100, "img/homes/home1_back.png", "img/homes/home1_front.png"),
+            createHome(300, 200, 200, 300, "img/homes/home1_back.png", "img/homes/home1_front.png"),
         ];
+
+        barrier = [
+            createBarrier(300, 200, 100, 100)
+        ]
     }
     else if(screen === 2){
         grass = [
@@ -244,8 +257,21 @@ function loop() {
 
     homes.forEach(home => {
         if (home.backImage.complete) {
-            context.drawImage(home.backImage, home.x, home.y, home.width, home.height);
+            context.drawImage(home.backImage, home.x, home.y, home.width, home.height- 50);
         }
+        
+        context.strokeRect(home.x, home.y, home.width, home.height);
+        context.strokeStyle = "red";
+        context.lineWidth = 2;
+
+
+
+        context.fillStyle = "#FFFFFF";
+        context.beginPath();
+        context.rect(barrier.x, barrier.y, barrier.width, barrier.height);
+        context.fill();
+
+        
     });
 
 
@@ -278,9 +304,21 @@ function loop() {
     
     homes.forEach(home => {
         if (home.frontImage.complete) {
+            home.y = home.y - 250;
+            home.height = home.height + 50;
             context.drawImage(home.frontImage, home.x, home.y, home.width, home.height);
         }
+
+        // context.strokeStyle = "red";
+        // context.lineWidth = 2;
+        // context.strokeRect(home.x, home.y, home.width, home.height);
+        
     });
+
+
+
+
+
 
 
 
@@ -307,3 +345,9 @@ function collisionDetection(obj1, obj2) {
 
     return false;
 }
+
+
+
+
+
+
