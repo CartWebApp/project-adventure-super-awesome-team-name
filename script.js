@@ -1,3 +1,6 @@
+// Screen 100 - 199 are rooms screens
+
+
 var context, controller, player, loop, playerImage, coin, coinImage;
 
 context = document.querySelector("canvas").getContext("2d");
@@ -13,7 +16,7 @@ var framesPerSecond = 15;
 let lastTime = 0;
 
 
-let screen = 2;
+let screen = 1;
 let grass = []
 let homes = []
 let barrier = []
@@ -51,9 +54,9 @@ function createHome(width, height, x, y, backImgSrc, frontImgSrc) {
     frontImage.src = frontImgSrc;
 
     return {
-        width, 
+        width,
         height,
-        x, 
+        x,
         y,
         backImage,
         frontImage
@@ -62,18 +65,24 @@ function createHome(width, height, x, y, backImgSrc, frontImgSrc) {
 
 function createBarrier(width, height, x, y) {
     return {
-        width, 
+        width,
         height,
-        x, 
+        x,
         y
+    };
+}
+function createDoor(width, height, x, y, houseNum) {
+    return {
+        width,
+        height,
+        x,
+        y,
+        houseNum
     };
 }
 
 
-
 // Load the image
-
-
 controller = {
     left: false,
     right: false,
@@ -150,8 +159,59 @@ function updateAnimation() {
 }
 
 
-function screenChange(screen){
-    if(screen === 1){
+function screenChange(screen) {
+    switch (screen) {
+        case 1:
+            bg = new Image();
+            bg.src = "img/bg/bg5.png";
+            grass = [
+                createGrass(980, 409, 0, 0),
+                createGrass(1040, 409, 0, 560),
+                createGrass(830, 409, 1195, 0),
+                createGrass(840, 409, 1185, 560),
+            ];
+
+            homes = [
+                createHome(300, 200, 200, 300, "img/homes/home1_back.png", "img/homes/home1_front.png"),
+            ];
+
+            barrier = [
+                createBarrier(250, 35, 225, 300)
+            ]
+            door = [
+                createDoor(90, 110, 305, 310, 1)
+            ]
+            break;
+        case 2:
+            grass = [
+                createGrass(1030, 330, 0, 0),
+                createGrass(870, 330, 1155, 0),
+                createGrass(870, 160, 0, 480),
+                createGrass(770, 160, 1255, 480),
+                createGrass(870, 210, 1155, 785),
+                createGrass(870, 210, 0, 785),
+            ];
+            bg = new Image();
+            bg.src = "img/bg/bg3.png";
+            break;
+        case 101:
+            bg = new Image();
+            bg.src = "img/bg/rooms/roomtest.png";
+            grass = [];
+            homes = [];
+            barrier = [];
+            door = [];
+            break;
+    }
+    
+}
+
+
+
+
+function loop() {
+
+    if (screen === 1) {
         bg = new Image();
         bg.src = "img/bg/bg5.png";
         grass = [
@@ -162,33 +222,20 @@ function screenChange(screen){
         ];
 
         homes = [
-            createHome(300, 200, 200, 300, "img/homes/home1_back.png", "img/homes/home1_front.png"),
+            createHome(300, 200, 150, 300, "img/homes/home1_back.png", "img/homes/home1_front.png"),
+        
         ];
 
         barrier = [
-            createBarrier(300, 200, 100, 100)
+            createBarrier(250, 35, 185, 300)
         ]
-    }
-    else if(screen === 2){
-        grass = [
-            createGrass(1030, 330, 0, 0),
-            createGrass(870, 330, 1155, 0),
-            createGrass(870, 160, 0, 480),
-            createGrass(770, 160, 1255, 480),
-            createGrass(870, 210, 1155, 785),
-            createGrass(870, 210, 0, 785),
-        ];
-        bg = new Image();
-        bg.src = "img/bg/bg3.png";
-
+        door = [
+            createDoor(90, 110, 255, 310, 1)
+        ]
 
     }
-}
 
 
-
-
-function loop() {
     updateAnimation();
     context.drawImage(bg, 0, 0, context.canvas.width, context.canvas.height);
 
@@ -196,29 +243,21 @@ function loop() {
     let scaleFactor = 0.35;
 
 
-    if((player.x > 941 && player.x < 1089) && (player.y >= 993) && screen == 2){
-        screen = 1
-        console.log("test")
-        screenChange(1)
-        player.y = 0
-    }
+    // if ((player.x > 941 && player.x < 1089) && (player.y >= 993) && screen == 2) {
+    //     screen = 1
+    //     console.log("test")
+    //     screenChange(1)
+    //     player.y = 0
+    // }
 
 
-    if (screen == 2) {
-        screenChange(2)
-    }
-    
-
-    screen = 1
-        
-        screenChange(1)
 
 
 
 
 
     grass.forEach(grass => {
-        if (collisionDetection(player, grass)) {
+        if (collisionDetectionOverlap(player, grass)) {
             inGrassSpeed = 0.7;
         }
 
@@ -226,13 +265,13 @@ function loop() {
         // context.beginPath();
         // context.rect(grass.x, grass.y, grass.width, grass.height);
         // context.fill();
-        
+
     })
 
 
-    
-    
-    
+
+
+
 
 
     if (controller.left) {
@@ -257,21 +296,31 @@ function loop() {
 
     homes.forEach(home => {
         if (home.backImage.complete) {
-            context.drawImage(home.backImage, home.x, home.y, home.width, home.height- 50);
+            context.drawImage(home.backImage, home.x, home.y, home.width, home.height - 50);
         }
-        
-        context.strokeRect(home.x, home.y, home.width, home.height);
-        context.strokeStyle = "red";
-        context.lineWidth = 2;
+    });
 
 
 
-        context.fillStyle = "#FFFFFF";
-        context.beginPath();
-        context.rect(barrier.x, barrier.y, barrier.width, barrier.height);
-        context.fill();
 
-        
+    barrier.forEach(bar => {
+        collisionDetection(player, bar)
+    });
+
+
+
+    door.forEach(door => {
+
+        context.fillStyle = "orange";
+        context.fillRect(door.x, door.y, door.width, door.height);
+        if (collisionDetectionOverlap(player, door)) {
+            document.addEventListener('keyup', (e) => {
+                if (e.code === "KeyE") {
+                    screen = 101
+                    screenChange(101)
+                }
+            });
+        }
     });
 
 
@@ -282,7 +331,7 @@ function loop() {
 
         player.width = scaledWidth;
         player.height = scaledHeight;
-        
+
 
         context.drawImage(
             playerImage,
@@ -296,32 +345,19 @@ function loop() {
             scaledHeight
         );
 
-       
-   
-        
+
+
+
     }
 
-    
+
     homes.forEach(home => {
         if (home.frontImage.complete) {
             home.y = home.y - 250;
             home.height = home.height + 50;
             context.drawImage(home.frontImage, home.x, home.y, home.width, home.height);
         }
-
-        // context.strokeStyle = "red";
-        // context.lineWidth = 2;
-        // context.strokeRect(home.x, home.y, home.width, home.height);
-        
     });
-
-
-
-
-
-
-
-
     window.requestAnimationFrame(loop);
 }
 
@@ -332,7 +368,7 @@ window.requestAnimationFrame(loop);
 
 
 
-function collisionDetection(obj1, obj2) {
+function collisionDetectionOverlap(obj1, obj2) {
     if (obj1.x < obj2.x + obj2.width) {
         if (obj1.x + obj1.width > obj2.x) {
             if (obj1.y < obj2.y + obj2.height) {
@@ -348,6 +384,62 @@ function collisionDetection(obj1, obj2) {
 
 
 
+
+
+
+function collisionDetection(obj1, obj2) {
+
+    let topBottom = Math.abs(obj1.y - (obj2.y + obj2.height));
+    let rightLeft = Math.abs((obj1.x + obj1.width) - obj2.x);
+    let leftRight = Math.abs(obj1.x - (obj2.x + obj2.width));
+    let bottomTop = Math.abs((obj1.y + obj1.height) - obj2.y);
+
+    if (obj1.x + obj1.width < obj2.x || obj1.x > obj2.x + obj2.width || obj1.y + obj1.height < obj2.y || obj1.y > obj2.y + obj2.height) {
+        return false;
+    }
+
+
+
+
+
+    if ((obj1.y <= obj2.y + obj2.height && obj1.y + obj1.height > obj2.y + obj2.height) && (topBottom < rightLeft && topBottom < leftRight)) {
+        obj1.y = obj2.y + obj2.height;
+        obj1.y_velocity = 0;
+        // numberJumps = 0;
+    }
+
+
+    if ((obj1.y + obj1.height >= obj2.y && obj1.y < obj2.y) && (bottomTop < rightLeft && bottomTop < leftRight)) {
+        obj1.y = obj2.y - obj1.height;
+
+        if (obj1.name == 'player') {
+            player.jumping = false;
+            numberJumps = 0;
+            playerJumped = false;
+        }
+
+        if (obj1.name == 'enemy') {
+            obj1.jumping = false;
+
+        }
+
+
+        obj1.y_velocity = 0;
+    }
+
+
+    if ((obj1.x + obj1.width >= obj2.x && obj1.x < obj2.x) && (rightLeft < topBottom && rightLeft < bottomTop)) {
+        obj1.x = obj2.x - obj1.width;
+        obj1.x_velocity = 0;
+    }
+
+
+    if ((obj1.x <= obj2.x + obj2.width && obj1.x + obj1.width > obj2.x + obj2.width) && (leftRight < topBottom && leftRight < bottomTop)) {
+        obj1.x = obj2.x + obj2.width;
+        obj1.x_velocity = 0;
+    }
+
+}
 
 
 
