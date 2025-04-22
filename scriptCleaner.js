@@ -1,8 +1,3 @@
-// Screen 100 - 199 are rooms screens
-
-
-
-
 var context, controller, player, loop, playerImage, coin, coinImage;
 
 context = document.querySelector("canvas").getContext("2d");
@@ -10,31 +5,36 @@ context = document.querySelector("canvas").getContext("2d");
 context.canvas.height = innerHeight - 20;
 context.canvas.width = innerWidth - 20;
 
+
 var frameWidth = 270;
 var frameHeight = 250;
 var currentFrame = 0;
 var frameCounter = 0;
 var framesPerSecond = 15;
+
 let lastTime = 0;
 let start = true;
 let rewardType;
 let screen = 1;
+
+//list of objects in game
 let grass = []
 let homes = []
 let barrier = []
 let enemy = []
-
 let treasure = [];
 
+//images to add to game
 let treasureImage = new Image();
+let bg = new Image();
+playerImage = new Image();
+
+//image sources
+playerImage.src = 'img/player/idle.png';
 treasureImage.src = "img/items/coin.png";
 
-let bg = new Image();
 
-
-playerImage = new Image();
-playerImage.src = 'img/player/idle.png';
-
+//objects being made
 player = {
     direction: "left",
     height: frameHeight,
@@ -127,8 +127,7 @@ function createTreasure(x, y, width, height, type) {
     };
 }
 
-
-// Load the image
+//movement
 controller = {
     left: false,
     right: false,
@@ -167,125 +166,28 @@ controller = {
 };
 
 
-
-
-
-
-
-
-
-function updateAnimation() {
-    frameCounter++;
-    if (frameCounter >= framesPerSecond) {
-
-        frameCounter = 0;
-        if (controller.right) {
-            playerImage.src = 'img/player/right2.png';
-            frameWidth = 155
-            currentFrame = (currentFrame + 1) % 4;
-            framesPerSecond = 9
-        }
-        else if (controller.left) {
-            playerImage.src = 'img/player/left2.png';
-            frameWidth = 155
-            currentFrame = (currentFrame + 1) % 4;
-            framesPerSecond = 9
-        }
-        else {
-            playerImage.src = 'img/player/idle2.png';
-
-            frameWidth = 155
-            currentFrame = (currentFrame + 1) % 4;
-            framesPerSecond = 20
-        }
-
-
-
-    }
-}
-
-
-function screenChange(screen) {
-    switch (screen) {
-        case 1:
-            bg = new Image();
-            bg.src = "img/bg/bg5.png";
-            player.y = -60
-            grass = [
-                createGrass(980, 409, 0, 0),
-                createGrass(1040, 409, 0, 560),
-                createGrass(830, 409, 1195, 0),
-                createGrass(840, 409, 1185, 560),
-            ];
-
-            homes = [
-                createHome(700, 600, -100, 50, "img/homes/home1.png"),
-                createHome(600, 600, 450, 85, "img/homes/home2.png"),
-                createHome(600, 600, 1100, 75, "img/homes/home3.png"),
-                createHome(600, 600, 1500, 40, "img/homes/home4.png"),
-            ];
-
-            barrier = [
-                createBarrier(280, 10, 110, 360)
-
-            ]
-            door = [
-                createDoor(90, 90, 205, 370, 1)
-            ]
-            break;
-        case 2:
-            player.y = 909
-
-            grass = [
-                createGrass(1030, 330, 0, 0),
-                createGrass(870, 330, 1155, 0),
-                createGrass(870, 160, 0, 480),
-                createGrass(770, 160, 1255, 480),
-                createGrass(870, 210, 1155, 785),
-                createGrass(870, 210, 0, 785),
-            ];
-            homes = []
-            barrier = []
-            door = []
-
-
-            enemy = [
-                createEnemy(100, 100, 100, 480, "img/enemies/bugs/blueBug.png")
-            ]
-
-
-            bg = new Image();
-            bg.src = "img/bg/bg3.png";
-
-            break;
-        case 101:
-            bg = new Image();
-            bg.src = "img/bg/rooms/roomtest.png";
-            grass = [];
-            homes = [];
-            barrier = [];
-            door = [];
-            break;
-    }
-
-}
-
-
-
-
+//directs stuff
 function loop() {
+    update();   // Handle game state updates
+    render();   // Draw everything to the screen
 
-    if(start){
+    requestAnimationFrame(loop); // Loop continues on the next frame
+}
+
+
+function update() {
+    let inGrassSpeed = 1
+
+
+    if (start) {
         screen = 1
         screenChange(1)
         start = false
     }
-
     if ((player.y <= -82) && (player.x >= 967) && (player.x <= 1150) && screen === 1) {
         screen = 2
         screenChange(2)
     }
-
     if ((player.y >= 963) && (player.x >= 933) && (player.x <= 1105) && screen === 2) {
         screen = 1
         screenChange(1)
@@ -293,36 +195,9 @@ function loop() {
 
 
 
-    if (player.playerAttackCooldown > 0) {
-        player.playerAttackCooldown = player.playerAttackCooldown - 1.00;  
-        updateCooldown(player.playerAttackCooldown)
-    }
-
-    
-
-    updateAnimation();
-    context.drawImage(bg, 0, 0, context.canvas.width, context.canvas.height);
-
-    let inGrassSpeed = 1
-    let scaleFactor = 0.35;
 
 
-
-
-
-
-    grass.forEach(grass => {
-        if (collisionDetectionOverlap(player, grass)) {
-            inGrassSpeed = 0.7;
-        }
-    })
-
-
-
-
-
-
-
+    //movement
     if (controller.left) {
         player.x -= 6 * inGrassSpeed;
         player.direction = "left"
@@ -343,42 +218,26 @@ function loop() {
         player.direction = "down"
     }
 
-
-
-
-    homes.forEach(home => {
-        if (home.mainHouse.complete) {
-            context.drawImage(home.mainHouse, home.x, home.y, home.width, home.height - 50);
-        }
-    });
-
-
+    //iframes
     if (player.attackedTime > 0) {
         player.attackedTime--
     }
 
+    //player cooldown
+    if (player.playerAttackCooldown > 0) {
+        player.playerAttackCooldown = player.playerAttackCooldown - 1.00;
+        updateCooldown(player.playerAttackCooldown)
+    }
+
+
+    //foreach stuff
+    grass.forEach(grass => {
+        if (collisionDetectionOverlap(player, grass)) {
+            inGrassSpeed = 0.7;
+        }
+    });
 
     enemy.forEach(attacker => {
-        context.drawImage(attacker.attackerImg, attacker.x, attacker.y, attacker.width, attacker.height);
-
-        const barWidth = attacker.width;
-        const barHeight = 6;
-        const barX = attacker.x;
-        const barY = attacker.y - 10;
-
-        const healthPercent = attacker.health / attacker.maxHealth;
-
-        // Background
-        context.fillStyle = "gray";
-        context.fillRect(barX, barY, barWidth, barHeight);
-
-        // Health fill
-        context.fillStyle = "red";
-        context.fillRect(barX, barY, barWidth * healthPercent, barHeight);
-
-
-
-
         if (attacker.cooldown > 0) {
             attacker.cooldown--;
         }
@@ -445,32 +304,15 @@ function loop() {
                 attacker.state = "idle";
             }
         }
-        // context.strokeStyle = "green";      
-        // context.lineWidth = 2;              
-        // context.strokeRect(attacker.x, attacker.y, attacker.width, attacker.height);
-
-
 
 
     });
 
-
-
-
-
     barrier.forEach(bar => {
-        context.fillStyle = "red";
-        context.fillRect(bar.x, bar.y, bar.width, bar.height)
-
         collisionDetection(player, bar)
     });
 
-
-
     door.forEach(door => {
-
-        context.fillStyle = "orange";
-        context.fillRect(door.x, door.y, door.width, door.height);
         if (collisionDetectionOverlap(player, door)) {
             document.addEventListener('keyup', (e) => {
                 if (e.code === "KeyE") {
@@ -482,62 +324,109 @@ function loop() {
     });
 
     treasure.forEach(loot => {
-
-        if(loot.type === "gem"){
-            
-            if(rewardType <= 5){
-                treasureImage.src = "img/rewards/greenGem.png";
-            }
-            else{
-                treasureImage.src = "img/rewards/redGem.png";
-            }
-            
-            
-        }
-        else{
-            treasureImage.src = "img/rewards/coin.png";
-        }
-
-        context.drawImage(treasureImage, loot.x, loot.y, loot.width, loot.height);
-
-
-        if(collisionDetectionOverlap(player, loot)){
-            if(loot.type === "gem"){
+        if (collisionDetectionOverlap(player, loot)) {
+            if (loot.type === "gem") {
                 player.money = player.money + 5
             }
-            else{
+            else {
                 player.money = player.money + 1
             }
-
             document.getElementById("moneyGained").innerText = player.money
-
             treasure.splice(loot, 1)
         }
-
-
     });
 
 
+    for (let i = enemy.length - 1; i >= 0; i--) {
+        const attacker = enemy[i];
+        if (attacker.health <= 0) {
+            attacker.state = "idle"
+            enemy.splice(i, 1)
+            enemyDie(attacker);
+        }
+    }
 
 
-        let scaledWidth = frameWidth * scaleFactor;
-        let scaledHeight = frameHeight * scaleFactor;
-
-        player.width = scaledWidth;
-        player.height = scaledHeight;
+}
 
 
-        context.drawImage(
-            playerImage,
-            currentFrame * frameWidth,
-            0,
-            frameWidth,
-            frameHeight,
-            player.x,
-            player.y,
-            scaledWidth,
-            scaledHeight
-        );
+
+
+
+function render() {
+    let scaleFactor = 0.35;
+    let scaledWidth = frameWidth * scaleFactor;
+    let scaledHeight = frameHeight * scaleFactor;
+
+    player.width = scaledWidth;
+    player.height = scaledHeight;
+
+    context.drawImage(bg, 0, 0, context.canvas.width, context.canvas.height);
+
+    homes.forEach(home => {
+        if (home.mainHouse.complete) {
+            context.drawImage(home.mainHouse, home.x, home.y, home.width, home.height - 50);
+        }
+    });
+
+
+    enemy.forEach(attacker => {
+        context.drawImage(attacker.attackerImg, attacker.x, attacker.y, attacker.width, attacker.height);
+
+
+        const barWidth = attacker.width;
+        const barHeight = 6;
+        const barX = attacker.x;
+        const barY = attacker.y - 10;
+        const healthPercent = attacker.health / attacker.maxHealth;
+
+
+        context.fillStyle = "gray";
+        context.fillRect(barX, barY, barWidth, barHeight);
+
+
+        context.fillStyle = "red";
+        context.fillRect(barX, barY, barWidth * healthPercent, barHeight);
+
+    });
+
+    barrier.forEach(bar => {
+        context.fillStyle = "red";
+        context.fillRect(bar.x, bar.y, bar.width, bar.height)
+    });
+
+    door.forEach(door => {
+        context.fillStyle = "orange";
+        context.fillRect(door.x, door.y, door.width, door.height);
+    });
+
+    treasure.forEach(loot => {
+        if (loot.type === "gem") {
+            if (rewardType <= 5) {
+                treasureImage.src = "img/rewards/greenGem (2).png";
+            }
+            else {
+                treasureImage.src = "img/rewards/redGem.png";
+            }
+        }
+        else {
+            treasureImage.src = "img/rewards/coin.png";
+        }
+        context.drawImage(treasureImage, loot.x, loot.y, loot.width, loot.height);
+    });
+
+    context.drawImage(
+        playerImage,
+        currentFrame * frameWidth,
+        0,
+        frameWidth,
+        frameHeight,
+        player.x,
+        player.y,
+        scaledWidth,
+        scaledHeight
+    );
+
 
 
     window.addEventListener("mousedown", (e) => {
@@ -546,41 +435,109 @@ function loop() {
         }
     });
 
-    for (let i = enemy.length - 1; i >= 0; i--) {
-        const attacker = enemy[i];
-        if (attacker.health <= 0) {
-
-            attacker.state = "idle"
-            
-
-           
-            enemy.splice(i, 1)
-
-
-            
-            enemyDie(attacker);
-        }
-    }
-
-
-
-
-    window.requestAnimationFrame(loop);
+    updateAnimation();
 }
 
 
+//animation updating
+function updateAnimation() {
+    frameCounter++;
+    if (frameCounter >= framesPerSecond) {
+
+        frameCounter = 0;
+        if (controller.right) {
+            playerImage.src = 'img/player/right2.png';
+            frameWidth = 155
+            currentFrame = (currentFrame + 1) % 4;
+            framesPerSecond = 9
+        }
+        else if (controller.left) {
+            playerImage.src = 'img/player/left2.png';
+            frameWidth = 155
+            currentFrame = (currentFrame + 1) % 4;
+            framesPerSecond = 9
+        }
+        else {
+            playerImage.src = 'img/player/idle2.png';
+
+            frameWidth = 155
+            currentFrame = (currentFrame + 1) % 4;
+            framesPerSecond = 20
+        }
 
 
 
+    }
+}
+
+//screen changer
+function screenChange(screen) {
+    switch (screen) {
+        case 1:
+            bg = new Image();
+            bg.src = "img/bg/bg5.png";
+            player.y = -60
+            grass = [
+                createGrass(980, 409, 0, 0),
+                createGrass(1040, 409, 0, 560),
+                createGrass(830, 409, 1195, 0),
+                createGrass(840, 409, 1185, 560),
+            ];
+
+            homes = [
+                createHome(700, 600, -100, 50, "img/homes/home1.png"),
+                createHome(600, 600, 450, 85, "img/homes/home2.png"),
+                createHome(600, 600, 1100, 75, "img/homes/home3.png"),
+                createHome(600, 600, 1500, 40, "img/homes/home4.png"),
+            ];
+
+            barrier = [
+                createBarrier(280, 10, 110, 360)
+
+            ]
+            door = [
+                createDoor(90, 90, 205, 370, 1)
+            ]
+            break;
+        case 2:
+            player.y = 909
+
+            grass = [
+                createGrass(1030, 330, 0, 0),
+                createGrass(870, 330, 1155, 0),
+                createGrass(870, 160, 0, 480),
+                createGrass(770, 160, 1255, 480),
+                createGrass(870, 210, 1155, 785),
+                createGrass(870, 210, 0, 785),
+            ];
+            homes = []
+            barrier = []
+            door = []
 
 
-window.addEventListener("keydown", controller.keyListener);
-window.addEventListener("keyup", controller.keyListener);
-window.requestAnimationFrame(loop);
+            enemy = [
+                createEnemy(100, 100, 100, 480, "img/enemies/bugs/blueBug.png")
+            ]
 
 
+            bg = new Image();
+            bg.src = "img/bg/bg3.png";
+
+            break;
+        case 101:
+            bg = new Image();
+            bg.src = "img/bg/rooms/roomtest.png";
+            grass = [];
+            homes = [];
+            barrier = [];
+            door = [];
+            break;
+    }
+
+}
 
 
+//cant enter
 function collisionDetectionOverlap(obj1, obj2) {
     if (obj1.x < obj2.x + obj2.width) {
         if (obj1.x + obj1.width > obj2.x) {
@@ -595,10 +552,7 @@ function collisionDetectionOverlap(obj1, obj2) {
     return false;
 }
 
-
-
-
-
+//can enter
 
 function collisionDetection(obj1, obj2) {
 
@@ -645,6 +599,7 @@ function collisionDetection(obj1, obj2) {
 
 }
 
+//tracks player
 function enemyTracking(distance, dx, dy) {
     enemy.forEach(attacker => {
         if (attacker.state === "idle" && attacker.cooldown === 0) {
@@ -671,8 +626,7 @@ function enemyTracking(distance, dx, dy) {
     });
 }
 
-
-
+//attacking for player
 function playerAttack() {
 
     if (player.playerAttackCooldown === 0) {
@@ -706,8 +660,7 @@ function playerAttack() {
 
 }
 
-
-
+//attack cooldown
 function updateCooldown(percent) {
 
     let mutiple = player.permanentCooldown / 100
@@ -730,6 +683,7 @@ function updateCooldown(percent) {
 
 }
 
+//enemy dies
 function enemyDie(attacker) {
     let chance = Math.floor(Math.random() * (10 - 0 + 1)) + 0;
 
@@ -743,3 +697,10 @@ function enemyDie(attacker) {
     }
     
 }
+
+
+
+
+window.addEventListener("keydown", controller.keyListener);
+window.addEventListener("keyup", controller.keyListener);
+window.requestAnimationFrame(loop);
