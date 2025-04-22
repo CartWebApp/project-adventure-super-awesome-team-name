@@ -1,3 +1,234 @@
-#mainCanvas{
-    background-image: url(img/bg/bg.png);
+@import url('https://fonts.googleapis.com/css2?family=Jersey+15&display=swap');
+
+* {
+    font-family: "Jersey 15", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+}
+
+#mainCanvas {
+    width: 100%;
+    height: 100%;
+}
+
+body {
+    margin: 0;
+}
+
+#hud {
+    
+    z-index: 4;
+    position: absolute;
+    height: 300px;
+    width: 100%;
+    bottom: 0;
+    display: flex;
+    flex-flow: row;
+    justify-content: space-between;
+}
+
+#leftSide {
+    display: flex;
+    flex-flow: row nowrap;
+    
+    align-items: center;
+    width: 450px;
+    background-color: rgba(0, 0, 0, 0.39);
+    height: 250px;
+    margin-left: 10px;
+    border-radius: 20px;
+}
+
+#healthBarContainer {
+
+    position: relative;
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+
+}
+
+
+#healthBarContainer>img {
+    width: 60px;
+    position: absolute;
+}
+
+#healthBar {
+    height: 35px;
+    width: 210px;
+    display: flex;
+    flex-flow: row nowrap;
+    border: solid 5px black;
+    border-left: solid 10px black;
+    margin-left: 51px;
+   margin-bottom: 11px;
+}
+
+#healthBar>div[id*='bar'] {
+    height: 100%;
+    width: 35px;
+}
+
+
+
+#attackCooldownContainer {
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    position: relative;
+    height: 68px;
+}
+
+#attackCooldownContainer>img {
+    position: absolute;
+    width: 70px;
+
+
+}
+
+#cooldownBar {
+    height: 35px;
+    width: 235px;
+    border: solid 5px black;
+    border-left: solid 10px black;
+    margin-left: 25px;
+    
+}
+
+#healthFill{
+    width: 100%;
+    /* background-image: linear-gradient(to right, #48953F , #62A95A, #CAD15F,#FFC75F, #F07B61, #E05C3E, #B52E2E); */
+    background-color: rgb(214, 69, 69);
+}
+
+#cooldownFill{
+    height: 92%;
+    width: 100%;
+    background-color: #69C11F;
+    transition: width 0.2s ease-out;
+}
+
+#cooldownFillAccent {
+    height: 8%;
+    width: 100%;
+    background-color: #7AFF05;
+    transition: width 0.2s ease-out;
+}
+
+
+
+
+#levelContainer {
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    position: relative;
+    height: 72px;
+
+}
+
+#levelContainer>img {
+    height: 72px;
+position: absolute;
+
+}
+
+#levelBar {
+    height: 35px;
+    width: 230px;
+    border: solid 5px black;
+    border-left: solid 20px black;
+    margin-left: 20px;
+    
+
+
+}
+
+#levelFill{
+    height: 35px;
+    background-color: #FFC75F; 
+}
+
+#moneyGained {
+    color: #D3Af37;
+    font-size: 40px;
+    margin-right: 10px;
+}
+
+#coins {
+    display: flex;
+    height: fit-content;
+    margin-left: 50px;
+}
+
+#bars {
+    height: 100%;
+    align-items: center;
+    display: flex;
+    flex-flow: column;
+
+    justify-content: space-evenly;
+    align-items: flex-start;
+
+    margin-left: 20px;
+    /* transform: scale(0.8); */
+}
+
+#rightside{
+    margin-right: 30px;
+    
+    display: flex;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.39);
+    height: 280px;
+    margin-left: 10px;
+    border-radius: 20px;
+    width: 560px;
+}
+
+#bottomSpot{
+    display: flex;
+    flex-flow: row nowrap;
+    width: fit-content;
+}   
+
+#left{
+    border: 2px solid #012631;
+
+    border-radius: 10px;
+    width: 106px;
+    height: 106px;
+    
+    
+}
+
+#right{
+    border: 2px solid #012631;
+    
+    border-radius: 10px;
+    width: 400px;
+    height: 250px;
+}
+
+#topSpot{
+    border: 2px solid #012631;
+    border-radius: 5px;
+    width: 120px;
+    height: 40px;
+    text-align: center;
+}
+
+#speakerName{
+    color: white;
+    font-size: 40px;
+    margin: 0;
+}
+
+#column{
+    display: flex;
+    flex-flow: column;
+    justify-content: center;
+    align-items: center;
+    width: 150px;
 }

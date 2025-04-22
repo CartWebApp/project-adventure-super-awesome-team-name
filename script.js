@@ -1,6 +1,8 @@
 // Screen 100 - 199 are rooms screens
 
 
+
+
 var context, controller, player, loop, playerImage, coin, coinImage;
 
 context = document.querySelector("canvas").getContext("2d");
@@ -20,6 +22,7 @@ let screen = 1;
 let grass = []
 let homes = []
 let barrier = []
+let enemy = []
 
 let bg = new Image();
 
@@ -28,15 +31,43 @@ playerImage = new Image();
 playerImage.src = 'img/player/idle.png';
 
 player = {
-    name: "player",
+    direction: "left",
     height: frameHeight,
     width: frameWidth,
     x: 1440,
-    x_velocity: 0,
     y: 0,
-    y_velocity: 0,
-    image: playerImage
+    playerAttackCooldown: 0,
+    permanentCooldown : 0,
+    attackedTime: 0,
+    image: playerImage,
+    attackDamage: 10,
+    defense: 0,
+    health: 100
 };
+
+function createEnemy(width, height, xPosition, yPosition, Enemyimage) {
+    const attackerImg = new Image();
+    attackerImg.src = Enemyimage;
+
+    return {
+        width: width,
+        height: height,
+        x: xPosition,
+        y: yPosition,
+        preAttackX: xPosition,
+        preAttackY: yPosition,
+        state: "idle",
+        attackTimer: 0,
+        cooldown: 0,
+        vx: 0,
+        vy: 0,
+        attackerImg,
+        health: 100,
+        maxHealth: 100,
+        attackDamage: 10
+    };
+}
+
 
 function createGrass(width, height, xPosition, yPosition) {
     return {
@@ -47,19 +78,17 @@ function createGrass(width, height, xPosition, yPosition) {
     };
 }
 
-function createHome(width, height, x, y, backImgSrc, frontImgSrc) {
-    const backImage = new Image();
-    const frontImage = new Image();
-    backImage.src = backImgSrc;
-    frontImage.src = frontImgSrc;
+function createHome(width, height, x, y, img) {
+    const mainHouse = new Image();
+
+    mainHouse.src = img;
 
     return {
         width,
         height,
         x,
         y,
-        backImage,
-        frontImage
+        mainHouse
     };
 }
 
@@ -164,6 +193,7 @@ function screenChange(screen) {
         case 1:
             bg = new Image();
             bg.src = "img/bg/bg5.png";
+            player.y = -60
             grass = [
                 createGrass(980, 409, 0, 0),
                 createGrass(1040, 409, 0, 560),
@@ -172,17 +202,23 @@ function screenChange(screen) {
             ];
 
             homes = [
-                createHome(300, 200, 200, 300, "img/homes/home1_back.png", "img/homes/home1_front.png"),
+                createHome(700, 600, -100, 50, "img/homes/home1.png"),
+                createHome(600, 600, 450, 85, "img/homes/home2.png"),
+                createHome(600, 600, 1100, 75, "img/homes/home3.png"),
+                createHome(600, 600, 1500, 40, "img/homes/home4.png"),
             ];
 
             barrier = [
-                createBarrier(250, 35, 225, 300)
+                createBarrier(280, 10, 110, 360)
+
             ]
             door = [
-                createDoor(90, 110, 305, 310, 1)
+                createDoor(90, 90, 205, 370, 1)
             ]
             break;
         case 2:
+            player.y = 909
+
             grass = [
                 createGrass(1030, 330, 0, 0),
                 createGrass(870, 330, 1155, 0),
@@ -191,8 +227,19 @@ function screenChange(screen) {
                 createGrass(870, 210, 1155, 785),
                 createGrass(870, 210, 0, 785),
             ];
+            homes = []
+            barrier = []
+            door = []
+
+
+            enemy = [
+                createEnemy(100, 100, 100, 480, "img/enemies/bugs/blueBug.png")
+            ]
+
+
             bg = new Image();
             bg.src = "img/bg/bg3.png";
+
             break;
         case 101:
             bg = new Image();
@@ -203,7 +250,7 @@ function screenChange(screen) {
             door = [];
             break;
     }
-    
+
 }
 
 
@@ -222,34 +269,49 @@ function loop() {
         ];
 
         homes = [
-            createHome(300, 200, 150, 300, "img/homes/home1_back.png", "img/homes/home1_front.png"),
-        
+            createHome(700, 600, -100, 50, "img/homes/home1.png"),
+            createHome(600, 600, 450, 85, "img/homes/home2.png"),
+            createHome(600, 600, 1100, 75, "img/homes/home3.png"),
+            createHome(600, 600, 1500, 40, "img/homes/home4.png"),
         ];
 
         barrier = [
-            createBarrier(250, 35, 185, 300)
+            createBarrier(280, 10, 110, 360)
+
         ]
         door = [
-            createDoor(90, 110, 255, 310, 1)
+            createDoor(90, 90, 205, 370, 1)
         ]
 
     }
 
+
+    if ((player.y <= -82) && (player.x >= 967) && (player.x <= 1150) && screen === 1) {
+        screen = 2
+        screenChange(2)
+    }
+
+    if ((player.y >= 963) && (player.x >= 933) && (player.x <= 1105) && screen === 2) {
+        screen = 1
+        screenChange(1)
+    }
+
+
+
+    if (player.playerAttackCooldown > 0) {
+        player.playerAttackCooldown = player.playerAttackCooldown - 1.00;
+        console.log(player.playerAttackCooldown)
+
+        
+    }
+
+    updateCooldown(player.playerAttackCooldown)
 
     updateAnimation();
     context.drawImage(bg, 0, 0, context.canvas.width, context.canvas.height);
 
     let inGrassSpeed = 1
     let scaleFactor = 0.35;
-
-
-    // if ((player.x > 941 && player.x < 1089) && (player.y >= 993) && screen == 2) {
-    //     screen = 1
-    //     console.log("test")
-    //     screenChange(1)
-    //     player.y = 0
-    // }
-
 
 
 
@@ -276,34 +338,140 @@ function loop() {
 
     if (controller.left) {
         player.x -= 6 * inGrassSpeed;
+        player.direction = "left"
     }
 
     if (controller.right) {
         player.x += 6 * inGrassSpeed;
-
+        player.direction = "right"
     }
 
     if (controller.up) {
         player.y -= 6 * inGrassSpeed;
+        player.direction = "up"
     }
 
     if (controller.down) {
         player.y += 6 * inGrassSpeed;
+        player.direction = "down"
     }
 
 
 
 
     homes.forEach(home => {
-        if (home.backImage.complete) {
-            context.drawImage(home.backImage, home.x, home.y, home.width, home.height - 50);
+        if (home.mainHouse.complete) {
+            context.drawImage(home.mainHouse, home.x, home.y, home.width, home.height - 50);
         }
+    });
+
+
+    if (player.attackedTime > 0) {
+        player.attackedTime--
+    }
+
+
+    enemy.forEach(attacker => {
+        context.drawImage(attacker.attackerImg, attacker.x, attacker.y, attacker.width, attacker.height);
+
+        const barWidth = attacker.width;
+        const barHeight = 6;
+        const barX = attacker.x;
+        const barY = attacker.y - 10;
+
+        const healthPercent = attacker.health / attacker.maxHealth;
+
+        // Background
+        context.fillStyle = "gray";
+        context.fillRect(barX, barY, barWidth, barHeight);
+
+        // Health fill
+        context.fillStyle = "red";
+        context.fillRect(barX, barY, barWidth * healthPercent, barHeight);
+
+
+
+
+        if (attacker.cooldown > 0) {
+            attacker.cooldown--;
+        }
+
+        let dx = player.x - attacker.x;
+        let dy = player.y - attacker.y;
+        let distance = Math.sqrt(dx * dx + dy * dy);
+
+        if (attacker.state === "idle" && attacker.cooldown === 0 && distance <= 700) {
+            if (distance > 125) {
+                let vx = (dx / distance) * 5;
+                let vy = (dy / distance) * 5;
+                attacker.x += vx;
+                attacker.y += vy;
+            }
+            else {
+                attacker.state = "attacking";
+                attacker.attackTimer = 0;
+                attacker.vx = (dx / distance) * 5;
+                attacker.vy = (dy / distance) * 5;
+
+
+                attacker.preAttackX = attacker.x;
+                attacker.preAttackY = attacker.y;
+
+
+                attacker.cooldown = 90;
+            }
+        }
+
+
+        if (attacker.state === "attacking") {
+            attacker.x += attacker.vx * 2;
+            attacker.y += attacker.vy * 2;
+            attacker.attackTimer++;
+
+            if (collisionDetectionOverlap(player, attacker) && player.attackedTime === 0) {
+                player.attackedTime = 30
+
+                attacker.state = "returning";
+                attacker.attackTimer = 0;
+
+
+                player.health = player.health - attacker.attackDamage
+                document.getElementById("healthFill").style.width = player.health + "%";
+            }
+
+        }
+
+
+        if (attacker.state === "returning") {
+            let returnDx = attacker.preAttackX - attacker.x;
+            let returnDy = attacker.preAttackY - attacker.y;
+            let returnDistance = Math.sqrt(returnDx * returnDx + returnDy * returnDy);
+
+            if (returnDistance > 10) {
+                let returnVx = (returnDx / returnDistance) * 5;
+                let returnVy = (returnDy / returnDistance) * 5;
+                attacker.x += returnVx;
+                attacker.y += returnVy;
+            } else {
+                attacker.x = attacker.preAttackX;
+                attacker.y = attacker.preAttackY;
+                attacker.state = "idle";
+            }
+        }
+        // context.strokeStyle = "green";      
+        // context.lineWidth = 2;              
+        // context.strokeRect(attacker.x, attacker.y, attacker.width, attacker.height);
+
     });
 
 
 
 
+
     barrier.forEach(bar => {
+        context.fillStyle = "red";
+        context.fillRect(bar.x, bar.y, bar.width, bar.height)
+
         collisionDetection(player, bar)
     });
 
@@ -344,20 +512,17 @@ function loop() {
             scaledWidth,
             scaledHeight
         );
-
-
-
-
     }
 
 
-    homes.forEach(home => {
-        if (home.frontImage.complete) {
-            home.y = home.y - 250;
-            home.height = home.height + 50;
-            context.drawImage(home.frontImage, home.x, home.y, home.width, home.height);
+    window.addEventListener("mousedown", (e) => {
+        if (e.button === 0) {
+            playerAttack();
         }
     });
+
+
+
     window.requestAnimationFrame(loop);
 }
 
@@ -404,42 +569,116 @@ function collisionDetection(obj1, obj2) {
 
     if ((obj1.y <= obj2.y + obj2.height && obj1.y + obj1.height > obj2.y + obj2.height) && (topBottom < rightLeft && topBottom < leftRight)) {
         obj1.y = obj2.y + obj2.height;
-        obj1.y_velocity = 0;
-        // numberJumps = 0;
+
+        return true
     }
 
 
     if ((obj1.y + obj1.height >= obj2.y && obj1.y < obj2.y) && (bottomTop < rightLeft && bottomTop < leftRight)) {
         obj1.y = obj2.y - obj1.height;
 
-        if (obj1.name == 'player') {
-            player.jumping = false;
-            numberJumps = 0;
-            playerJumped = false;
-        }
+        return true
 
-        if (obj1.name == 'enemy') {
-            obj1.jumping = false;
-
-        }
-
-
-        obj1.y_velocity = 0;
     }
 
 
     if ((obj1.x + obj1.width >= obj2.x && obj1.x < obj2.x) && (rightLeft < topBottom && rightLeft < bottomTop)) {
         obj1.x = obj2.x - obj1.width;
-        obj1.x_velocity = 0;
+
+        return true
     }
 
 
     if ((obj1.x <= obj2.x + obj2.width && obj1.x + obj1.width > obj2.x + obj2.width) && (leftRight < topBottom && leftRight < bottomTop)) {
         obj1.x = obj2.x + obj2.width;
-        obj1.x_velocity = 0;
+
+        return true
+    }
+
+}
+
+function enemyTracking(distance, dx, dy) {
+    enemy.forEach(attacker => {
+        if (attacker.state === "idle" && attacker.cooldown === 0) {
+            let vx = (dx / distance) * 4;
+            let vy = (dy / distance) * 4;
+
+            if (distance > 150 && distance <= 700) {
+
+                attacker.x += vx;
+                attacker.y += vy;
+            } else if (distance <= 150) {
+
+                attacker.state = "attacking";
+                attacker.attackTimer = 0;
+                attacker.vx = (dx / distance) * 10;
+                attacker.vy = (dy / distance) * 10;
+
+                attacker.preAttackX = attacker.x;
+                attacker.preAttackY = attacker.y;
+
+                attacker.cooldown = 90;
+            }
+        }
+    });
+}
+
+
+
+function playerAttack() {
+
+    if (player.playerAttackCooldown === 0) {
+    
+        player.permanentCooldown = 100;
+        player.playerAttackCooldown = 100;
+
+        let attackRange = 150;
+
+        enemy.forEach(attacker => {
+            let dx = attacker.x - player.x;
+            let dy = attacker.y - player.y;
+            let distance = Math.sqrt(dx * dx + dy * dy);
+
+            if (distance < attackRange) {
+                if (
+                    (player.direction === "right" && dx > 0 && Math.abs(dx) > Math.abs(dy)) ||
+                    (player.direction === "left" && dx < 0 && Math.abs(dx) > Math.abs(dy)) ||
+                    (player.direction === "up" && dy < 0 && Math.abs(dy) > Math.abs(dx)) ||
+                    (player.direction === "down" && dy > 0 && Math.abs(dy) > Math.abs(dx))
+                ) {
+                    attacker.health = attacker.health - player.attackDamage
+                    attacker.state = "returning";
+                    attacker.attackTimer = 0;
+
+                    
+                }
+            }
+        });
     }
 
 }
 
 
+
+function updateCooldown(percent) {
+    
+    let mutiple = player.permanentCooldown/100
+    console.log(player.playerAttackCooldown)
+    percent = percent * mutiple
+
+   
+    const cooldown = document.getElementById("cooldownFill");
+    const accent = document.getElementById("cooldownFillAccent");
+
+
+
+    cooldown.style.width = percent + "%";
+    accent.style.width = percent + "%";
+
+    if (percent == 0) {
+        cooldown.style.width = 100 + "%";
+        accent.style.width = 100 + "%";
+    }
+
+}
 
