@@ -17,6 +17,7 @@ let start = true;
 let rewardType;
 let screen = 1;
 
+
 //list of objects in game
 let grass = []
 let homes = []
@@ -176,25 +177,49 @@ function loop() {
 
 
 function update() {
+
+    
+
     let inGrassSpeed = 1
-
-
     if (start) {
-        screen = 1
-        screenChange(1)
+        screen = 2
+        screenChange(2)
         start = false
     }
     if ((player.y <= -82) && (player.x >= 967) && (player.x <= 1150) && screen === 1) {
         screen = 2
         screenChange(2)
+        player.y = 909
     }
     if ((player.y >= 963) && (player.x >= 933) && (player.x <= 1105) && screen === 2) {
         screen = 1
         screenChange(1)
+        player.y = -60
+    }
+    if ((player.y <= -81) && (player.x >= 996) && (player.x <= 1128) && screen === 2) {
+        screen = 3
+        screenChange(3)
+        player.y = 909
+    }
+
+    if ((player.y >= 976) && (player.x >= 999) && (player.x <= 1137) && screen === 3) {
+        screen = 2
+        screenChange(2)
+        player.y = -69
+        
     }
 
 
 
+
+    //calculate grass so it can effect movement
+    grass.forEach(grass => {
+        if (collisionDetectionOverlap(player, grass)) {
+            inGrassSpeed = 0.7;
+        }
+
+        
+    });
 
 
     //movement
@@ -231,11 +256,8 @@ function update() {
 
 
     //foreach stuff
-    grass.forEach(grass => {
-        if (collisionDetectionOverlap(player, grass)) {
-            inGrassSpeed = 0.7;
-        }
-    });
+
+
 
     enemy.forEach(attacker => {
         if (attacker.cooldown > 0) {
@@ -351,6 +373,7 @@ function update() {
 
 
 function render() {
+
     let scaleFactor = 0.35;
     let scaledWidth = frameWidth * scaleFactor;
     let scaledHeight = frameHeight * scaleFactor;
@@ -387,15 +410,15 @@ function render() {
 
     });
 
-    barrier.forEach(bar => {
-        context.fillStyle = "red";
-        context.fillRect(bar.x, bar.y, bar.width, bar.height)
-    });
+    // barrier.forEach(bar => {
+    //     context.fillStyle = "red";
+    //     context.fillRect(bar.x, bar.y, bar.width, bar.height)
+    // });
 
-    door.forEach(door => {
-        context.fillStyle = "orange";
-        context.fillRect(door.x, door.y, door.width, door.height);
-    });
+    // door.forEach(door => {
+    //     context.fillStyle = "orange";
+    //     context.fillRect(door.x, door.y, door.width, door.height);
+    // });
 
     treasure.forEach(loot => {
 
@@ -413,9 +436,19 @@ function render() {
             treasureImage.src = "img/rewards/coin.png";
         }
 
-        console.log(treasureImage)
+
         context.drawImage(treasureImage, loot.x, loot.y, loot.width, loot.height);
     });
+
+    grass.forEach(grass => {
+        if (collisionDetectionOverlap(player, grass)) {
+            inGrassSpeed = 0.7;
+        }
+        context.fillStyle = "orange";
+        context.fillRect(grass.x, grass.y, grass.width, grass.height);
+        
+    });
+
 
     context.drawImage(
         playerImage,
@@ -478,7 +511,7 @@ function screenChange(screen) {
         case 1:
             bg = new Image();
             bg.src = "img/bg/Homebg.png";
-            player.y = -60
+            
             grass = [
                 createGrass(980, 409, 0, 0),
                 createGrass(1040, 409, 0, 560),
@@ -502,13 +535,13 @@ function screenChange(screen) {
             ]
             break;
         case 2:
-            player.y = 909
+            
 
             grass = [
-                createGrass(1030, 330, 0, 0),
-                createGrass(870, 330, 1155, 0),
-                createGrass(870, 160, 0, 480),
-                createGrass(770, 160, 1255, 480),
+                createGrass(1020, 300, 0, 0),
+                createGrass(860, 300, 1165, 0),
+                createGrass(780, 90, 0, 510),
+                createGrass(810, 90, 1210, 510),
                 createGrass(870, 210, 1155, 785),
                 createGrass(870, 210, 0, 785),
             ];
@@ -525,8 +558,27 @@ function screenChange(screen) {
             bg = new Image();
             // bg.src = "img/bg/bg3.png";
 
-            bg.src = "img/bg/town.png";
+            bg.src = "img/bg/pathways.png";
 
+            break;
+        case 3:
+
+            
+
+            grass = [
+                createGrass(350, 550, 0, 470),
+                createGrass(350, 260, 0, 0),
+                createGrass(1520, 260, 505, 0),
+                createGrass(1355, 230, 505, 465),
+                createGrass(670, 90, 350, 900),
+                createGrass(850, 90, 1170, 900),
+            ]
+            homes = []
+            barrier = []
+            door = []
+            enemy = []
+            bg = new Image();
+            bg.src = "img/bg/town.png";
             break;
         case 101:
             bg = new Image();
@@ -668,7 +720,7 @@ function playerAttack() {
 function updateCooldown(percent) {
 
     let mutiple = player.permanentCooldown / 100
-    console.log(player.playerAttackCooldown)
+
     percent = percent * mutiple
 
 
@@ -699,12 +751,12 @@ function enemyDie(attacker) {
         treasure = [createTreasure(attacker.x, attacker.y, 50, 50, "gem")]
 
         rewardType = Math.floor(Math.random() * (10 - 0 + 1)) + 0;
-     
+
     }
     else {
         treasure = [createTreasure(attacker.x, attacker.y, 50, 50, "coin")]
 
-       
+
 
     }
 
