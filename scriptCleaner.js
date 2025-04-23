@@ -31,7 +31,7 @@ playerImage = new Image();
 
 //image sources
 playerImage.src = 'img/player/idle.png';
-treasureImage.src = "img/items/coin.png";
+treasureImage.src = "img/rewards/coin.png";
 
 
 //objects being made
@@ -305,6 +305,11 @@ function update() {
             }
         }
 
+        if (attacker.health === 0) {
+            attacker.state = "idle"
+
+            enemyDie(attacker);
+        }
 
     });
 
@@ -337,14 +342,6 @@ function update() {
     });
 
 
-    for (let i = enemy.length - 1; i >= 0; i--) {
-        const attacker = enemy[i];
-        if (attacker.health <= 0) {
-            attacker.state = "idle"
-            enemy.splice(i, 1)
-            enemyDie(attacker);
-        }
-    }
 
 
 }
@@ -401,17 +398,22 @@ function render() {
     });
 
     treasure.forEach(loot => {
+
         if (loot.type === "gem") {
             if (rewardType <= 5) {
-                treasureImage.src = "img/rewards/greenGem (2).png";
+                treasureImage.src = "img/rewards/greenGem.png";
+
             }
             else {
                 treasureImage.src = "img/rewards/redGem.png";
+
             }
         }
         else {
             treasureImage.src = "img/rewards/coin.png";
         }
+
+        console.log(treasureImage)
         context.drawImage(treasureImage, loot.x, loot.y, loot.width, loot.height);
     });
 
@@ -475,7 +477,7 @@ function screenChange(screen) {
     switch (screen) {
         case 1:
             bg = new Image();
-            bg.src = "img/bg/bg5.png";
+            bg.src = "img/bg/Homebg.png";
             player.y = -60
             grass = [
                 createGrass(980, 409, 0, 0),
@@ -521,7 +523,9 @@ function screenChange(screen) {
 
 
             bg = new Image();
-            bg.src = "img/bg/bg3.png";
+            // bg.src = "img/bg/bg3.png";
+
+            bg.src = "img/bg/town.png";
 
             break;
         case 101:
@@ -685,17 +689,25 @@ function updateCooldown(percent) {
 
 //enemy dies
 function enemyDie(attacker) {
-    let chance = Math.floor(Math.random() * (10 - 0 + 1)) + 0;
+    enemy.splice(attacker, 1)
 
-    if(chance === 1){
-        treasure.push(createTreasure(attacker.x, attacker.y, 50, 50, "gem"));
-        rewardType = Math.floor(Math.random() * (10 - 0 + 1)) + 0; 
-        
+    let chance = Math.floor(Math.random() * (10 - 0 + 1)) + 0;
+    chance = 1
+
+
+    if (chance === 1) {
+        treasure = [createTreasure(attacker.x, attacker.y, 50, 50, "gem")]
+
+        rewardType = Math.floor(Math.random() * (10 - 0 + 1)) + 0;
+     
     }
-    else{
-        treasure.push(createTreasure(attacker.x, attacker.y, 50, 50, "coin"));
+    else {
+        treasure = [createTreasure(attacker.x, attacker.y, 50, 50, "coin")]
+
+       
+
     }
-    
+
 }
 
 
