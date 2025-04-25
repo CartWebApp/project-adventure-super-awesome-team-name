@@ -21,6 +21,8 @@ let scaleFactor;
 let scaledWidth;
 let scaledHeight;
 
+let firstStorePotionEnter = true;
+
 
 //list of objects in game
 let grass = []
@@ -198,8 +200,8 @@ function update() {
 
     let inGrassSpeed = 1
     if (start) {
-        screen = 105
-        screenChange(105)
+        screen = 3
+        screenChange(3)
         start = false
     }
     if ((player.y <= -82) && (player.x >= 967) && (player.x <= 1150) && screen === 1) {
@@ -273,7 +275,7 @@ function update() {
 
     //foreach stuff
 
-    
+
 
 
 
@@ -357,25 +359,7 @@ function update() {
         collisionDetection(player, bar)
     });
 
-    door.forEach(door => {
-        if (collisionDetectionOverlap(player, door)) {
-            document.addEventListener('keyup', (e) => {
-                if (e.code === "KeyE") {
 
-                    switch (door.houseNum) {
-                        case 1:
-                            screen = 101
-                            screenChange(101)
-                        case 5:
-                            console.log("test")
-                            screen = 105
-                            screenChange(105)
-                    }
-
-                }
-            });
-        }
-    });
 
     treasure.forEach(loot => {
         if (collisionDetectionOverlap(player, loot)) {
@@ -395,49 +379,157 @@ function update() {
 
 }
 
-document.addEventListener('keyup', (e) => {
 
-    
+
+// document.addEventListener('keyup', (e) => {
+//     if (e.code === "KeyE") {
+//         interactable.forEach(int => {
+//             if (collisionDetectionOverlap(player, int)) {
+//                 switch (int.type) {
+//                     case "shelf":
+//                         typeText("regularText", "It's just a shelf");
+//                         break;
+//                     case "book":
+//                         typeText("regularText", "book");
+//                         break;
+//                     case "bag":
+//                         typeText("regularText", "bag");
+//                         break;
+//                     case "desk":
+//                         // typeText("regularText", "desk");
+
+//                         if(firstStorePotionEnter === true){
+//                             typeText("regularText", "Hello, I am Jeremy the potion maker. I can make you potions to help you on your journey. If you have the money of course. Press E to browse our selection of potions");
+//                             firstStorePotionEnter = false;
+
+//                         }
+//                         else{
+//                             typeText("regularText", "Welcome back, would you like to browse our selection of potions?");
+
+//                         }
+
+
+
+//                         break;
+//                 }
+//             }
+//         });
+
+//         door.forEach(door => {
+//             if (collisionDetectionOverlap(player, door)) {
+//                 switch (door.houseNum) {
+//                     case 1:
+//                         screen = 101;
+//                         screenChange(101);
+//                         break;
+//                     case 5:
+//                         console.log("test");
+//                         screen = 105;
+//                         screenChange(105);
+//                         break;
+//                 }
+//             }
+//         });
+//     }
+// });
+
+
+
+let isBrowsingShop = false;
+
+document.addEventListener('keyup', (e) => {
     if (e.code === "KeyE") {
+
+
         interactable.forEach(int => {
             if (collisionDetectionOverlap(player, int)) {
                 switch (int.type) {
                     case "shelf":
-                        console.log("shelf")
+                        typeText("regularText", "It's just a shelf");
                         break;
                     case "book":
-                        console.log("book")
+                        typeText("regularText", "book");
                         break;
                     case "bag":
-                        console.log("bag")
+                        typeText("regularText", "bag");
                         break;
                     case "desk":
-                        console.log("desk")
+
+                        if (isBrowsingShop) {
+
+                            openShop();
+                            return;
+                        }
+
+                        if (firstStorePotionEnter === true) {
+                            typeText("regularText", "Hello, I am Jeremy the potion maker. I can make you potions to help you on your journey. If you have the money of course. Press E to browse our selection of potions");
+                            firstStorePotionEnter = false;
+                        } else {
+                            typeText("regularText", "Welcome back, would you like to browse our selection of potions?");
+                        }
+                        isBrowsingShop = true;
                         break;
                 }
             }
         });
-        
 
+        door.forEach(door => {
+            if (collisionDetectionOverlap(player, door)) {
+                switch (door.houseNum) {
+                    case 1:
+                        screen = 101;
+                        screenChange(101);
+                        break;
+                    case 5:
+                        console.log("test");
+                        screen = 105;
+                        screenChange(105);
+                        break;
+                }
+            }
+        });
     }
 });
 
+function openShop() {
+    typeText("regularText", "Welcome to the potion shop! Here are the items available:");
+
+    console.log("Shop interface opened");
+}
+
+
+
+function typeText(elementId, text, delay = 50) {
+    const element = document.getElementById(elementId);
+    element.textContent = "";
+    let index = 0;
+
+    function typeNextChar() {
+        if (index < text.length) {
+            element.textContent += text[index];
+            index++;
+            setTimeout(typeNextChar, delay);
+        }
+    }
+
+    typeNextChar();
+}
 
 
 
 
 function render() {
 
-    
 
-    if(screen === 105){
-        scaleFactor = 0.7; 
+
+    if (screen === 105) {
+        scaleFactor = 0.7;
     }
-    else{
-        scaleFactor = 0.35;
+    else {
+        scaleFactor = 0.4;
     }
 
-    
+
     scaledWidth = frameWidth * scaleFactor;
     scaledHeight = frameHeight * scaleFactor;
 
@@ -646,7 +738,7 @@ function screenChange(screen) {
             ]
             homes = []
             barrier = [
-                createBarrier(90, 10, 1050, 660)
+                createBarrier(90, 10, 1050, 670)
             ]
             door = [
                 createDoor(90, 90, 1050, 670, 5)
@@ -698,8 +790,10 @@ function screenChange(screen) {
 
             ]
 
+            player.y = 925
 
-            console.log(player.height)
+            hudChange("room")
+
             break;
     }
 
@@ -875,6 +969,13 @@ function enemyDie(attacker) {
 
 }
 
+function hudChange(form) {
+    if (form === "room") {
+        document.getElementById("rightSide").style.animation = "stuff 2.5s forwards"
+        setTimeout(() => document.getElementById("leftSide").style.animation = "Shrink 2s forwards", 800)
+        setTimeout(() => document.getElementById("right").style.animation = "textWidth 1s forwards", 1200)
+    }
+}
 
 
 

@@ -11,69 +11,84 @@
 
     <canvas id="mainCanvas"></canvas>
 
-    <section id="hud">
-        <section id="leftSide">
-            <section id="bars">
-                <div id="healthBarContainer">
-                    <img src="img/hud/heart2.png" alt="heart">
-                    <div id="healthBar">
-                        <div id="healthFill"></div>
+    <main>
+        <section id="hud">
+            <section id="leftSide">
+                <section id="bars">
+                    <div id="healthBarContainer">
+                        <img src="img/hud/heart2.png" alt="heart">
+                        <div id="healthBar">
+                            <div id="healthFill"></div>
+                        </div>
                     </div>
-                </div>
-                <div id="attackCooldownContainer">
-                    <img src="img/hud/sword.png" alt="sword">
-                    <div id="cooldownBar">
-                        <div id="cooldownFillAccent"></div>
-                        <div id="cooldownFill"></div>
+                    <div id="attackCooldownContainer">
+                        <img src="img/hud/sword.png" alt="sword">
+                        <div id="cooldownBar">
+                            <div id="cooldownFillAccent"></div>
+                            <div id="cooldownFill"></div>
+                        </div>
                     </div>
-                </div>
-                <div id="levelContainer">
-                    <img src="img/hud/bolt.png" alt="lightning">
-                    <div id="levelBar">
-                        <div id="levelFill"></div>
+                    <div id="levelContainer">
+                        <img src="img/hud/bolt.png" alt="lightning">
+                        <div id="levelBar">
+                            <div id="levelFill"></div>
+                        </div>
                     </div>
+                </section>
+                <div id="coins">
+                    <p id="moneyGained">0</p>
+                    <img src="img/hud/coin.svg" alt="coin">
                 </div>
+
             </section>
-            <div id="coins">
-                <p id="moneyGained">0</p>
-                <img src="img/hud/coin.svg" alt="coin">
-            </div>
+            <section id="rightSide">
 
-        </section>
-        <section id="rightSide">
+                <div id="bottomSpot">
+                    <div id="column">
+                        <div id="left">
+                            <img src="img/hud/faces/jericho.png" alt="jericho" id="faces">
 
-            <div id="bottomSpot">
-                <div id="column">
-                    <div id="left">
-                        <img src="img/hud/faces/jericho.png" alt="jericho" id="faces">
-
+                        </div>
+                        <div id="topSpot">
+                            <p id="speakerName">Jericho</p>
+                        </div>
                     </div>
-                    <div id="topSpot">
-                        <p id="speakerName">Jericho</p>
-                    </div>
-                </div>
-                <div id="right">
-                    <div id="choiceOne">
-                        <p id="choiceTextone">
+                    <div id="right">
+                        <p id="regularText"></p>
+                        <div id="choiceOne">
+                            <p id="choiceTextone">
 
-                        </p>
-                    </div>
-                    <div id="choiceTwo">
-                        <p id="choiceTexttwo">
+                            </p>
+                        </div>
+                        <div id="choiceTwo">
+                            <p id="choiceTexttwo">
 
-                        </p>
-                    </div>
-                    <div id="choiceThree">
-                        <p id="choiceTextthree ">
+                            </p>
+                        </div>
+                        <div id="choiceThree">
+                            <p id="choiceTextthree ">
 
-                        </p>
+                            </p>
+                        </div>
                     </div>
                 </div>
-            </div>
 
+            </section>
         </section>
+
+
+    </main>
+    <section id="PotionShop">
+        <div>
+            <img src="img/rewards/coin.png" alt="placeholkder">
+        </div>
+        <div>
+            <p>This is bla bla</p>
+            <p>it does bla bla</p>
+            <p>it cost bla bla</p>
+            <button>buy bla bla</button>
+        </div>
     </section>
-
     <script src="scriptCleaner.js"></script>
     <script src="hud.js"></script>
 </body>
