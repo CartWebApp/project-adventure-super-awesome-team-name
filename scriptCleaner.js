@@ -17,6 +17,10 @@ let start = true;
 let rewardType;
 let screen = 1;
 
+let scaleFactor;
+let scaledWidth;
+let scaledHeight;
+
 
 //list of objects in game
 let grass = []
@@ -24,6 +28,7 @@ let homes = []
 let barrier = []
 let enemy = []
 let treasure = [];
+let interactable = [];
 
 //images to add to game
 let treasureImage = new Image();
@@ -41,7 +46,7 @@ player = {
     height: frameHeight,
     width: frameWidth,
     x: 1440,
-    y: 0,
+    y: 500,
     playerAttackCooldown: 0,
     permanentCooldown: 0,
     attackedTime: 0,
@@ -128,6 +133,17 @@ function createTreasure(x, y, width, height, type) {
     };
 }
 
+function createInteractable(width, height, x, y, type) {
+    return {
+        width,
+        height,
+        x,
+        y,
+        type,
+
+    };
+}
+
 //movement
 controller = {
     left: false,
@@ -178,12 +194,12 @@ function loop() {
 
 function update() {
 
-    
+
 
     let inGrassSpeed = 1
     if (start) {
-        screen = 2
-        screenChange(2)
+        screen = 105
+        screenChange(105)
         start = false
     }
     if ((player.y <= -82) && (player.x >= 967) && (player.x <= 1150) && screen === 1) {
@@ -206,7 +222,7 @@ function update() {
         screen = 2
         screenChange(2)
         player.y = -69
-        
+
     }
 
 
@@ -218,7 +234,7 @@ function update() {
             inGrassSpeed = 0.7;
         }
 
-        
+
     });
 
 
@@ -256,6 +272,8 @@ function update() {
 
 
     //foreach stuff
+
+    
 
 
 
@@ -343,8 +361,17 @@ function update() {
         if (collisionDetectionOverlap(player, door)) {
             document.addEventListener('keyup', (e) => {
                 if (e.code === "KeyE") {
-                    screen = 101
-                    screenChange(101)
+
+                    switch (door.houseNum) {
+                        case 1:
+                            screen = 101
+                            screenChange(101)
+                        case 5:
+                            console.log("test")
+                            screen = 105
+                            screenChange(105)
+                    }
+
                 }
             });
         }
@@ -368,15 +395,51 @@ function update() {
 
 }
 
+document.addEventListener('keyup', (e) => {
+
+    
+    if (e.code === "KeyE") {
+        interactable.forEach(int => {
+            if (collisionDetectionOverlap(player, int)) {
+                switch (int.type) {
+                    case "shelf":
+                        console.log("shelf")
+                        break;
+                    case "book":
+                        console.log("book")
+                        break;
+                    case "bag":
+                        console.log("bag")
+                        break;
+                    case "desk":
+                        console.log("desk")
+                        break;
+                }
+            }
+        });
+        
+
+    }
+});
+
 
 
 
 
 function render() {
 
-    let scaleFactor = 0.35;
-    let scaledWidth = frameWidth * scaleFactor;
-    let scaledHeight = frameHeight * scaleFactor;
+    
+
+    if(screen === 105){
+        scaleFactor = 0.7; 
+    }
+    else{
+        scaleFactor = 0.35;
+    }
+
+    
+    scaledWidth = frameWidth * scaleFactor;
+    scaledHeight = frameHeight * scaleFactor;
 
     player.width = scaledWidth;
     player.height = scaledHeight;
@@ -420,6 +483,11 @@ function render() {
     //     context.fillRect(door.x, door.y, door.width, door.height);
     // });
 
+    // interactable.forEach(int => {
+    //     context.fillStyle = "purple";
+    //     context.fillRect(int.x, int.y, int.width, int.height)
+    // });
+
     treasure.forEach(loot => {
 
         if (loot.type === "gem") {
@@ -444,9 +512,9 @@ function render() {
         if (collisionDetectionOverlap(player, grass)) {
             inGrassSpeed = 0.7;
         }
-        context.fillStyle = "orange";
-        context.fillRect(grass.x, grass.y, grass.width, grass.height);
-        
+        // context.fillStyle = "orange";
+        // context.fillRect(grass.x, grass.y, grass.width, grass.height);
+
     });
 
 
@@ -511,7 +579,7 @@ function screenChange(screen) {
         case 1:
             bg = new Image();
             bg.src = "img/bg/Homebg.png";
-            
+
             grass = [
                 createGrass(980, 409, 0, 0),
                 createGrass(1040, 409, 0, 560),
@@ -533,17 +601,20 @@ function screenChange(screen) {
             door = [
                 createDoor(90, 90, 205, 370, 1)
             ]
+            interactable = []
+
             break;
         case 2:
-            
+
 
             grass = [
                 createGrass(1020, 300, 0, 0),
                 createGrass(860, 300, 1165, 0),
                 createGrass(780, 90, 0, 510),
                 createGrass(810, 90, 1210, 510),
-                createGrass(870, 210, 1155, 785),
-                createGrass(870, 210, 0, 785),
+                createGrass(1030, 210, 0, 785),
+                createGrass(830, 210, 1190, 785),
+
             ];
             homes = []
             barrier = []
@@ -553,7 +624,7 @@ function screenChange(screen) {
             enemy = [
                 createEnemy(100, 100, 100, 480, "img/enemies/bugs/blueBug.png")
             ]
-
+            interactable = []
 
             bg = new Image();
             // bg.src = "img/bg/bg3.png";
@@ -563,7 +634,7 @@ function screenChange(screen) {
             break;
         case 3:
 
-            
+
 
             grass = [
                 createGrass(350, 550, 0, 470),
@@ -574,9 +645,15 @@ function screenChange(screen) {
                 createGrass(850, 90, 1170, 900),
             ]
             homes = []
-            barrier = []
-            door = []
+            barrier = [
+                createBarrier(90, 10, 1050, 660)
+            ]
+            door = [
+                createDoor(90, 90, 1050, 670, 5)
+            ]
             enemy = []
+            interactable = []
+
             bg = new Image();
             bg.src = "img/bg/town.png";
             break;
@@ -587,6 +664,42 @@ function screenChange(screen) {
             homes = [];
             barrier = [];
             door = [];
+            interactable = []
+            break;
+        case 105:
+            bg = new Image();
+            bg.src = "img/bg/rooms/potion.png";
+            grass = [];
+            homes = [];
+            barrier = [
+                createBarrier(370, 260, 830, 220),
+                createBarrier(1910, 10, 59, 220),
+                createBarrier(25, 700, 59, 220),
+                createBarrier(25, 700, 1944, 220),
+
+                createBarrier(280, 320, 59, 590),
+                createBarrier(200, 211, 1750, 709),
+
+                createBarrier(525, 10, 340, 885),
+                createBarrier(525, 10, 1165, 885),
+
+                createBarrier(10, 100, 1165, 885),
+                createBarrier(10, 100, 855, 885),
+            ];
+            door = [];
+            interactable = [
+                createInteractable(394, 160, 115, 230, "shelf"),
+                createInteractable(394, 160, 1526, 230, "shelf"),
+
+                createInteractable(260, 160, 80, 585, "book"),
+                createInteractable(200, 200, 1745, 705, "bag"),
+
+                createInteractable(370, 160, 830, 480, "desk"),
+
+            ]
+
+
+            console.log(player.height)
             break;
     }
 
