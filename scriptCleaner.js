@@ -381,57 +381,7 @@ function update() {
 
 
 
-// document.addEventListener('keyup', (e) => {
-//     if (e.code === "KeyE") {
-//         interactable.forEach(int => {
-//             if (collisionDetectionOverlap(player, int)) {
-//                 switch (int.type) {
-//                     case "shelf":
-//                         typeText("regularText", "It's just a shelf");
-//                         break;
-//                     case "book":
-//                         typeText("regularText", "book");
-//                         break;
-//                     case "bag":
-//                         typeText("regularText", "bag");
-//                         break;
-//                     case "desk":
-//                         // typeText("regularText", "desk");
 
-//                         if(firstStorePotionEnter === true){
-//                             typeText("regularText", "Hello, I am Jeremy the potion maker. I can make you potions to help you on your journey. If you have the money of course. Press E to browse our selection of potions");
-//                             firstStorePotionEnter = false;
-
-//                         }
-//                         else{
-//                             typeText("regularText", "Welcome back, would you like to browse our selection of potions?");
-
-//                         }
-
-
-
-//                         break;
-//                 }
-//             }
-//         });
-
-//         door.forEach(door => {
-//             if (collisionDetectionOverlap(player, door)) {
-//                 switch (door.houseNum) {
-//                     case 1:
-//                         screen = 101;
-//                         screenChange(101);
-//                         break;
-//                     case 5:
-//                         console.log("test");
-//                         screen = 105;
-//                         screenChange(105);
-//                         break;
-//                 }
-//             }
-//         });
-//     }
-// });
 
 
 
@@ -493,10 +443,16 @@ document.addEventListener('keyup', (e) => {
 
 function openShop() {
     typeText("regularText", "Welcome to the potion shop! Here are the items available:");
-
-    console.log("Shop interface opened");
+    document.getElementById("PotionShop").classList.add("show");
+    document.getElementById("PotionShop").classList.remove("hidden");
 }
 
+document.getElementById("Close").addEventListener("click", () => {
+    document.getElementById("PotionShop").classList.remove("show");
+    document.getElementById("PotionShop").classList.add("hidden");
+    isBrowsingShop = false;
+    typeText("regularText", "Thank you for visiting the potion shop! If you need anything else, just let me know.");
+})
 
 
 function typeText(elementId, text, delay = 50) {
