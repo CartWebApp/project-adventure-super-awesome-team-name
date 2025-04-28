@@ -16,6 +16,8 @@ let lastTime = 0;
 let start = true;
 let rewardType;
 let screen = 1;
+let isTyping = false;
+let currentText = "";
 
 let scaleFactor;
 let scaledWidth;
@@ -189,7 +191,7 @@ controller = {
 function loop() {
     update();   // Handle game state updates
     render();   // Draw everything to the screen
-
+    
     requestAnimationFrame(loop); // Loop continues on the next frame
 }
 
@@ -227,7 +229,17 @@ function update() {
 
     }
 
+    if ((player.y >= 967) && (player.x >= 865) && (player.x <= 1056.5) && screen === 105) {
+        screen = 3
+        screenChange(3)
+        player.y = 680
+        document.getElementById("faces").src = "img/hud/faces/jericho.png";
+        document.getElementById("speakerName").innerText = "Jericho";
+        typeText("regularText", "");
+    }
 
+
+      
 
 
     //calculate grass so it can effect movement
@@ -387,11 +399,17 @@ function update() {
 
 let isBrowsingShop = false;
 
-document.addEventListener('keyup', (e) => {
+document.addEventListener("keyup", (e) => {
     if (e.code === "KeyE") {
 
+        if (isTyping) {
+            isTyping = false;
+            const element = document.getElementById("regularText");
+            element.textContent = currentText;
+            return;
+        }
 
-        interactable.forEach(int => {
+        interactable.forEach((int) => {
             if (collisionDetectionOverlap(player, int)) {
                 switch (int.type) {
                     case "shelf":
@@ -410,7 +428,9 @@ document.addEventListener('keyup', (e) => {
                             openShop();
                             return;
                         }
-
+                        document.getElementById("faces").src = "img/hud/faces/jeremy.png";
+                        document.getElementById("speakerName").innerText = "Jeremy";
+                        
                         if (firstStorePotionEnter === true) {
                             typeText("regularText", "Hello, I am Jeremy the potion maker. I can make you potions to help you on your journey. If you have the money of course. Press E to browse our selection of potions");
                             firstStorePotionEnter = false;
@@ -423,7 +443,7 @@ document.addEventListener('keyup', (e) => {
             }
         });
 
-        door.forEach(door => {
+        door.forEach((door) => {
             if (collisionDetectionOverlap(player, door)) {
                 switch (door.houseNum) {
                     case 1:
@@ -441,30 +461,53 @@ document.addEventListener('keyup', (e) => {
     }
 });
 
+
 function openShop() {
     typeText("regularText", "Welcome to the potion shop! Here are the items available:");
     document.getElementById("PotionShop").classList.add("show");
     document.getElementById("PotionShop").classList.remove("hidden");
+
 }
 
-document.getElementById("Close").addEventListener("click", () => {
+function closeShop() {
     document.getElementById("PotionShop").classList.remove("show");
     document.getElementById("PotionShop").classList.add("hidden");
     isBrowsingShop = false;
+}
+
+document.getElementById("Close").addEventListener("click", () => {
+    closeShop()
     typeText("regularText", "Thank you for visiting the potion shop! If you need anything else, just let me know.");
+    if (isTyping) {
+        isTyping = false;
+        const element = document.getElementById("regularText");
+        element.textContent = currentText;
+    }
 })
 
 
+
 function typeText(elementId, text, delay = 50) {
+
     const element = document.getElementById(elementId);
+    currentText = text;
     element.textContent = "";
     let index = 0;
+    isTyping = true;
 
     function typeNextChar() {
+        if (!isTyping) {
+
+            element.textContent = currentText;
+            return;
+        }
+
         if (index < text.length) {
             element.textContent += text[index];
             index++;
             setTimeout(typeNextChar, delay);
+        } else {
+            isTyping = false;
         }
     }
 
@@ -704,6 +747,9 @@ function screenChange(screen) {
 
             bg = new Image();
             bg.src = "img/bg/town.png";
+
+            hudChange("town")
+
             break;
         case 101:
             bg = new Image();
@@ -926,10 +972,16 @@ function enemyDie(attacker) {
 }
 
 function hudChange(form) {
+    
     if (form === "room") {
         document.getElementById("rightSide").style.animation = "stuff 2.5s forwards"
         setTimeout(() => document.getElementById("leftSide").style.animation = "Shrink 2s forwards", 800)
         setTimeout(() => document.getElementById("right").style.animation = "textWidth 1s forwards", 1200)
+    }
+
+    if (form === "town") {
+        document.getElementById("rightSide").style.animation = "gone 2.5s forwards"
+        setTimeout(() => document.getElementById("leftSide").style.animation = "grow 2s forwards", 800)
     }
 }
 
