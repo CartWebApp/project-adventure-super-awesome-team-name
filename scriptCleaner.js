@@ -34,6 +34,9 @@ let enemy = []
 let treasure = [];
 let interactable = [];
 
+//inventory
+let inventory = [];
+
 //images to add to game
 let treasureImage = new Image();
 let bg = new Image();
@@ -49,8 +52,8 @@ player = {
     direction: "left",
     height: frameHeight,
     width: frameWidth,
-    x: 1440,
-    y: 500,
+    x: 1000,
+    y: 900,
     playerAttackCooldown: 0,
     permanentCooldown: 0,
     attackedTime: 0,
@@ -202,8 +205,8 @@ function update() {
 
     let inGrassSpeed = 1
     if (start) {
-        screen = 3
-        screenChange(3)
+        screen = 105
+        screenChange(105)
         start = false
     }
     if ((player.y <= -82) && (player.x >= 967) && (player.x <= 1150) && screen === 1) {
@@ -466,6 +469,7 @@ function openShop() {
     typeText("regularText", "Welcome to the potion shop! Here are the items available:");
     document.getElementById("PotionShop").classList.add("show");
     document.getElementById("PotionShop").classList.remove("hidden");
+    document.getElementById("shopCoin").innerText = player.money
 
 }
 
@@ -792,7 +796,9 @@ function screenChange(screen) {
 
             ]
 
-            player.y = 925
+            // player.y = 925
+
+            player.y = 525
 
             hudChange("room")
 
@@ -985,7 +991,28 @@ function hudChange(form) {
     }
 }
 
+document.getElementById("potionHealing").addEventListener("click", () => {
+    if(player.money >= 5){
+        player.money = player.money - 5
+        document.getElementById("shopCoin").innerText = player.money
+        typeText("regularText", "You bought a healing potion!")
+        if (isTyping) {
+            isTyping = false;
+            const element = document.getElementById("regularText");
+            element.textContent = currentText;
+        }
 
+        inventory.push("healingPotion")
+    }
+    else{
+        typeText("regularText", "You don't have enough money!")
+        if (isTyping) {
+            isTyping = false;
+            const element = document.getElementById("regularText");
+            element.textContent = currentText;
+        }
+    }
+})
 
 window.addEventListener("keydown", controller.keyListener);
 window.addEventListener("keyup", controller.keyListener);
