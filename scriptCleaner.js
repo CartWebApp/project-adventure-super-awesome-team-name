@@ -47,6 +47,8 @@ playerImage.src = 'img/player/idle.png';
 treasureImage.src = "img/rewards/coin.png";
 
 
+
+
 //objects being made
 player = {
     direction: "left",
@@ -61,7 +63,7 @@ player = {
     attackDamage: 100,
     defense: 0,
     health: 100,
-    money: 0
+    money: 100
 };
 
 function createEnemy(width, height, xPosition, yPosition, Enemyimage) {
@@ -190,11 +192,19 @@ controller = {
 };
 
 
+//event listeners for the game
+document.getElementById("potionHealing").addEventListener("click", () => potionBuy("heal"));
+document.getElementById("potionShield").addEventListener("click", () => potionBuy("shield"));
+document.getElementById("potionSpeed").addEventListener("click", () => potionBuy("speed"));
+document.getElementById("potionStrength").addEventListener("click", () => potionBuy("strength"));
+
+
+
 //directs stuff
 function loop() {
     update();   // Handle game state updates
     render();   // Draw everything to the screen
-    
+
     requestAnimationFrame(loop); // Loop continues on the next frame
 }
 
@@ -242,7 +252,7 @@ function update() {
     }
 
 
-      
+
 
 
     //calculate grass so it can effect movement
@@ -433,7 +443,7 @@ document.addEventListener("keyup", (e) => {
                         }
                         document.getElementById("faces").src = "img/hud/faces/jeremy.png";
                         document.getElementById("speakerName").innerText = "Jeremy";
-                        
+
                         if (firstStorePotionEnter === true) {
                             typeText("regularText", "Hello, I am Jeremy the potion maker. I can make you potions to help you on your journey. If you have the money of course. Press E to browse our selection of potions");
                             firstStorePotionEnter = false;
@@ -461,6 +471,46 @@ document.addEventListener("keyup", (e) => {
                 }
             }
         });
+    }
+
+    if (e.code === "KeyI") {
+        document.getElementById("inventory").classList.toggle("show")
+        document.getElementById("inventory").classList.toggle("hidden")
+        let healingPotion = 0;
+        let shieldPotion = 0;
+        let speedPotion = 0;
+        let strengthPotion = 0;
+        for (let i = 0; i < inventory.length; i++) {
+            if (inventory[i] === "healingPotion") {
+                healingPotion++
+            }
+
+            if (inventory[i] === "shieldPotion") {
+                shieldPotion++
+            }
+            if (inventory[i] === "speedPotion") {
+                speedPotion++
+            }
+            if (inventory[i] === "strengthPotion") {
+                strengthPotion++
+            }
+        }
+
+        if (healingPotion > 0) {
+            document.getElementById("healingPotionInventory").style.visibility = "visible"
+        }
+
+        if (shieldPotion > 0) {
+            document.getElementById("shieldPotionInventory").style.visibility = "visible"
+        }
+
+        if (speedPotion > 0) {
+            document.getElementById("speedPotionInventory").style.visibility = "visible"
+        }
+
+        if (strengthPotion > 0) {
+            document.getElementById("strengthPotionInventory").style.visibility = "visible"
+        }
     }
 });
 
@@ -978,7 +1028,7 @@ function enemyDie(attacker) {
 }
 
 function hudChange(form) {
-    
+
     if (form === "room") {
         document.getElementById("rightSide").style.animation = "stuff 2.5s forwards"
         setTimeout(() => document.getElementById("leftSide").style.animation = "Shrink 2s forwards", 800)
@@ -991,28 +1041,102 @@ function hudChange(form) {
     }
 }
 
-document.getElementById("potionHealing").addEventListener("click", () => {
-    if(player.money >= 5){
-        player.money = player.money - 5
-        document.getElementById("shopCoin").innerText = player.money
-        typeText("regularText", "You bought a healing potion!")
-        if (isTyping) {
-            isTyping = false;
-            const element = document.getElementById("regularText");
-            element.textContent = currentText;
-        }
 
-        inventory.push("healingPotion")
-    }
-    else{
-        typeText("regularText", "You don't have enough money!")
-        if (isTyping) {
-            isTyping = false;
-            const element = document.getElementById("regularText");
-            element.textContent = currentText;
+
+
+
+
+function potionBuy(type) {
+    console.log("test")
+    if (type === "heal") {
+        if (player.money >= 5) {
+            player.money = player.money - 5
+            document.getElementById("shopCoin").innerText = player.money
+            typeText("regularText", "You bought a healing potion!")
+            if (isTyping) {
+                isTyping = false;
+                const element = document.getElementById("regularText");
+                element.textContent = currentText;
+            }
+
+            inventory.push("healingPotion")
+        }
+        else {
+            typeText("regularText", "You don't have enough money!")
+            if (isTyping) {
+                isTyping = false;
+                const element = document.getElementById("regularText");
+                element.textContent = currentText;
+            }
         }
     }
-})
+    else if (type === "shield") {
+        if (player.money >= 5) {
+            player.money = player.money - 5
+            document.getElementById("shopCoin").innerText = player.money
+            typeText("regularText", "You bought a shield potion!")
+            if (isTyping) {
+                isTyping = false;
+                const element = document.getElementById("regularText");
+                element.textContent = currentText;
+            }
+
+            inventory.push("shieldPotion")
+        }
+        else {
+            typeText("regularText", "You don't have enough money!")
+            if (isTyping) {
+                isTyping = false;
+                const element = document.getElementById("regularText");
+                element.textContent = currentText;
+            }
+        }
+    }
+    else if (type === "speed") {
+        if (player.money >= 5) {
+            player.money = player.money - 5
+            document.getElementById("shopCoin").innerText = player.money
+            typeText("regularText", "You bought a speed potion!")
+            if (isTyping) {
+                isTyping = false;
+                const element = document.getElementById("regularText");
+                element.textContent = currentText;
+            }
+
+            inventory.push("speedPotion")
+        }
+        else {
+            typeText("regularText", "You don't have enough money!")
+            if (isTyping) {
+                isTyping = false;
+                const element = document.getElementById("regularText");
+                element.textContent = currentText;
+            }
+        }
+    }
+    else if (type === "strength") {
+        if (player.money >= 5) {
+            player.money = player.money - 5
+            document.getElementById("shopCoin").innerText = player.money
+            typeText("regularText", "You bought a strength potion!")
+            if (isTyping) {
+                isTyping = false;
+                const element = document.getElementById("regularText");
+                element.textContent = currentText;
+            }
+
+            inventory.push("strengthPotion")
+        }
+        else {
+            typeText("regularText", "You don't have enough money!")
+            if (isTyping) {
+                isTyping = false;
+                const element = document.getElementById("regularText");
+                element.textContent = currentText;
+            }
+        }
+    }
+}
 
 window.addEventListener("keydown", controller.keyListener);
 window.addEventListener("keyup", controller.keyListener);

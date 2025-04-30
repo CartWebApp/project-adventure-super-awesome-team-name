@@ -3,14 +3,14 @@
 @font-face {
     font-family: inventoryFont;
     src: url('font/Inventory.ttf')
-  }
-  
+}
+
 
 * {
     font-family: "Jersey 15", sans-serif;
     font-weight: 400;
     font-style: normal;
-    
+
 }
 
 #mainCanvas {
@@ -24,7 +24,7 @@ body {
     overflow-x: hidden;
 }
 
-main{
+main {
     height: 100%;
     display: flex;
     justify-content: flex-end;
@@ -32,7 +32,7 @@ main{
 }
 
 #hud {
-    
+
     z-index: 4;
     position: relative;
     height: 300px;
@@ -41,12 +41,12 @@ main{
     display: flex;
     flex-flow: row;
     justify-content: space-between;
-    
+
     /* animation: stuff 5s forwards; */
 }
 
 
-  
+
 
 #leftSide {
     display: flex;
@@ -63,15 +63,26 @@ main{
 }
 
 @keyframes Shrink {
-    0% {left: 0;}
-    100% {left: -30%}
+    0% {
+        left: 0;
+    }
+
+    100% {
+        left: -30%
+    }
 }
 
 @keyframes grow {
-    0% {left: -30%}
-    100% {left: 0;}
-    
+    0% {
+        left: -30%
+    }
+
+    100% {
+        left: 0;
+    }
+
 }
+
 #healthBarContainer {
 
     position: relative;
@@ -95,7 +106,7 @@ main{
     border: solid 5px black;
     border-left: solid 10px black;
     margin-left: 51px;
-   margin-bottom: 11px;
+    margin-bottom: 11px;
 }
 
 #healthBar>div[id*='bar'] {
@@ -126,16 +137,16 @@ main{
     border: solid 5px black;
     border-left: solid 10px black;
     margin-left: 25px;
-    
+
 }
 
-#healthFill{
+#healthFill {
     width: 100%;
     /* background-image: linear-gradient(to right, #48953F , #62A95A, #CAD15F,#FFC75F, #F07B61, #E05C3E, #B52E2E); */
     background-color: rgb(214, 69, 69);
 }
 
-#cooldownFill{
+#cooldownFill {
     height: 92%;
     width: 100%;
     background-color: #69C11F;
@@ -163,7 +174,7 @@ main{
 
 #levelContainer>img {
     height: 72px;
-position: absolute;
+    position: absolute;
 
 }
 
@@ -173,14 +184,14 @@ position: absolute;
     border: solid 5px black;
     border-left: solid 20px black;
     margin-left: 20px;
-    
+
 
 
 }
 
-#levelFill{
+#levelFill {
     height: 35px;
-    background-color: #FFC75F; 
+    background-color: #FFC75F;
 }
 
 #moneyGained {
@@ -208,9 +219,9 @@ position: absolute;
     /* transform: scale(0.8); */
 }
 
-#rightside{
+#rightside {
     margin-right: 0px;
-    
+
     position: absolute;
     display: flex;
     align-items: center;
@@ -223,45 +234,55 @@ position: absolute;
 }
 
 @keyframes stuff {
-    0% {width: 30%;
-    right: -620px;}
-    100% {width:98%;
-    right: 0px;}
+    0% {
+        width: 30%;
+        right: -620px;
+    }
+
+    100% {
+        width: 98%;
+        right: 0px;
+    }
 }
 
 @keyframes gone {
-    0% {width:98%;
-        right: 0px;}
-    100% {width: 30%;
-    right: -620px;}
-    
+    0% {
+        width: 98%;
+        right: 0px;
+    }
+
+    100% {
+        width: 30%;
+        right: -620px;
+    }
+
 }
 
 
-#bottomSpot{
+#bottomSpot {
     display: flex;
     flex-flow: row nowrap;
     width: fit-content;
-}   
+}
 
-#left{
+#left {
     border: 2px solid #095f79;
 
     border-radius: 10px;
     width: 106px;
     height: 106px;
-    
-    
+
+
 }
 
-#left > img{
+#left>img {
     width: 100%;
     height: 100%;
-    
-   
+
+
 }
 
-#right{
+#right {
     border: 2px solid #095f79;
     border-radius: 10px;
     width: 400px;
@@ -271,16 +292,16 @@ position: absolute;
 }
 
 @keyframes textWidth {
-    0%{
+    0% {
         width: 400px;
     }
 
-    100%{
+    100% {
         width: 1800px;
     }
 }
 
-#topSpot{
+#topSpot {
     border: 2px solid #012631;
     border-radius: 5px;
     width: 120px;
@@ -288,13 +309,13 @@ position: absolute;
     text-align: center;
 }
 
-#speakerName{
+#speakerName {
     color: white;
     font-size: 40px;
     margin: 0;
 }
 
-#column{
+#column {
     display: flex;
     flex-flow: column;
     justify-content: center;
@@ -302,20 +323,20 @@ position: absolute;
     width: 150px;
 }
 
-#regularText{
+#regularText {
     color: white;
     font-size: 50px;
     margin: 0;
     margin-left: 10px;
 }
 
-#PotionShop.hidden{
+#PotionShop.hidden {
     top: 0;
     position: absolute;
     display: none;
 }
 
-#PotionShop.show{
+#PotionShop.show {
     display: flex;
     flex-flow: column nowrap;
     position: absolute;
@@ -331,21 +352,21 @@ position: absolute;
     z-index: 5;
 }
 
-#potionShop > section{
+#potionShop>section {
     overflow: scroll;
     height: 65%;
     margin-top: 5%;
     scrollbar-color: rgba(255, 0, 0, 0) rgba(255, 166, 0, 0);
-    
+
 }
 
-#potionShop > section > div> div:first-of-type > img{
-    width: 200px;
-    height: 200px;
-    
+#potionShop>section>div>div:first-of-type>img {
+    width: 70%;
+
+
 }
 
-#PotionShop > header > h2{
+#PotionShop>header>h2 {
     font-family: inventoryFont !important;
     color: white;
     font-size: 55px;
@@ -354,27 +375,27 @@ position: absolute;
     text-align: center;
 }
 
-#PotionShop > header{
+#PotionShop>header {
     display: inline-flex;
     flex-flow: row nowrap;
     justify-content: space-evenly;
     align-items: flex-end;
     width: 100%;
-    
+
 }
 
-#PotionShop > header > img{
+#PotionShop>header>img {
     width: 50px;
     margin-top: 5%;
-    
+
 }
 
-header > aside{
+header>aside {
     display: flex;
 
 }
 
-#shopCoin{
+#shopCoin {
     margin-bottom: 0;
     margin-top: 5%;
     color: #D3Af37;
@@ -382,23 +403,23 @@ header > aside{
     margin-right: 30%;
 }
 
-#PotionShop > section > div{
+#PotionShop>section>div {
     display: flex;
     flex-flow: row nowrap;
     justify-content: space-around;
-   height: fit-content;
-   margin-top: 15%;
-   width: 100%;
-   height: fit-content;
-   
-   margin-right: 0;
+    height: fit-content;
+    margin-top: 15%;
+    width: 100%;
+    height: fit-content;
+
+    margin-right: 0;
 }
 
-#PotionShop > section > div:first-of-type{
+#PotionShop>section>div:first-of-type {
     margin-top: 0;
 }
 
-#PotionShop > section > div > div:first-of-type{
+#PotionShop>section>div>div:first-of-type {
     height: 200px;
     width: 200px;
     display: flex;
@@ -406,49 +427,50 @@ header > aside{
     justify-content: center;
 }
 
-#PotionShop > section > div > div:last-of-type{
+#PotionShop>section>div>div:last-of-type {
     display: flex;
     flex-flow: column nowrap;
     justify-content: center;
     align-items: center;
     font-family: inventoryFont !important;
     height: fit-content;
-    width: 500px;
+    width: 600px;
+    
 }
 
-#PotionShop > section > div > div:last-of-type > p{
+#PotionShop>section>div>div:last-of-type>p {
     color: white;
     font-family: inventoryFont !important;
 }
 
-#PotionShop > section > div > div:last-of-type > p:first-of-type{
+#PotionShop>section>div>div:last-of-type>p:first-of-type {
     font-size: 40px;
     margin: 0;
+    margin-bottom: 5%;
 }
 
-#PotionShop > section > div > div:last-of-type > p:last-of-type, #PotionShop > section > div > div:last-of-type > p:nth-of-type(2){
+#PotionShop>section>div>div:last-of-type>p:last-of-type,
+#PotionShop>section>div>div:last-of-type>p:nth-of-type(2) {
     font-size: 30px;
     margin: 0;
 }
 
-#potionShop > section > div> div:last-of-type > img{
+#potionShop>section>div>div:last-of-type>img {
     height: 60px;
     width: 100px;
     margin-top: 5%;
     transition: transform 0.2s ease-out;
 }
 
-#potionShop > section > div> div:last-of-type > img:hover{
+#potionShop>section>div>div:last-of-type>img:hover {
     cursor: pointer;
     transform: scale(1.1);
     transition: transform 0.2s ease-out;
 }
 
-#Close{
-    
-}
+#Close {}
 
-#inventory{
+#inventory.show {
     position: absolute;
     width: 100%;
     height: 100%;
@@ -457,12 +479,32 @@ header > aside{
     background-repeat: no-repeat;
     z-index: 5;
     background-position: center;
+    display: flex;
+    flex-flow: column nowrap;
+    align-items: center;
 }
 
-#inventory > p{
+#inventory>p {
     color: #e5be7d;
     font-size: 100px;
     margin: 0;
-    margin-top: 2%;
+    margin-top: 1%;
     text-align: center;
 }
+
+#items {
+    width: 41%;
+    display: flex;
+    justify-content: space-between;
+    height: 15%;
+    margin-top: 4%;
+}
+
+#items> img{
+    visibility: hidden;
+}
+
+#inventory.hidden {
+    display: none;
+}
+
