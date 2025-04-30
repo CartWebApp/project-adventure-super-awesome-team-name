@@ -482,13 +482,14 @@ header>aside {
     display: flex;
     flex-flow: column nowrap;
     align-items: center;
+    
 }
 
 #inventory>p {
     color: #e5be7d;
     font-size: 100px;
     margin: 0;
-    margin-top: 1%;
+    margin-top: 2%;
     text-align: center;
 }
 
@@ -508,3 +509,59 @@ header>aside {
     display: none;
 }
 
+
+#Count{
+    position: absolute;
+    display: inline-flex;
+    flex-flow: row;
+    color: white;
+    width: 37.5%;
+    justify-content: space-between;
+    align-items: flex-start;
+    text-align: center;
+    font-size: 40px;
+    top: 36%;
+    left: 28%;
+}
+
+#Count > p{
+    
+    margin: 0;
+    text-align: center;
+    
+}
+
+#shieldFill{
+    
+    background-color: #095f79;
+}
+#column{
+    height: 250px;
+}
+
+/* .potion > img{
+    height: 10%;
+} */
+
+.Speedpotion, .strengthpotion{
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: flex-start;
+    height: 50px;
+    width: 70%;
+    align-items: center;
+    
+    
+}
+
+
+.Speedpotion > img, .strengthpotion > img{
+    height: 100%;
+}
+
+#timerSpeed , #timerStrength{
+    color: white;
+    font-size: 40px;
+    margin: 0;
+    margin-left: 10%;
+}

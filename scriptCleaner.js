@@ -35,7 +35,7 @@ let treasure = [];
 let interactable = [];
 
 //inventory
-let inventory = [];
+let inventory = ["healingPotion"];
 
 //images to add to game
 let treasureImage = new Image();
@@ -60,9 +60,11 @@ player = {
     permanentCooldown: 0,
     attackedTime: 0,
     image: playerImage,
-    attackDamage: 100,
+    attackDamage: 1,
     defense: 0,
     health: 100,
+    speed: 6,
+    shield: 0,
     money: 100
 };
 
@@ -198,6 +200,13 @@ document.getElementById("potionShield").addEventListener("click", () => potionBu
 document.getElementById("potionSpeed").addEventListener("click", () => potionBuy("speed"));
 document.getElementById("potionStrength").addEventListener("click", () => potionBuy("strength"));
 
+document.getElementById("healingPotionInventory").addEventListener("click", () => usePotion("healingPotion"));
+document.getElementById("shieldPotionInventory").addEventListener("click", () => usePotion("shieldingPotion"));
+document.getElementById("speedPotionInventory").addEventListener("click", () => usePotion("speedPotion"));
+document.getElementById("strengthPotionInventory").addEventListener("click", () => usePotion("strengthPotion"));
+
+//display money
+document.getElementById("moneyGained").innerText = player.money
 
 
 //directs stuff
@@ -215,8 +224,8 @@ function update() {
 
     let inGrassSpeed = 1
     if (start) {
-        screen = 105
-        screenChange(105)
+        screen = 3
+        screenChange(3)
         start = false
     }
     if ((player.y <= -82) && (player.x >= 967) && (player.x <= 1150) && screen === 1) {
@@ -267,22 +276,22 @@ function update() {
 
     //movement
     if (controller.left) {
-        player.x -= 6 * inGrassSpeed;
+        player.x -= player.speed * inGrassSpeed;
         player.direction = "left"
     }
 
     if (controller.right) {
-        player.x += 6 * inGrassSpeed;
+        player.x += player.speed * inGrassSpeed;
         player.direction = "right"
     }
 
     if (controller.up) {
-        player.y -= 6 * inGrassSpeed;
+        player.y -= player.speed * inGrassSpeed;
         player.direction = "up"
     }
 
     if (controller.down) {
-        player.y += 6 * inGrassSpeed;
+        player.y += player.speed * inGrassSpeed;
         player.direction = "down"
     }
 
@@ -343,13 +352,24 @@ function update() {
 
             if (collisionDetectionOverlap(player, attacker) && player.attackedTime === 0) {
                 player.attackedTime = 30
-
                 attacker.state = "returning";
                 attacker.attackTimer = 0;
 
+                if (player.shield > 0) {
+                    player.shield = Math.max(0, player.shield - attacker.attackDamage); // Ensure shield doesn't go below 0
+                    document.getElementById("shieldFill").style.width = player.shield + "%";
 
-                player.health = player.health - attacker.attackDamage
-                document.getElementById("healthFill").style.width = player.health + "%";
+                    if (player.shield === 0) {
+                        // If shield is depleted, reduce health by the remaining damage
+                        player.health = Math.max(0, player.health + player.shield); // Add negative shield value to health
+                        document.getElementById("healthFill").style.width = player.health + "%";
+                    }
+                }
+                else {
+                    player.health = Math.max(0, player.health - attacker.attackDamage); // Ensure health doesn't go below 0
+                    document.getElementById("healthFill").style.width = player.health + "%";
+                }
+
             }
 
         }
@@ -476,41 +496,7 @@ document.addEventListener("keyup", (e) => {
     if (e.code === "KeyI") {
         document.getElementById("inventory").classList.toggle("show")
         document.getElementById("inventory").classList.toggle("hidden")
-        let healingPotion = 0;
-        let shieldPotion = 0;
-        let speedPotion = 0;
-        let strengthPotion = 0;
-        for (let i = 0; i < inventory.length; i++) {
-            if (inventory[i] === "healingPotion") {
-                healingPotion++
-            }
-
-            if (inventory[i] === "shieldPotion") {
-                shieldPotion++
-            }
-            if (inventory[i] === "speedPotion") {
-                speedPotion++
-            }
-            if (inventory[i] === "strengthPotion") {
-                strengthPotion++
-            }
-        }
-
-        if (healingPotion > 0) {
-            document.getElementById("healingPotionInventory").style.visibility = "visible"
-        }
-
-        if (shieldPotion > 0) {
-            document.getElementById("shieldPotionInventory").style.visibility = "visible"
-        }
-
-        if (speedPotion > 0) {
-            document.getElementById("speedPotionInventory").style.visibility = "visible"
-        }
-
-        if (strengthPotion > 0) {
-            document.getElementById("strengthPotionInventory").style.visibility = "visible"
-        }
+        updateInventory()
     }
 });
 
@@ -1028,7 +1014,7 @@ function enemyDie(attacker) {
 }
 
 function hudChange(form) {
-
+    document.getElementById("moneyGained").innerText = player.money
     if (form === "room") {
         document.getElementById("rightSide").style.animation = "stuff 2.5s forwards"
         setTimeout(() => document.getElementById("leftSide").style.animation = "Shrink 2s forwards", 800)
@@ -1137,6 +1123,151 @@ function potionBuy(type) {
         }
     }
 }
+
+function usePotion(type) {
+    const threeMinutes = 60 * 3;
+    let display = document.querySelector('#timerSpeed');
+    if (type === "healingPotion") {
+        if (player.health < 100) {
+            player.health = player.health + 5
+            if (player.health > 100) {
+                player.health = 100
+            }
+            document.getElementById("healthFill").style.width = player.health + "%";
+            inventory.splice(inventory.indexOf(type), 1)
+
+        }
+    }
+    else if (type === "shieldingPotion") {
+        player.shield = player.shield + 5
+        document.getElementById("shieldFill").style.width = player.shield + "%";
+        inventory.splice(inventory.indexOf(type), 1)
+    }
+    else if (type === "speedPotion") {
+        let speed = player.speed;
+        player.speed = player.speed + 1;
+        inventory.splice(inventory.indexOf(type), 1)
+
+        
+
+        display = document.querySelector('#timerSpeed');
+
+
+        setTimeout(() => {
+            player.speed = speed
+        }, 180000);
+    }
+    else if (type === "strengthPotion") {
+        let attack = player.attackDamage;
+        player.attackDamage = player.attackDamage + 5;
+        inventory.splice(inventory.indexOf(type), 1)
+
+        display = document.querySelector('#timerStrength');
+
+        startCountdown(threeMinutes, display);
+
+        setTimeout(() => {
+            player.attackDamage = attack
+        }, 180000);
+    }
+
+    startCountdown(threeMinutes, display);
+
+    updateInventory()
+}
+
+
+
+function updateInventory() {
+    let healingPotion = 0;
+    let shieldPotion = 0;
+    let speedPotion = 0;
+    let strengthPotion = 0;
+    for (let i = 0; i < inventory.length; i++) {
+        if (inventory[i] === "healingPotion") {
+            healingPotion++
+        }
+
+        if (inventory[i] === "shieldPotion") {
+            shieldPotion++
+        }
+        if (inventory[i] === "speedPotion") {
+            speedPotion++
+        }
+        if (inventory[i] === "strengthPotion") {
+            strengthPotion++
+        }
+    }
+
+    if (healingPotion > 0) {
+        document.getElementById("healingPotionInventory").style.visibility = "visible"
+        document.getElementById("healingCount").style.visibility = "visible"
+        document.getElementById("healingCount").innerText = "X " + healingPotion
+    }
+    else {
+        document.getElementById("healingPotionInventory").style.visibility = "hidden"
+        document.getElementById("healingCount").style.visibility = "hidden"
+    }
+
+
+
+    if (shieldPotion > 0) {
+        document.getElementById("shieldPotionInventory").style.visibility = "visible"
+        document.getElementById("shieldingCount").style.visibility = "visible"
+        document.getElementById("shieldingCount").innerText = "X " + shieldPotion
+    }
+    else {
+        document.getElementById("shieldPotionInventory").style.visibility = "hidden"
+        document.getElementById("shieldingCount").style.visibility = "hidden"
+    }
+
+
+
+    if (speedPotion > 0) {
+        document.getElementById("speedPotionInventory").style.visibility = "visible"
+        document.getElementById("speedCount").style.visibility = "visible"
+        document.getElementById("speedCount").innerText = "X " + speedPotion
+    }
+    else {
+        document.getElementById("speedPotionInventory").style.visibility = "hidden"
+        document.getElementById("speedCount").style.visibility = "hidden"
+    }
+
+
+
+    if (strengthPotion > 0) {
+        document.getElementById("strengthPotionInventory").style.visibility = "visible"
+        document.getElementById("strengthCount").style.visibility = "visible"
+        document.getElementById("strengthCount").innerText = "X " + strengthPotion
+    }
+    else {
+        document.getElementById("strengthPotionInventory").style.visibility = "hidden"
+        document.getElementById("strengthCount").style.visibility = "hidden"
+    }
+}
+
+function startCountdown(duration, display) {
+    let timer = duration, minutes, seconds;
+    const intervalId = setInterval(function() {
+      minutes = parseInt(timer / 60, 10);
+      seconds = parseInt(timer % 60, 10);
+  
+      minutes = minutes < 10 ? "0" + minutes : minutes;
+      seconds = seconds < 10 ? "0" + seconds : seconds;
+  
+      display.textContent = minutes + ":" + seconds;
+  
+      if (--timer < 0) {
+        clearInterval(intervalId);
+        display.textContent = "Time's up!";
+      }
+    }, 1000);
+  }
+  
+
+
+
+
 
 window.addEventListener("keydown", controller.keyListener);
 window.addEventListener("keyup", controller.keyListener);
