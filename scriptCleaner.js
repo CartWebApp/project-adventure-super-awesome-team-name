@@ -18,6 +18,11 @@ let rewardType;
 let screen = 1;
 let isTyping = false;
 let currentText = "";
+let waitingForChoice = false;
+let path = "fastPath";
+let choice = -1;
+let optionSelected;
+
 
 let scaleFactor;
 let scaledWidth;
@@ -33,7 +38,7 @@ let barrier = []
 let enemy = []
 let treasure = [];
 let interactable = [];
-
+let villager = [];
 //inventory
 let inventory = ["healingPotion"];
 
@@ -45,7 +50,6 @@ playerImage = new Image();
 //image sources
 playerImage.src = 'img/player/idle.png';
 treasureImage.src = "img/rewards/coin.png";
-
 
 
 
@@ -87,10 +91,18 @@ function createEnemy(width, height, xPosition, yPosition, Enemyimage) {
         attackerImg,
         health: 100,
         maxHealth: 100,
-        attackDamage: 10
+        attackDamage: 30
     };
 }
 
+function createVillager(width, height, xPosition, yPosition) {
+    return {
+        width: width,
+        height: height,
+        x: xPosition,
+        y: yPosition
+    };
+}
 
 function createGrass(width, height, xPosition, yPosition) {
     return {
@@ -100,6 +112,8 @@ function createGrass(width, height, xPosition, yPosition) {
         y: yPosition
     };
 }
+
+
 
 function createHome(width, height, x, y, img) {
     const mainHouse = new Image();
@@ -162,6 +176,9 @@ controller = {
     up: false,
     down: false,
     keyListener: function (event) {
+
+        if (waitingForChoice) return;
+
         var key_state = (event.type == "keydown");
 
         switch (event.keyCode) {
@@ -205,6 +222,10 @@ document.getElementById("shieldPotionInventory").addEventListener("click", () =>
 document.getElementById("speedPotionInventory").addEventListener("click", () => usePotion("speedPotion"));
 document.getElementById("strengthPotionInventory").addEventListener("click", () => usePotion("strengthPotion"));
 
+document.getElementById("choiceOne").addEventListener("click", () => director("One"));
+document.getElementById("choiceTwo").addEventListener("click", () => director("Two"));
+document.getElementById("choiceThree").addEventListener("click", () => director("Three"));
+
 //display money
 document.getElementById("moneyGained").innerText = player.money
 
@@ -224,8 +245,8 @@ function update() {
 
     let inGrassSpeed = 1
     if (start) {
-        screen = 3
-        screenChange(3)
+        screen = 1
+        screenChange(1)
         start = false
     }
     if ((player.y <= -82) && (player.x >= 967) && (player.x <= 1150) && screen === 1) {
@@ -314,6 +335,9 @@ function update() {
 
 
     enemy.forEach(attacker => {
+
+        if (waitingForChoice) return;
+
         if (attacker.cooldown > 0) {
             attacker.cooldown--;
         }
@@ -422,10 +446,148 @@ function update() {
 
 
 
+    if (path === "fastPath") {
+
+        if (choice === -1) {
+            choice = 0
+            player.x = 217
+            player.y = 370
+
+            enemy = [
+                createEnemy(100, 100, 1900, 800, "img/enemies/bugs/blueBug.png")
+            ]
+
+            hudChange("room")
+            waitingForChoice = true;
+            document.getElementById("faces").src = "img/hud/faces/jeremy.png";
+            document.getElementById("speakerName").innerText = "Mom";
+
+            typeText("regularText", "what is that?")
+
+            setTimeout(() => {
+                typeText("regularText", "")
+
+                document.getElementById("choiceOne").classList.toggle("hidden")
+                document.getElementById("choiceOne").classList.toggle("show")
+
+                document.getElementById("choiceTwo").classList.toggle("hidden")
+                document.getElementById("choiceTwo").classList.toggle("show")
+
+                document.getElementById("choiceThree").classList.toggle("hidden")
+                document.getElementById("choiceThree").classList.toggle("show")
+
+
+                document.getElementById("faces").src = "img/hud/faces/jericho.png";
+                document.getElementById("speakerName").innerText = "Jericho";
+
+                typeText("choiceTextone", "I'm not sure")
+
+                typeText("choiceTexttwo", "I think it's a bug")
+
+
+                typeText("choiceTextthree", "I'll check it out")
+                // Block actions until a choice is made
+                choice = 1
+            }, 4000);
+
+        }
+
+        if (choice === 1) {
+            if (player.health <= 50) {
+                choice = -10
+                waitingForChoice = true
+                hudChange("room")
+
+
+                setTimeout(() => {
+                    typeText("regularText", "looks like you need help!")
+                    villager = [(createVillager(100, 100, 300, 300))]
+
+
+                }, 4000);
+            }
+        }
+
+        if (choice === -10) {
+            villager.forEach(villager => {
+                waitingForChoice = true
+                if (collisionDetectionOverlap(player, villager)) {
+                    choice = 1000000
+                    typeText("regularText", "ARGGGGGGGG")
+                    enemy.forEach(attacker => {
+                        attacker.health = 0
+                        enemyDie(attacker);
+                    })
+                    setTimeout(() => {
+                        typeText("regularText", "wow that bug almost got you! If you want I can teach you how to fight them")
+                        setTimeout(() => {
+                            choice = 2
+                            
+                        }, 3000);
+                    }, 1000);
+                    
+                }
+                else {
+                    let dx = player.x - villager.x;
+                    let dy = player.y - villager.y;
+                    let distance = Math.sqrt(dx * dx + dy * dy);
+                    let vx = (dx / distance) * 5;
+                    let vy = (dy / distance) * 5;
+                    villager.x += vx;
+                    villager.y += vy;
+                }
+            })
+        }
+        if (choice === 2) {
+            choice = -11
+            waitingForChoice = true
+            setTimeout(() => {
+                typeText("regularText", "")
+
+                document.getElementById("choiceOne").classList.toggle("hidden")
+                document.getElementById("choiceOne").classList.toggle("show")
+
+                document.getElementById("choiceTwo").classList.toggle("hidden")
+                document.getElementById("choiceTwo").classList.toggle("show")
+
+                document.getElementById("choiceThree").classList.toggle("hidden")
+                document.getElementById("choiceThree").classList.toggle("show")
+
+
+                document.getElementById("faces").src = "img/hud/faces/jericho.png";
+                document.getElementById("speakerName").innerText = "Jericho";
+
+                typeText("choiceTextone", "Yes please")
+
+                typeText("choiceTexttwo", "Nah its dangerous")
+
+
+                
+                
+                choice = 3
+            }, 3000);
+
+        }
+        
+        if (choice === 3) {
+            if(optionSelected){
+                villager.forEach(villager => {
+                        let dx = 720 - villager.x;
+                        let dy = -200 - villager.y;
+                        let distance = Math.sqrt(dx * dx + dy * dy);
+                        let vx = (dx / distance) * 5;
+                        let vy = (dy / distance) * 5;
+                        villager.x += vx;
+                        villager.y += vy;
+                    
+                })
+            }
+        }
+
+    }
+
+
 }
-
-
-
 
 
 
@@ -433,6 +595,9 @@ function update() {
 let isBrowsingShop = false;
 
 document.addEventListener("keyup", (e) => {
+
+    if (waitingForChoice) return;
+
     if (e.code === "KeyE") {
 
         if (isTyping) {
@@ -528,26 +693,24 @@ document.getElementById("Close").addEventListener("click", () => {
 
 
 function typeText(elementId, text, delay = 50) {
-
     const element = document.getElementById(elementId);
-    currentText = text;
+    let localText = text; // Use a local variable for the text
     element.textContent = "";
     let index = 0;
-    isTyping = true;
+    let isTypingLocal = true; // Local typing state
 
     function typeNextChar() {
-        if (!isTyping) {
-
-            element.textContent = currentText;
+        if (!isTypingLocal) {
+            element.textContent = localText;
             return;
         }
 
-        if (index < text.length) {
-            element.textContent += text[index];
+        if (index < localText.length) {
+            element.textContent += localText[index];
             index++;
             setTimeout(typeNextChar, delay);
         } else {
-            isTyping = false;
+            isTypingLocal = false;
         }
     }
 
@@ -645,6 +808,12 @@ function render() {
         }
         // context.fillStyle = "orange";
         // context.fillRect(grass.x, grass.y, grass.width, grass.height);
+
+    });
+
+    villager.forEach(villager => {
+        context.fillStyle = "blue";
+        context.fillRect(villager.x, villager.y, villager.width, villager.height);
 
     });
 
@@ -793,7 +962,7 @@ function screenChange(screen) {
             break;
         case 101:
             bg = new Image();
-            bg.src = "img/bg/rooms/roomtest.png";
+            bg.src = "img/bg/rooms/homeFloorOne.png";
             grass = [];
             homes = [];
             barrier = [];
@@ -906,32 +1075,7 @@ function collisionDetection(obj1, obj2) {
 
 }
 
-//tracks player
-function enemyTracking(distance, dx, dy) {
-    enemy.forEach(attacker => {
-        if (attacker.state === "idle" && attacker.cooldown === 0) {
-            let vx = (dx / distance) * 4;
-            let vy = (dy / distance) * 4;
 
-            if (distance > 150 && distance <= 700) {
-
-                attacker.x += vx;
-                attacker.y += vy;
-            } else if (distance <= 150) {
-
-                attacker.state = "attacking";
-                attacker.attackTimer = 0;
-                attacker.vx = (dx / distance) * 10;
-                attacker.vy = (dy / distance) * 10;
-
-                attacker.preAttackX = attacker.x;
-                attacker.preAttackY = attacker.y;
-
-                attacker.cooldown = 90;
-            }
-        }
-    });
-}
 
 //attacking for player
 function playerAttack() {
@@ -1148,7 +1292,7 @@ function usePotion(type) {
         player.speed = player.speed + 1;
         inventory.splice(inventory.indexOf(type), 1)
 
-        
+
 
         display = document.querySelector('#timerSpeed');
 
@@ -1248,22 +1392,133 @@ function updateInventory() {
 
 function startCountdown(duration, display) {
     let timer = duration, minutes, seconds;
-    const intervalId = setInterval(function() {
-      minutes = parseInt(timer / 60, 10);
-      seconds = parseInt(timer % 60, 10);
-  
-      minutes = minutes < 10 ? "0" + minutes : minutes;
-      seconds = seconds < 10 ? "0" + seconds : seconds;
-  
-      display.textContent = minutes + ":" + seconds;
-  
-      if (--timer < 0) {
-        clearInterval(intervalId);
-        display.textContent = "Time's up!";
-      }
+    const intervalId = setInterval(function () {
+        minutes = parseInt(timer / 60, 10);
+        seconds = parseInt(timer % 60, 10);
+
+        minutes = minutes < 10 ? "0" + minutes : minutes;
+        seconds = seconds < 10 ? "0" + seconds : seconds;
+
+        display.textContent = minutes + ":" + seconds;
+
+        if (--timer < 0) {
+            clearInterval(intervalId);
+            display.textContent = "Time's up!";
+        }
     }, 1000);
-  }
-  
+}
+
+
+
+function director(selected) {
+    switch (path + "-" + choice) {
+        case "fastPath-1":
+            if (selected === "One") {
+                choiceSelection("Fast", "choiceOne", 1)
+            }
+            else if (selected === "Two") {
+                choiceSelection("Fast", "choiceTwo", 1)
+            }
+            else if (selected === "Three") {
+                choiceSelection("Fast", "choiceThree", 1)
+            }
+
+            break;
+        case "fastPath-3":
+            if (selected === "One") {
+                
+                choiceSelection("Fast", "choiceOne", 2)
+            }
+            else if (selected === "Two") {
+                choiceSelection("Fast", "choiceTwo", 2)
+            }
+            break;
+    }
+}
+
+
+function choiceSelection(path, choice, choiceNum) {
+    waitingForChoice = false;
+
+    document.getElementById("choiceOne").classList.toggle("hidden")
+    document.getElementById("choiceOne").classList.toggle("show")
+
+    document.getElementById("choiceTwo").classList.toggle("hidden")
+    document.getElementById("choiceTwo").classList.toggle("show")
+
+    document.getElementById("choiceThree").classList.toggle("hidden")
+    document.getElementById("choiceThree").classList.toggle("show")
+
+    switch (path + "-" + choice + "-" + choiceNum) {
+        case "Fast-choiceOne-1":
+            typeText("regularText", "I'm not sure")
+            setTimeout(() => {
+                document.getElementById("faces").src = "img/hud/faces/jeremy.png";
+                document.getElementById("speakerName").innerText = "Mom";
+
+                typeText("regularText", "You should check it out")
+                setTimeout(() => {
+                    hudChange("town")
+                }, 1500);
+            }, 4000);
+            break;
+
+        case "Fast-choiceTwo-1":
+            typeText("regularText", "I think it's a bug")
+            setTimeout(() => {
+                document.getElementById("faces").src = "img/hud/faces/jeremy.png";
+                document.getElementById("speakerName").innerText = "Mom";
+
+                typeText("regularText", "You should check it out")
+                setTimeout(() => {
+                    hudChange("town")
+                }, 1500);
+            }, 4000);
+
+            break;
+
+        case "Fast-choiceThree-1":
+            typeText("regularText", "I'll check it out")
+            setTimeout(() => {
+                document.getElementById("faces").src = "img/hud/faces/jeremy.png";
+                document.getElementById("speakerName").innerText = "Mom";
+
+                typeText("regularText", "Be safe!")
+
+                setTimeout(() => {
+                    hudChange("town")
+                }, 1500);
+            }, 4000);
+            break;
+        case "Fast-choiceOne-2":
+            typeText("regularText", "Yes please")
+            setTimeout(() => {
+                document.getElementById("faces").src = "img/hud/faces/jeremy.png";
+                document.getElementById("speakerName").innerText = "person";
+
+                typeText("regularText", "follow me")
+                setTimeout(() => {
+                    hudChange("town")
+
+                    optionSelected = true
+                    
+                }, 1500);
+            }, 4000);
+            break;
+            
+        case "Fast-choiceTwo-2":
+            console.log("test2")
+            break;
+    }
+
+
+
+
+};
+
+
+
+
 
 
 

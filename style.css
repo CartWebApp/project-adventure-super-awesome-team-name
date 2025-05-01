@@ -204,6 +204,14 @@ main {
     display: flex;
     height: fit-content;
     margin-left: 50px;
+    justify-content: center;
+    align-items: center;
+}
+
+#coins>img {
+    width: 50px;
+    height: 50px;
+    margin-right: 10px;
 }
 
 #bars {
@@ -288,7 +296,11 @@ main {
     width: 400px;
     height: 250px;
     display: flex;
-    align-items: center;
+    align-items: flex-start;
+    display: flex;
+    flex-flow: column nowrap;
+    align-items: flex-start;
+    justify-content: center;
 }
 
 @keyframes textWidth {
@@ -564,4 +576,36 @@ header>aside {
     font-size: 40px;
     margin: 0;
     margin-left: 10%;
+}
+
+#choiceTextone, #choiceTexttwo, #choiceTextthree {
+    color: white;
+    font-size: 40px;
+    margin: 0;
+    height: fit-content;
+    margin-left: 2%;
+}
+
+#choiceOne.show, #choiceTwo.show, #choiceThree.show {
+    display: inline-flex;
+    justify-content: flex-start;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    
+    border: 2px solid #095f79;
+
+    border-radius: 10px;
+    transition: background-color 0.5s ease;
+    color: white;
+    font-size: 40px;
+}
+
+#choiceOne.show:hover, #choiceTwo.show:hover, #choiceThree.show:hover {
+    background-color: #095f79;
+    transition: background-color 0.5s ease;
+}
+
+#choiceOne.hidden, #choiceTwo.hidden, #choiceThree.hidden {
+    display: none;
 }
