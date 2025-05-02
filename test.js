@@ -68,6 +68,10 @@ fastImage.src = 'img/enemies/boss/fastboss2.png';
 
 treasureImage.src = "img/rewards/coin.png";
 
+let villagerImage = new Image();
+
+villagerImage.src = 'img/player/idle.png';
+
 // ====================================================
 // Player Object
 // ====================================================
@@ -227,82 +231,88 @@ let isProcessingDialogue = false;
 
 const scenes = {
     tutorialIntro: [
-        { speaker: "Mom", face: "jeremy", text: "What is that?" },
-        { speaker: "Jericho", face: "jericho", choices: ["I'm not sure", "I think it's a bug", "I'll check it out"] },
+        { speaker: "Mom", face: "mom", text: "What is that?" },
+        { speaker: "Jericho", face: "mom", choices: ["I'm not sure", "I think it's a bug", "I'll check it out"] },
     ],
     bugResponse: [
-        { speaker: "Mom", face: "jeremy", text: "You should check it out, be careful though!" },
+        { speaker: "Mom", face: "mom", text: "You should check it out, be careful though!" },
         { action: () => hudChange("town") },
         { action: () => waitingForChoice = false },
     ],
     bugResponseOffered: [
-        { speaker: "Mom", face: "jeremy", text: "Well, be careful!" },
+        { speaker: "Mom", face: "mom", text: "Well, be careful!" },
         { action: () => hudChange("town") },
         { action: () => waitingForChoice = false },
     ],
     mentorHelp: [
-        { speaker: "Mentor", face: "jeremy", text: "looks like you need help!" },
+        { speaker: "???", face: "mark", text: "looks like you need help!" },
         { action: () => villagerMove("touchPlayer") },
     ],
     mentorKillBug: [
-        { speaker: "Mentor", face: "jeremy", text: "AHHHHHHHH" },
+        { speaker: "???", face: "mark", text: "AHHHHHHHH" },
         { action: () => enemyDie(enemy[0]) },
-        { speaker: "Mentor", face: "jeremy", text: "Damn Bugs" },
-        { speaker: "Mentor", face: "jeremy", text: "Hi I'm Mark, you must be Jericho" },
+        { speaker: "???", face: "mark", text: "Damn Bugs" },
+        { speaker: "Mark", face: "mark", text: "Hi I'm Mark, you must be Jericho" },
         { speaker: "Jericho", face: "jericho", text: "Yes, I am!" },
-        { speaker: "Mentor", face: "jeremy", text: "Nice to meet you, I heard about your dad" },
+        { speaker: "Mark", face: "mark", text: "Nice to meet you, I heard about your dad" },
         { speaker: "Jericho", face: "jericho", text: "..." },
-        { speaker: "Mentor", face: "jeremy", text: "These bugs appeared when your dad dissapeared" },
-        { speaker: "Mentor", face: "jeremy", text: "Maybe they are connected. You want me to show you how to defeat them" },
-        { speaker: "Jericho", face: "jericho", choices: ["Yes if it'll help my dad", "No, My dad wouldn't want me too"] },
+        { speaker: "Mark", face: "mark", text: "These bugs appeared when your dad dissapeared" },
+        { speaker: "Mark", face: "mark", text: "Maybe they are connected. You want me to show you how to defeat them" },
+        // { speaker: "Jericho", face: "jericho", choices: ["Yes if it'll help my dad", "No, My dad wouldn't want me too"] },
+        { speaker: "Jericho", face: "jericho", choices: ["Yes if it'll help my dad"] },
     ],
     showAround: [
-        { speaker: "Mentor", face: "jeremy", text: "Great!" },
-        { speaker: "Mentor", face: "jeremy", text: "First, let me take you to town" },
+        { speaker: "Mark", face: "mark", text: "Great!" },
+        { speaker: "Mark", face: "mark", text: "First, let me take you to town" },
         { action: () => villagerMove("moveHouse") },
         { action: () => hudChange("town") },
+
     ],
     mentorMoveMore: [
+        { action: () => hudChange("town") },
         { action: () => villagerMove("moveSecond") },
 
     ],
 
     MentorOutsidePotionShop: [
-        { speaker: "Mentor", face: "jeremy", text: "Man your slow, come inside the potion shop" },
+        { speaker: "Mark", face: "mark", text: "Man your slow, come inside the potion shop" },
+        { action: () => hudChange("town") },
         { action: () => villager[0].x = 4000 },
         { action: () => waitingForChoice = false },
 
     ],
 
     mentorInsidePotionShop: [
-        { speaker: "Mentor", face: "jeremy", text: "Heres the potion shop, you can buy magical potions" },
-        { speaker: "Mentor", face: "jeremy", text: "take a look around meet me outside" },
+        { speaker: "Mark", face: "mark", text: "Heres the potion shop, you can buy magical potions" },
+        { speaker: "Mark", face: "mark", text: "take a look around meet me outside" },
         { action: () => villagerMove("leaveShop") },
         { speaker: "jericho", face: "jericho", text: " " },
     ],
 
     bugFight: [
-        { speaker: "Mentor", face: "jeremy", text: "now the hard part, fighting the bugs" },
+        { speaker: "Mark", face: "mark", text: "now the hard part, fighting the bugs" },
         { action: () => villagerMove("bugLearn") },
+        { action: () => hudChange("town") },
 
     ],
 
     bugLearn: [
-        { speaker: "Mentor", face: "jeremy", text: "Your powerful now, look at him when you hit" },
+        { speaker: "Mark", face: "mark", text: "Your powerful now, look at him when you hit and win" },
         { action: () => hudChange("town") },
         { action: () => waitingForChoice = false },
     ],
 
     momComes: [
-        { speaker: "Mentor", face: "jeremy", text: "Dang that was amazing, just one-" },
-        // { speaker: "Mom", face: "jeremy", text: "Jericho!" },
-        // { speaker: "Mom", face: "jeremy", text: "Are you okay?" },
-        // { speaker: "Mom", face: "jeremy", text: "I heard a loud noise" },
-        // { speaker: "Mom", face: "jeremy", text: "I thought you were in danger" },
-        // { speaker: "Jericho", face: "jericho", text: "I'm fine, I was just training" },
-        // { speaker: "Mom", face: "jeremy", text: "You should be careful, I don't want to lose you too" },
-        // { speaker: "Mom", face: "jeremy", text: "You look so much like dad right now" },
+        { speaker: "Mark", face: "mark", text: "Dang that was amazing, just one-" },
+        { speaker: "Mom", face: "mom", text: "Jericho!" },
+        { speaker: "Mom", face: "mom", text: "Are you okay?" },
+        { speaker: "Mom", face: "mom", text: "I heard a loud noise" },
+        { speaker: "Mom", face: "mom", text: "I thought you were in danger" },
+        { speaker: "Jericho", face: "jericho", text: "I'm fine, I was just training" },
+        { speaker: "Mom", face: "mom", text: "You should be careful, I don't want to lose you too" },
+        { speaker: "Mom", face: "mom", text: "You look so much like dad right now" },
         { speaker: "Jericho", face: "jericho", choices: ["Mom I can save him", "..."] },
+        
 
     ],
 
@@ -318,7 +328,7 @@ const scenes = {
         // { speaker: "jericho", face: "jericho", text: "what would dad think..." },
         // { speaker: "jericho", face: "jericho", text: "well since I'm out where should I go" },
         // { speaker: "jericho", face: "jericho", choices: ["Cart", "Mall"] },
-        { action: () => startScene("bossFightFast") }, // AFTER choice
+        // { action: () => startScene("bossFightFast") }, // AFTER choice
     ],
 
     sayNothing: [
@@ -332,7 +342,7 @@ const scenes = {
         // { speaker: "jericho", face: "jericho", text: "what would dad think..." },
         // { speaker: "jericho", face: "jericho", text: "well since I'm out where should I go" },
         // { speaker: "jericho", face: "jericho", choices: ["Cart", "Mall"] },
-        { action: () => startScene("bossFightFast") }, // AFTER choice
+        // { action: () => startScene("bossFightFast") }, // AFTER choice
 
     ],
 
@@ -450,11 +460,12 @@ function onChoice(index) {
     if (currentScene === "momComes") {
 
         if (currentChoice === 0) {
-            startScene("bossFightFast");
+             hudChange("town") 
+             waitingForChoice = false
         }
         else if (currentChoice === 1) {
-            console.log("test")
-            startScene("bossFightFast");
+            hudChange("town") 
+            waitingForChoice = false
         }
     }
 
@@ -527,8 +538,8 @@ function update() {
     }
 
     if (start) {
-        screen = 3;
-        screenChange(3);
+        screen = 1;
+        screenChange(1);
         start = false;
     }
 
@@ -603,9 +614,18 @@ function update() {
             startScene("bugLearn");
         }
         else {
-            screen = 3;
-            screenChange(3);
-            player.y = 680;
+            screen = 4;
+            screenChange(4);
+            player.x = context.canvas.width - player.width;
+            player.attackDamage = 20;
+            
+            enemy = [
+                createEnemy(100, 100, 100, 300, "img/enemies/bugs/blueBug.png"),
+                createEnemy(100, 100, 100, 500, "img/enemies/bugs/blueBug.png"),
+                createEnemy(100, 100, 100, 700, "img/enemies/bugs/blueBug.png"),
+                createEnemy(100, 100, 100, 900, "img/enemies/bugs/blueBug.png"),
+                createEnemy(100, 100, 100, 1100, "img/enemies/bugs/blueBug.png")
+            ]
         }
     }
 
@@ -857,7 +877,7 @@ function update() {
         enemy[0].attackDamage = 50;
         hudChange("room");
         // startScene("tutorialIntro");
-        startScene("bugFight");
+        // startScene("bugFight");
         choice = 1; // Mark it as triggered
         villager = [(createVillager(100, 100, 1050, -100))]
 
