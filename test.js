@@ -3,7 +3,7 @@
 // ====================================================
 // Global Variables & Canvas Setup
 // ====================================================
-var context, controller, player, loop, playerImage, coin, coinImage;
+var context, controller, player, loop, playerImage, coin, coinImage, fast;
 
 context = document.querySelector("canvas").getContext("2d");
 context.canvas.height = innerHeight - 20;
@@ -23,6 +23,7 @@ let isTyping = false;
 let currentText = "";
 let waitingForChoice = false;
 let typingInterval = null;
+let fastBattle = false;
 
 
 // Used for cutscene branches / choices in dialogue
@@ -56,9 +57,15 @@ let inventory = ["healingPotion"];
 // ====================================================
 let treasureImage = new Image();
 let bg = new Image();
+
+
+
 playerImage = new Image();
+let fastImage = new Image();
 
 playerImage.src = 'img/player/idle.png';
+fastImage.src = 'img/enemies/boss/fastboss2.png';
+
 treasureImage.src = "img/rewards/coin.png";
 
 // ====================================================
@@ -85,6 +92,22 @@ player = {
 // ====================================================
 // Factory Functions
 // ====================================================
+
+fast = {
+    width: 250,
+    height: 270,
+    x: 500,
+    y: 500,
+    choasMode: false,
+    image: fastImage,
+    health: 500,
+    maxHealth: 500,
+    attackDamage: 25,
+    attackTimer: 0,
+    cooldown: 0,
+}
+
+
 function createEnemy(width, height, xPosition, yPosition, Enemyimage) {
     const attackerImg = new Image();
     attackerImg.src = Enemyimage;
@@ -103,12 +126,12 @@ function createEnemy(width, height, xPosition, yPosition, Enemyimage) {
         attackerImg,
         health: 100,
         maxHealth: 100,
-        attackDamage: 50
+        attackDamage: 5
     };
 }
 
 function createVillager(width, height, xPosition, yPosition) {
-    return { width: width, height: height, x: xPosition, y: yPosition };
+    return { width: width, height: height, x: xPosition, y: yPosition, moving: false, targetX: 0, targetY: 0, touchObject: "none" };
 }
 
 function createGrass(width, height, xPosition, yPosition) {
@@ -146,7 +169,15 @@ controller = {
     up: false,
     down: false,
     keyListener: function (event) {
-        if (waitingForChoice) return;
+        if (waitingForChoice) {
+            // Reset movement when waiting for a choice
+            controller.left = false;
+            controller.right = false;
+            controller.up = false;
+            controller.down = false;
+            return;
+        }
+
         var key_state = (event.type == "keydown");
         switch (event.keyCode) {
             case 37: // left arrow
@@ -197,59 +228,191 @@ let isProcessingDialogue = false;
 const scenes = {
     tutorialIntro: [
         { speaker: "Mom", face: "jeremy", text: "What is that?" },
-        { speaker: "Jericho", face: "jericho", choices: ["I'm not sure", "I think it's a bug", "I'll check it out"] }
+        { speaker: "Jericho", face: "jericho", choices: ["I'm not sure", "I think it's a bug", "I'll check it out"] },
     ],
     bugResponse: [
+        { speaker: "Mom", face: "jeremy", text: "You should check it out, be careful though!" },
+        { action: () => hudChange("town") },
+        { action: () => waitingForChoice = false },
+    ],
+    bugResponseOffered: [
         { speaker: "Mom", face: "jeremy", text: "Well, be careful!" },
-        { action: () => hudChange("town") }
+        { action: () => hudChange("town") },
+        { action: () => waitingForChoice = false },
+    ],
+    mentorHelp: [
+        { speaker: "Mentor", face: "jeremy", text: "looks like you need help!" },
+        { action: () => villagerMove("touchPlayer") },
+    ],
+    mentorKillBug: [
+        { speaker: "Mentor", face: "jeremy", text: "AHHHHHHHH" },
+        { action: () => enemyDie(enemy[0]) },
+        { speaker: "Mentor", face: "jeremy", text: "Damn Bugs" },
+        { speaker: "Mentor", face: "jeremy", text: "Hi I'm Mark, you must be Jericho" },
+        { speaker: "Jericho", face: "jericho", text: "Yes, I am!" },
+        { speaker: "Mentor", face: "jeremy", text: "Nice to meet you, I heard about your dad" },
+        { speaker: "Jericho", face: "jericho", text: "..." },
+        { speaker: "Mentor", face: "jeremy", text: "These bugs appeared when your dad dissapeared" },
+        { speaker: "Mentor", face: "jeremy", text: "Maybe they are connected. You want me to show you how to defeat them" },
+        { speaker: "Jericho", face: "jericho", choices: ["Yes if it'll help my dad", "No, My dad wouldn't want me too"] },
+    ],
+    showAround: [
+        { speaker: "Mentor", face: "jeremy", text: "Great!" },
+        { speaker: "Mentor", face: "jeremy", text: "First, let me take you to town" },
+        { action: () => villagerMove("moveHouse") },
+        { action: () => hudChange("town") },
+    ],
+    mentorMoveMore: [
+        { action: () => villagerMove("moveSecond") },
+
+    ],
+
+    MentorOutsidePotionShop: [
+        { speaker: "Mentor", face: "jeremy", text: "Man your slow, come inside the potion shop" },
+        { action: () => villager[0].x = 4000 },
+        { action: () => waitingForChoice = false },
+
+    ],
+
+    mentorInsidePotionShop: [
+        { speaker: "Mentor", face: "jeremy", text: "Heres the potion shop, you can buy magical potions" },
+        { speaker: "Mentor", face: "jeremy", text: "take a look around meet me outside" },
+        { action: () => villagerMove("leaveShop") },
+        { speaker: "jericho", face: "jericho", text: " " },
+    ],
+
+    bugFight: [
+        { speaker: "Mentor", face: "jeremy", text: "now the hard part, fighting the bugs" },
+        { action: () => villagerMove("bugLearn") },
+
+    ],
+
+    bugLearn: [
+        { speaker: "Mentor", face: "jeremy", text: "Your powerful now, look at him when you hit" },
+        { action: () => hudChange("town") },
+        { action: () => waitingForChoice = false },
+    ],
+
+    momComes: [
+        { speaker: "Mentor", face: "jeremy", text: "Dang that was amazing, just one-" },
+        // { speaker: "Mom", face: "jeremy", text: "Jericho!" },
+        // { speaker: "Mom", face: "jeremy", text: "Are you okay?" },
+        // { speaker: "Mom", face: "jeremy", text: "I heard a loud noise" },
+        // { speaker: "Mom", face: "jeremy", text: "I thought you were in danger" },
+        // { speaker: "Jericho", face: "jericho", text: "I'm fine, I was just training" },
+        // { speaker: "Mom", face: "jeremy", text: "You should be careful, I don't want to lose you too" },
+        // { speaker: "Mom", face: "jeremy", text: "You look so much like dad right now" },
+        { speaker: "Jericho", face: "jericho", choices: ["Mom I can save him", "..."] },
+
+    ],
+
+    ICanSaveHim: [
+        // { speaker: "Mom", face: "jeremy", text: "No you can't look what happened to dad" },
+        // { speaker: "Mom", face: "jeremy", text: "Time to go come on" },
+
+        // {action: () => screen = 1 },
+        // {action: () => screenChange(1) },
+        // {action: () => player.x = 217 },
+        // {action: () => player.y = 370 },
+        // { speaker: "jericho", face: "jericho", text: "Omg, I shouldn't be sneaking away" },
+        // { speaker: "jericho", face: "jericho", text: "what would dad think..." },
+        // { speaker: "jericho", face: "jericho", text: "well since I'm out where should I go" },
+        // { speaker: "jericho", face: "jericho", choices: ["Cart", "Mall"] },
+        { action: () => startScene("bossFightFast") }, // AFTER choice
+    ],
+
+    sayNothing: [
+        // { speaker: "Mom", face: "jeremy", text: "well its Time to go come on" },
+
+        // {action: () => screen = 1 },
+        // {action: () => screenChange(1) },
+        // {action: () => player.x = 217 },
+        // {action: () => player.y = 370 },
+        // { speaker: "jericho", face: "jericho", text: "Omg, I shouldn't be sneaking away" },
+        // { speaker: "jericho", face: "jericho", text: "what would dad think..." },
+        // { speaker: "jericho", face: "jericho", text: "well since I'm out where should I go" },
+        // { speaker: "jericho", face: "jericho", choices: ["Cart", "Mall"] },
+        { action: () => startScene("bossFightFast") }, // AFTER choice
+
+    ],
+
+
+
+
+    bossFightFast: [
+        { speaker: "jericho", face: "jericho", text: "You think you can defeat me?" },
+        { speaker: "jericho", face: "jericho", text: "pitiful, let the battle comence" },
+        { action: () => hudChange("town") },
+        { action: () => FastBoss() },
     ]
+
 };
+
+
+
 
 
 // Start a scene by setting up the dialogue queue
 function startScene(sceneName) {
+    console.log("Starting scene:", sceneName);
+    waitingForChoice = true;
+    hudChange("room");
     currentScene = sceneName;
     dialogueQueue = [...scenes[sceneName]];
     processDialogue();
 }
 
-// Process the dialogue queue step by step.
+
+
 function processDialogue() {
+
+
     if (dialogueQueue.length === 0) {
         isProcessingDialogue = false;
-        waitingForChoice = false;
+
         return;
     }
     isProcessingDialogue = true;
     const step = dialogueQueue.shift();
+
     if (step.text) {
-        
-        typeText("regularText", "");
         document.getElementById("faces").src = `img/hud/faces/${step.face}.png`;
         document.getElementById("speakerName").innerText = step.speaker;
         typeText("regularText", step.text);
-        setTimeout(processDialogue, 5000);
+        setTimeout(processDialogue, 2500);
     } else if (step.choices) {
-        waitingForChoice = true;
         showChoices(step.choices);
     } else if (step.action) {
         step.action();
         processDialogue();
     }
+    console.log("Processing step in scene:", currentScene, step);
 }
 
 // Displays choices in the HUD.
 function showChoices(choices) {
+    typeText("regularText", "");
+
     const choiceIDs = ["choiceOne", "choiceTwo", "choiceThree"];
     const textIDs = ["choiceTextone", "choiceTexttwo", "choiceTextthree"];
+
+    // Clear all choice text areas first
+    textIDs.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = "";
+    });
+
     choices.forEach((text, i) => {
         const el = document.getElementById(choiceIDs[i]);
-        const textEl = document.getElementById(textIDs[i]);
+        if (!el) return;
+
         el.classList.remove("hidden");
         el.classList.add("show");
-        textEl.innerText = text;
+
+        typeText(textIDs[i], text);
     });
 }
+
 
 // Director function for handling choice button clicks.
 function director(selected) {
@@ -259,20 +422,91 @@ function director(selected) {
 
 // Branch based on the chosen dialogue option.
 function onChoice(index) {
-    waitingForChoice = false;
+
     // Hide all choices:
     ["choiceOne", "choiceTwo", "choiceThree"].forEach(id => {
         document.getElementById(id).classList.add("hidden");
         document.getElementById(id).classList.remove("show");
     });
     currentChoice = index;
+    console.log("Choice made:", currentChoice);
     // For this example, we branch from the tutorial scene:
     if (currentScene === "tutorialIntro") {
-        startScene("bugResponse");
+        if (currentChoice === 0 || currentChoice === 1) {
+            startScene("bugResponse");
+        }
+        else if (currentChoice === 2) {
+            startScene("bugResponseOffered");
+        }
+
     }
+
+    if (currentScene === "mentorKillBug") {
+        if (currentChoice === 0) {
+            startScene("showAround");
+        }
+    }
+
+    if (currentScene === "momComes") {
+
+        if (currentChoice === 0) {
+            startScene("bossFightFast");
+        }
+        else if (currentChoice === 1) {
+            console.log("test")
+            startScene("bossFightFast");
+        }
+    }
+
+
+
+
 }
 
+function villagerMove(condition) {
+    if (condition === "touchPlayer") {
+        villager[0].touchObject = "player";
+        villager[0].moving = true;
+        villager[0].targetX = player.x;
+        villager[0].targetY = player.y;
 
+    }
+
+    if (condition === "moveHouse") {
+        villager[0].touchObject = "firstMove";
+        villager[0].moving = true;
+        villager[0].targetX = 1050;
+        villager[0].targetY = -100;
+    }
+
+    if (condition === "moveSecond") {
+        villager[0].touchObject = "secondMove";
+        villager[0].y = 400;
+        villager[0].moving = true;
+        villager[0].targetX = 1050;
+        villager[0].targetY = -100;
+
+
+    }
+
+    if (condition === "leaveShop") {
+        villager[0].touchObject = "leaveShop";
+        villager[0].moving = true;
+        villager[0].targetX = 1000;
+        villager[0].targetY = 1000;
+
+
+    }
+
+    if (condition === "bugLearn") {
+        villager[0].touchObject = "bugLearn";
+        villager[0].moving = true;
+        villager[0].targetX = -150;
+        villager[0].targetY = 300;
+
+
+    }
+}
 
 // ====================================================
 // Main Game Loop, Update, and Render Functions
@@ -284,13 +518,30 @@ function loop() {
 }
 
 function update() {
-    // Example: trigger dialogue when reaching a certain choice state.
-    // (Replace this with your own condition based on game events.)
+
+    if (waitingForChoice) {
+        controller.left = false;
+        controller.right = false;
+        controller.up = false;
+        controller.down = false;
+    }
+
     if (start) {
-        screen = 1;
-        screenChange(1);
+        screen = 3;
+        screenChange(3);
         start = false;
     }
+
+
+
+    if ((player.y <= -82) && (player.x >= 967) && (player.x <= 1150) && screen === 1 && currentScene === "showAround") {
+        screen = 2;
+        screenChange(2);
+        player.y = 909;
+        villager = [(createVillager(100, 100, 1050, 700))]
+        startScene("mentorMoveMore");
+    }
+
     if ((player.y <= -82) && (player.x >= 967) && (player.x <= 1150) && screen === 1) {
         screen = 2;
         screenChange(2);
@@ -301,6 +552,15 @@ function update() {
         screenChange(1);
         player.y = -60;
     }
+
+    if ((player.y <= -81) && (player.x >= 996) && (player.x <= 1128) && screen === 2 && currentScene === "mentorMoveMore") {
+        screen = 3;
+        screenChange(3);
+        player.y = 909;
+        villager = [(createVillager(100, 100, 1050, 700))]
+        startScene("MentorOutsidePotionShop");
+    }
+
     if ((player.y <= -81) && (player.x >= 996) && (player.x <= 1128) && screen === 2) {
         screen = 3;
         screenChange(3);
@@ -312,10 +572,52 @@ function update() {
         player.y = -69;
     }
     if ((player.y >= 967) && (player.x >= 865) && (player.x <= 1056.5) && screen === 105) {
-        screen = 3;
-        screenChange(3);
-        player.y = 680;
+
+        if (currentScene === "mentorInsidePotionShop") {
+            screen = 3;
+            screenChange(3);
+            player.y = 680;
+            villager = [(createVillager(100, 100, 1050, 700))]
+            player.health = 100;
+
+
+            startScene("bugFight");
+        }
+        else {
+            screen = 3;
+            screenChange(3);
+            player.y = 680;
+        }
     }
+
+    if ((player.x <= -57) && (player.y >= 281) && (player.y <= 384) && screen === 3) {
+
+        if (currentScene === "bugFight") {
+            screen = 4;
+            screenChange(4);
+            player.x = context.canvas.width - player.width;
+            villager = [(createVillager(100, 100, context.canvas.width - player.width, 600))]
+            enemy = [createEnemy(100, 100, 100, 300, "img/enemies/bugs/blueBug.png")]
+            player.attackDamage = 20;
+            enemy[0].attackDamage = 5;
+            startScene("bugLearn");
+        }
+        else {
+            screen = 3;
+            screenChange(3);
+            player.y = 680;
+        }
+    }
+
+    if ((player.x >= 2000 + player.width) && (player.y >= 268) && (player.y <= 508) && screen === 4) {
+
+       
+            screen = 3;
+            screenChange(3);
+       
+    }
+ 
+
 
     // Calculate grass effect on movement.
     let inGrassSpeed = 1;
@@ -329,6 +631,7 @@ function update() {
     if (controller.left) {
         player.x -= player.speed * inGrassSpeed;
         player.direction = "left";
+
     }
     if (controller.right) {
         player.x += player.speed * inGrassSpeed;
@@ -343,6 +646,10 @@ function update() {
         player.direction = "down";
     }
 
+
+
+
+
     // IFrame timers for player attacks.
     if (player.attackedTime > 0) {
         player.attackedTime--;
@@ -351,6 +658,99 @@ function update() {
         player.playerAttackCooldown = player.playerAttackCooldown - 1.00;
         updateCooldown(player.playerAttackCooldown);
     }
+
+
+    if (fastBattle) {
+
+        context.drawImage(fastImage, fast.x, fast.y, fast.width, fast.height);
+        
+        const barWidth = fast.width;
+        const barHeight = 6;
+        const barX = fast.x;
+        const barY = fast.y - 10;
+        const healthPercent = fast.health / fast.maxHealth;
+        context.fillStyle = "gray";
+        context.fillRect(barX, barY, barWidth, barHeight);
+        context.fillStyle = "red";
+        context.fillRect(barX, barY, barWidth * healthPercent, barHeight);
+
+
+    }
+
+
+    // Smoothly move the villager toward the target position
+    villager.forEach(villager => {
+        if (villager.moving) {
+            if (villager.touchObject === "player") {
+                if (!collisionDetectionOverlap(player, villager)) {
+                    const villagerObj = villager;
+                    let dx = villagerObj.targetX - villagerObj.x;
+                    let dy = villagerObj.targetY - villagerObj.y;
+                    let distance = Math.sqrt(dx * dx + dy * dy);
+                    if (distance > 5) {
+                        let vx = (dx / distance) * 5;
+                        let vy = (dy / distance) * 5;
+                        villagerObj.x += vx;
+                        villagerObj.y += vy;
+                    }
+
+
+
+
+                }
+                else {
+                    villager.moving = false; // Stop moving once the villager reaches the target
+                    if (currentScene === "mentorHelp") {
+                        startScene("mentorKillBug");
+
+                    }
+                }
+
+            }
+
+
+            if (villager.touchObject === "firstMove") {
+                // Check if within tolerance range of target position
+                if (Math.abs(villager.x - villager.targetX) > 2 || Math.abs(villager.y - villager.targetY) > 2) {
+                    const villagerObj = villager;
+                    let dx = villagerObj.targetX - villagerObj.x;
+                    let dy = villagerObj.targetY - villagerObj.y;
+                    let distance = Math.sqrt(dx * dx + dy * dy);
+                    let vx = (dx / distance) * 5;
+                    let vy = (dy / distance) * 5;
+                    villagerObj.x += vx;
+                    villagerObj.y += vy;
+                } else {
+                    villager.moving = false;
+                    waitingForChoice = false;
+                }
+            }
+
+
+            if (villager.touchObject === "secondMove" || villager.touchObject === "leaveShop" || villager.touchObject === "bugLearn") {
+                // Check if within tolerance range of target position
+                if (Math.abs(villager.x - villager.targetX) > 2 || Math.abs(villager.y - villager.targetY) > 2) {
+                    const villagerObj = villager;
+                    let dx = villagerObj.targetX - villagerObj.x;
+                    let dy = villagerObj.targetY - villagerObj.y;
+                    let distance = Math.sqrt(dx * dx + dy * dy);
+                    let vx = (dx / distance) * 5;
+                    let vy = (dy / distance) * 5;
+                    villagerObj.x += vx;
+                    villagerObj.y += vy;
+                } else {
+                    villager.moving = false;
+                    waitingForChoice = false;
+                }
+            }
+
+
+
+
+        }
+    })
+
+
 
     // Enemy AI loop.
     enemy.forEach(attacker => {
@@ -394,6 +794,19 @@ function update() {
                     player.health = Math.max(0, player.health - attacker.attackDamage);
                     document.getElementById("healthFill").style.width = player.health + "%";
                 }
+
+                // ====================================================
+                // Fast Quest healing check
+                // ====================================================
+
+                if (currentScene === "bugResponse" || currentScene === "bugResponseOffered") {
+
+                    if (player.health <= 50) {
+                        console.log("test:")
+                        startScene("mentorHelp");
+                    }
+                }
+
             }
         }
         if (attacker.state === "returning") {
@@ -435,12 +848,20 @@ function update() {
     // Uncomment the next lines to start the dialogue sequence:
     //
     if (!isProcessingDialogue && path === "fastPath" && choice === 0) {
+        player.x = 217
+        player.y = 370
         enemy = [
             createEnemy(100, 100, 1900, 800, "img/enemies/bugs/blueBug.png")
         ]
+
+        enemy[0].attackDamage = 50;
         hudChange("room");
-        startScene("tutorialIntro");
+        // startScene("tutorialIntro");
+        startScene("bugFight");
         choice = 1; // Mark it as triggered
+        villager = [(createVillager(100, 100, 1050, -100))]
+
+        console.log("apple")
     }
 }
 
@@ -515,6 +936,7 @@ function render() {
 // Animation and Screen Change Functions
 // ====================================================
 function updateAnimation() {
+
     frameCounter++;
     if (frameCounter >= framesPerSecond) {
         frameCounter = 0;
@@ -535,6 +957,8 @@ function updateAnimation() {
             framesPerSecond = 20;
         }
     }
+
+
 }
 
 function screenChange(screen) {
@@ -554,8 +978,8 @@ function screenChange(screen) {
                 createHome(600, 600, 1100, 75, "img/homes/home3.png"),
                 createHome(600, 600, 1500, 40, "img/homes/home4.png")
             ];
-            barrier = [ createBarrier(280, 10, 110, 360) ];
-            door = [ createDoor(90, 90, 205, 370, 1) ];
+            barrier = [createBarrier(280, 10, 110, 360)];
+            door = [createDoor(90, 90, 205, 370, 1)];
             interactable = [];
             enemy = [];
             break;
@@ -586,12 +1010,23 @@ function screenChange(screen) {
                 createGrass(850, 90, 1170, 900)
             ];
             homes = [];
-            barrier = [ createBarrier(90, 10, 1050, 670) ];
-            door = [ createDoor(90, 90, 1050, 670, 5) ];
+            barrier = [createBarrier(90, 10, 1050, 670)];
+            door = [createDoor(90, 90, 1050, 670, 5)];
             enemy = [];
             interactable = [];
             bg = new Image();
             bg.src = "img/bg/town.png";
+            hudChange("town");
+            break;
+        case 4:
+            grass = []
+            homes = [];
+            barrier = [];
+            door = [];
+            enemy = [];
+            interactable = [];
+            bg = new Image();
+            bg.src = "img/bg/bugspawner.png";
             hudChange("town");
             break;
         case 101:
@@ -728,6 +1163,11 @@ function enemyDie(attacker) {
         rewardType = Math.floor(Math.random() * 11);
     } else {
         treasure.push(createTreasure(attacker.x, attacker.y, 50, 50, "coin"));
+    }
+
+
+    if (currentScene === "bugLearn") {
+        startScene("momComes");
     }
 }
 
@@ -926,8 +1366,16 @@ document.addEventListener("keyup", (e) => {
                         screenChange(101);
                         break;
                     case 5:
-                        screen = 105;
-                        screenChange(105);
+                        if (currentScene === "MentorOutsidePotionShop") {
+                            screen = 105;
+                            screenChange(105);
+                            villager = [(createVillager(100, 100, 600, 400))]
+                            startScene("mentorInsidePotionShop");
+                        }
+                        else {
+                            screen = 105;
+                            screenChange(105);
+                        }
                         break;
                 }
             }
@@ -965,33 +1413,39 @@ document.getElementById("Close").addEventListener("click", () => {
 // ====================================================
 // Typewriter Effect for Text Display
 // ====================================================
-function typeText(elementId, text, callback, delay = 30) {
-    const element = document.getElementById(elementId);
 
-    // Stop any ongoing typing
-    if (typingInterval) {
-        clearInterval(typingInterval);
-        typingInterval = null;
-        const el = document.getElementById("regularText");
-        el.textContent = currentText;
+let typingTarget = null;
+
+function typeText(elementOrId, text, callback, delay = 30) {
+    const element = typeof elementOrId === "string"
+        ? document.getElementById(elementOrId)
+        : elementOrId;
+
+    if (!element) {
+        console.warn("typeText: Element not found");
         return;
     }
-    
 
-    currentText = text;
     element.textContent = "";
     let index = 0;
 
-    typingInterval = setInterval(() => {
+    const interval = setInterval(() => {
         if (index < text.length) {
             element.textContent += text[index++];
         } else {
-            clearInterval(typingInterval);
-            typingInterval = null;
+            clearInterval(interval);
             if (callback) callback();
         }
     }, delay);
 }
+
+
+
+function FastBoss() {
+    fastBattle = true
+
+}
+
 
 
 
