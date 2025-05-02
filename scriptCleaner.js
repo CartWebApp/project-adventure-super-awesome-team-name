@@ -22,6 +22,7 @@ let waitingForChoice = false;
 let path = "fastPath";
 let choice = 3;
 let optionSelected;
+let isBrowsingShop = false;
 
 
 let scaleFactor;
@@ -792,7 +793,7 @@ function choiceSelection(path, choice, choiceNum) {
 
 
 
-let isBrowsingShop = false;
+
 
 document.addEventListener("keyup", (e) => {
 
@@ -883,6 +884,7 @@ function closeShop() {
 document.getElementById("Close").addEventListener("click", () => {
     closeShop()
     typeText("regularText", "Thank you for visiting the potion shop! If you need anything else, just let me know.");
+
     if (isTyping) {
         isTyping = false;
         const element = document.getElementById("regularText");
@@ -894,23 +896,24 @@ document.getElementById("Close").addEventListener("click", () => {
 
 function typeText(elementId, text, delay = 50) {
     const element = document.getElementById(elementId);
-    let localText = text; // Use a local variable for the text
-    element.textContent = "";
+    currentText = text; // Store the full text globally
+    element.textContent = ""; 
     let index = 0;
-    let isTypingLocal = true; // Local typing state
+    
 
     function typeNextChar() {
-        if (!isTypingLocal) {
-            element.textContent = localText;
+        if (!isTyping) {
+            element.textContent = currentText;
             return;
         }
 
-        if (index < localText.length) {
-            element.textContent += localText[index];
+        if (index < text.length) {
+            isTyping = true;
+            element.textContent += text[index];
             index++;
             setTimeout(typeNextChar, delay);
         } else {
-            isTypingLocal = false;
+            isTyping = false;
         }
     }
 
@@ -1467,8 +1470,12 @@ function potionBuy(type) {
 }
 
 function usePotion(type) {
+   
     const threeMinutes = 60 * 3;
     let display = document.querySelector('#timerSpeed');
+    
+    console.log(inventory)
+
     if (type === "healingPotion") {
         if (player.health < 100) {
             player.health = player.health + 5
@@ -1493,7 +1500,7 @@ function usePotion(type) {
 
 
         display = document.querySelector('#timerSpeed');
-
+        startCountdown(threeMinutes, display);
 
         setTimeout(() => {
             player.speed = speed
@@ -1513,7 +1520,7 @@ function usePotion(type) {
         }, 180000);
     }
 
-    startCountdown(threeMinutes, display);
+    
 
     updateInventory()
 }

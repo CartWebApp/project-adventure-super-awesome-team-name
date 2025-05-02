@@ -25,6 +25,13 @@ let waitingForChoice = false;
 let typingInterval = null;
 let fastBattle = false;
 
+let speedPotionTimeout = null;
+let strengthPotionTimeout = null;
+
+let speedCountdownInterval = null;
+let strengthCountdownInterval = null;
+
+
 
 // Used for cutscene branches / choices in dialogue
 let path = "fastPath";
@@ -210,7 +217,7 @@ document.getElementById("potionSpeed").addEventListener("click", () => potionBuy
 document.getElementById("potionStrength").addEventListener("click", () => potionBuy("strength"));
 
 document.getElementById("healingPotionInventory").addEventListener("click", () => usePotion("healingPotion"));
-document.getElementById("shieldPotionInventory").addEventListener("click", () => usePotion("shieldingPotion"));
+document.getElementById("shieldPotionInventory").addEventListener("click", () => usePotion("shieldPotion"));
 document.getElementById("speedPotionInventory").addEventListener("click", () => usePotion("speedPotion"));
 document.getElementById("strengthPotionInventory").addEventListener("click", () => usePotion("strengthPotion"));
 
@@ -312,7 +319,7 @@ const scenes = {
         { speaker: "Mom", face: "mom", text: "You should be careful, I don't want to lose you too" },
         { speaker: "Mom", face: "mom", text: "You look so much like dad right now" },
         { speaker: "Jericho", face: "jericho", choices: ["Mom I can save him", "..."] },
-        
+
 
     ],
 
@@ -460,11 +467,11 @@ function onChoice(index) {
     if (currentScene === "momComes") {
 
         if (currentChoice === 0) {
-             hudChange("town") 
-             waitingForChoice = false
+            hudChange("town")
+            waitingForChoice = false
         }
         else if (currentChoice === 1) {
-            hudChange("town") 
+            hudChange("town")
             waitingForChoice = false
         }
     }
@@ -538,8 +545,8 @@ function update() {
     }
 
     if (start) {
-        screen = 1;
-        screenChange(1);
+        screen = 3;
+        screenChange(3);
         start = false;
     }
 
@@ -618,7 +625,7 @@ function update() {
             screenChange(4);
             player.x = context.canvas.width - player.width;
             player.attackDamage = 20;
-            
+
             enemy = [
                 createEnemy(100, 100, 100, 300, "img/enemies/bugs/blueBug.png"),
                 createEnemy(100, 100, 100, 500, "img/enemies/bugs/blueBug.png"),
@@ -631,12 +638,12 @@ function update() {
 
     if ((player.x >= 2000 + player.width) && (player.y >= 268) && (player.y <= 508) && screen === 4) {
 
-       
-            screen = 3;
-            screenChange(3);
-       
+
+        screen = 3;
+        screenChange(3);
+
     }
- 
+
 
 
     // Calculate grass effect on movement.
@@ -683,7 +690,7 @@ function update() {
     if (fastBattle) {
 
         context.drawImage(fastImage, fast.x, fast.y, fast.width, fast.height);
-        
+
         const barWidth = fast.width;
         const barHeight = 6;
         const barX = fast.x;
@@ -844,7 +851,7 @@ function update() {
                 attacker.state = "idle";
             }
         }
-        if (attacker.health === 0) {
+        if (attacker.health <= 0) {
             attacker.state = "idle";
             enemyDie(attacker);
         }
@@ -902,6 +909,7 @@ function render() {
             context.drawImage(home.mainHouse, home.x, home.y, home.width, home.height - 50);
         }
     });
+
     enemy.forEach(attacker => {
         context.drawImage(attacker.attackerImg, attacker.x, attacker.y, attacker.width, attacker.height);
         const barWidth = attacker.width;
@@ -914,6 +922,7 @@ function render() {
         context.fillStyle = "red";
         context.fillRect(barX, barY, barWidth * healthPercent, barHeight);
     });
+
     treasure.forEach(loot => {
         if (loot.type === "gem") {
             treasureImage.src = (rewardType <= 5) ? "img/rewards/greenGem.png" : "img/rewards/redGem.png";
@@ -1212,6 +1221,9 @@ function potionBuy(type) {
         if (player.money >= 5) {
             player.money -= 5;
             document.getElementById("shopCoin").innerText = player.money;
+            if (isTyping) {
+                typeText("regularText", "");
+            }
             typeText("regularText", "You bought a healing potion!");
             inventory.push("healingPotion");
         } else {
@@ -1221,6 +1233,9 @@ function potionBuy(type) {
         if (player.money >= 5) {
             player.money -= 5;
             document.getElementById("shopCoin").innerText = player.money;
+            if (isTyping) {
+                typeText("regularText", "");
+            }
             typeText("regularText", "You bought a shield potion!");
             inventory.push("shieldPotion");
         } else {
@@ -1230,6 +1245,9 @@ function potionBuy(type) {
         if (player.money >= 5) {
             player.money -= 5;
             document.getElementById("shopCoin").innerText = player.money;
+            if (isTyping) {
+                typeText("regularText", "");
+            }
             typeText("regularText", "You bought a speed potion!");
             inventory.push("speedPotion");
         } else {
@@ -1248,35 +1266,83 @@ function potionBuy(type) {
 }
 
 function usePotion(type) {
-    const threeMinutes = 60 * 3;
-    let display = document.querySelector('#timerSpeed');
-    if (type === "healingPotion") {
-        if (player.health < 100) {
-            player.health = Math.min(100, player.health + 5);
-            document.getElementById("healthFill").style.width = player.health + "%";
-            inventory.splice(inventory.indexOf(type), 1);
+    const threeMinutes = 180; // in seconds
+
+    const displayMap = {
+        speedPotion: '#timerSpeed',
+        strengthPotion: '#timerStrength'
+    };
+
+    const potionEffects = {
+        healingPotion: () => {
+            if (player.health < 100) {
+                player.health = Math.min(100, player.health + 5);
+                document.getElementById("healthFill").style.width = player.health + "%";
+            } else {
+                return false; // Don't consume potion if at full health
+            }
+        },
+        shieldPotion: () => {
+            player.shield += 5;
+            document.getElementById("shieldFill").style.width = player.shield + "%";
+        },
+        speedPotion: () => {
+            const oldSpeed = 6; // original speed
+            player.speed = oldSpeed + 1;
+
+            // Clear previous timer
+            if (speedPotionTimeout) clearTimeout(speedPotionTimeout);
+
+            speedPotionTimeout = setTimeout(() => {
+                player.speed = oldSpeed;
+                speedPotionTimeout = null;
+            }, threeMinutes * 1000);
+        },
+        strengthPotion: () => {
+            const oldAttack = 1; // original attack damage
+            player.attackDamage = oldAttack + 5;
+
+            // Clear previous timer
+            if (strengthPotionTimeout) clearTimeout(strengthPotionTimeout);
+
+            strengthPotionTimeout = setTimeout(() => {
+                player.attackDamage = oldAttack;
+                strengthPotionTimeout = null;
+            }, threeMinutes * 1000);
         }
-    } else if (type === "shieldingPotion") {
-        player.shield += 5;
-        document.getElementById("shieldFill").style.width = player.shield + "%";
-        inventory.splice(inventory.indexOf(type), 1);
-    } else if (type === "speedPotion") {
-        let speed = player.speed;
-        player.speed += 1;
-        inventory.splice(inventory.indexOf(type), 1);
-        display = document.querySelector('#timerSpeed');
-        setTimeout(() => { player.speed = speed; }, 180000);
-    } else if (type === "strengthPotion") {
-        let attack = player.attackDamage;
-        player.attackDamage += 5;
-        inventory.splice(inventory.indexOf(type), 1);
-        display = document.querySelector('#timerStrength');
-        startCountdown(threeMinutes, display);
-        setTimeout(() => { player.attackDamage = attack; }, 180000);
+
+    };
+
+    const effect = potionEffects[type];
+
+    if (!effect) {
+        console.warn(`Potion type "${type}" not recognized.`);
+        return;
     }
-    startCountdown(threeMinutes, display);
+
+    const success = effect();
+
+    if (success === false) return; // Don't consume if healing is unnecessary
+
+    // Remove one potion from inventory
+    const index = inventory.indexOf(type);
+    if (index !== -1) {
+        inventory.splice(index, 1);
+    }
+
+    // Start timer display if applicable
+    const displaySelector = displayMap[type];
+    if (displaySelector) {
+        const display = document.querySelector(displaySelector);
+        if (display) {
+            const effectType = type.replace("Potion", "").toLowerCase(); // "speed" or "strength"
+            startCountdown(threeMinutes, display, effectType);
+        }
+    }
+
     updateInventory();
 }
+
 
 function updateInventory() {
     let healingPotion = 0, shieldPotion = 0, speedPotion = 0, strengthPotion = 0;
@@ -1320,20 +1386,39 @@ function updateInventory() {
     }
 }
 
-function startCountdown(duration, display) {
-    let timer = duration, minutes, seconds;
+function startCountdown(duration, display, type) {
+    let timer = duration;
+    let minutes, seconds;
+
+    // Clear the old interval if it exists
+    if (type === "speed" && speedCountdownInterval) {
+        clearInterval(speedCountdownInterval);
+    }
+    if (type === "strength" && strengthCountdownInterval) {
+        clearInterval(strengthCountdownInterval);
+    }
+
     const intervalId = setInterval(function () {
         minutes = parseInt(timer / 60, 10);
         seconds = parseInt(timer % 60, 10);
         minutes = minutes < 10 ? "0" + minutes : minutes;
         seconds = seconds < 10 ? "0" + seconds : seconds;
         display.textContent = minutes + ":" + seconds;
+
         if (--timer < 0) {
             clearInterval(intervalId);
             display.textContent = "Time's up!";
         }
     }, 1000);
+
+    // Store interval reference
+    if (type === "speed") {
+        speedCountdownInterval = intervalId;
+    } else if (type === "strength") {
+        strengthCountdownInterval = intervalId;
+    }
 }
+
 
 // ====================================================
 // Event Listeners for Shop and Inventory Toggling
@@ -1448,16 +1533,27 @@ function typeText(elementOrId, text, callback, delay = 30) {
 
     element.textContent = "";
     let index = 0;
+    isTyping = true;
+    currentText = text;  // <-- Save the full text for skip-to-end
 
     const interval = setInterval(() => {
+        if (!isTyping) {
+            clearInterval(interval);
+            element.textContent = currentText;
+            if (callback) callback();
+            return;
+        }
+
         if (index < text.length) {
             element.textContent += text[index++];
         } else {
             clearInterval(interval);
+            isTyping = false;
             if (callback) callback();
         }
     }, delay);
 }
+
 
 
 

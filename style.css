@@ -274,7 +274,7 @@ main {
 }
 
 #left {
-    border: 2px solid #095f79;
+    border: 2px solid white;
 
     border-radius: 10px;
     width: 106px;
@@ -291,7 +291,7 @@ main {
 }
 
 #right {
-    border: 2px solid #095f79;
+    border: 2px solid white;
     border-radius: 10px;
     width: 400px;
     height: 250px;
@@ -314,7 +314,7 @@ main {
 }
 
 #topSpot {
-    border: 2px solid #012631;
+    border: 2px solid white;
     border-radius: 5px;
     width: 120px;
     height: 40px;
