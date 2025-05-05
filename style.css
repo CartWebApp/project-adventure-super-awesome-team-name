@@ -353,26 +353,27 @@ main {
     flex-flow: column nowrap;
     position: absolute;
     top: 0;
-    background-image: url(img/ui/shopUi2nd.png);
-    background-size: contain;
+    background-image: url(img/ui/shopUiLarge.png);
+    background-size: cover;
     background-repeat: no-repeat;
+    background-size: contain;
+    height: 100%;
+    width: 100%;
     background-position: center;
-    height: 70%;
-    width: 50%;
-    left: 25%;
     align-items: center;
     z-index: 5;
 }
 
 #potionShop>section {
-    overflow: scroll;
+    display: flex;
     height: 65%;
     margin-top: 5%;
-    scrollbar-color: rgba(255, 0, 0, 0) rgba(255, 166, 0, 0);
+    width: 80%;
+   justify-content: space-evenly;
 
 }
 
-#potionShop>section>div>div:first-of-type>img {
+#potionShop>section>aside > div>div:first-of-type>img {
     width: 70%;
 
 
@@ -381,41 +382,42 @@ main {
 #PotionShop>header>h2 {
     font-family: inventoryFont !important;
     color: white;
-    font-size: 55px;
+    font-size: 80px;
     margin: 0;
-    margin-top: 5%;
+    margin-top: 2%;
     text-align: center;
 }
 
 #PotionShop>header {
     display: inline-flex;
     flex-flow: row nowrap;
-    justify-content: space-evenly;
-    align-items: flex-end;
+    justify-content: space-around;
+    align-items: flex-start;
     width: 100%;
+    margin-top: 1%;
 
 }
 
-#PotionShop>header>img {
-    width: 50px;
+#PotionShop>header > aside>img {
+    width: 150px;
     margin-top: 5%;
-
+    margin-right: 5%;
 }
 
 header>aside {
     display: flex;
-
+    width: fit-content;
 }
 
 #shopCoin {
     margin-bottom: 0;
     margin-top: 5%;
-    color: #D3Af37;
-    font-size: 40px;
+    color: #ffffff;
+    font-size: 100px;
     margin-right: 30%;
 }
 
-#PotionShop>section>div {
+#PotionShop>section> aside > div {
     display: flex;
     flex-flow: row nowrap;
     justify-content: space-around;
@@ -427,11 +429,11 @@ header>aside {
     margin-right: 0;
 }
 
-#PotionShop>section>div:first-of-type {
+#PotionShop>section> aside > div:first-of-type {
     margin-top: 0;
 }
 
-#PotionShop>section>div>div:first-of-type {
+#PotionShop>section> aside > div>div:first-of-type {
     height: 200px;
     width: 200px;
     display: flex;
@@ -439,7 +441,7 @@ header>aside {
     justify-content: center;
 }
 
-#PotionShop>section>div>div:last-of-type {
+#PotionShop>section> aside > div>div:last-of-type {
     display: flex;
     flex-flow: column nowrap;
     justify-content: center;
@@ -447,40 +449,54 @@ header>aside {
     font-family: inventoryFont !important;
     height: fit-content;
     width: 600px;
-    
+
 }
 
-#PotionShop>section>div>div:last-of-type>p {
+#PotionShop>section> aside > div>div:last-of-type>p {
     color: white;
     font-family: inventoryFont !important;
 }
 
-#PotionShop>section>div>div:last-of-type>p:first-of-type {
+#PotionShop>section> aside > div>div:last-of-type>p:first-of-type {
     font-size: 40px;
     margin: 0;
     margin-bottom: 5%;
 }
 
-#PotionShop>section>div>div:last-of-type>p:last-of-type,
-#PotionShop>section>div>div:last-of-type>p:nth-of-type(2) {
+#PotionShop>section> aside > div>div:last-of-type>p:last-of-type,
+#PotionShop>section> aside > div>div:last-of-type>p:nth-of-type(2) {
     font-size: 30px;
     margin: 0;
 }
 
-#potionShop>section>div>div:last-of-type>img {
+#potionShop>section> aside > div>div:last-of-type>img {
     height: 60px;
     width: 100px;
     margin-top: 5%;
     transition: transform 0.2s ease-out;
 }
 
-#potionShop>section>div>div:last-of-type>img:hover {
+#potionShop>section> aside > div>div:last-of-type>img:hover {
     cursor: pointer;
     transform: scale(1.1);
     transition: transform 0.2s ease-out;
 }
 
-#Close {}
+#Close {
+    background-color: #095f7900;
+    border: none;
+    color: rgb(255, 38, 0);
+    font-family: inventoryFont !important; 
+    font-size: 50px;
+    transition: transform 0.2s ease-out;
+    cursor: pointer;
+}
+
+#Close:hover{
+    transform: scale(1.1);
+    transition: transform 0.2s ease-out;
+}
+
 
 #inventory.show {
     position: absolute;
@@ -494,7 +510,7 @@ header>aside {
     display: flex;
     flex-flow: column nowrap;
     align-items: center;
-    
+
 }
 
 #inventory>p {
@@ -513,7 +529,7 @@ header>aside {
     margin-top: 4%;
 }
 
-#items> img{
+#items>img {
     visibility: hidden;
 }
 
@@ -522,7 +538,7 @@ header>aside {
 }
 
 
-#Count{
+#Count {
     position: absolute;
     display: inline-flex;
     flex-flow: row;
@@ -536,18 +552,19 @@ header>aside {
     left: 28%;
 }
 
-#Count > p{
-    
+#Count>p {
+
     margin: 0;
     text-align: center;
-    
+
 }
 
-#shieldFill{
-    
+#shieldFill {
+
     background-color: #095f79;
 }
-#column{
+
+#column {
     height: 250px;
 }
 
@@ -555,45 +572,53 @@ header>aside {
     height: 10%;
 } */
 
-.Speedpotion, .strengthpotion{
+.Speedpotion,
+.strengthpotion {
     display: flex;
     flex-flow: row nowrap;
     justify-content: flex-start;
     height: 50px;
     width: 70%;
     align-items: center;
-    
-    
+
+
 }
 
 
-.Speedpotion > img, .strengthpotion > img{
+.Speedpotion>img,
+.strengthpotion>img {
     height: 100%;
 }
 
-#timerSpeed , #timerStrength{
+#timerSpeed,
+#timerStrength {
     color: white;
     font-size: 40px;
     margin: 0;
     margin-left: 10%;
 }
 
-#choiceTextone, #choiceTexttwo, #choiceTextthree {
+#choiceTextone,
+#choiceTexttwo,
+#choiceTextthree {
     color: white;
     font-size: 40px;
     margin: 0;
     height: fit-content;
     margin-left: 2%;
+    transition: color 0.5s ease;
 }
 
-#choiceOne.show, #choiceTwo.show, #choiceThree.show {
+#choiceOne.show,
+#choiceTwo.show,
+#choiceThree.show {
     display: inline-flex;
     justify-content: flex-start;
     align-items: center;
     width: 100%;
     height: 100%;
-    
-    border: 2px solid #095f79;
+
+    border: 2px solid white;
 
     border-radius: 10px;
     transition: background-color 0.5s ease;
@@ -601,11 +626,24 @@ header>aside {
     font-size: 40px;
 }
 
-#choiceOne.show:hover, #choiceTwo.show:hover, #choiceThree.show:hover {
-    background-color: #095f79;
+#choiceOne.show:hover,
+#choiceTwo.show:hover,
+#choiceThree.show:hover {
+    background-color: #ffffff;
     transition: background-color 0.5s ease;
+    color: #095f79;
 }
 
-#choiceOne.hidden, #choiceTwo.hidden, #choiceThree.hidden {
+#choiceOne.hidden,
+#choiceTwo.hidden,
+#choiceThree.hidden {
     display: none;
+}
+
+
+#choiceOne.show:hover>#ChoiceTextone,
+#choiceTwo.show:hover>#choiceTexttwo,
+#choiceThree.show:hover>#choiceTextthree {
+    transition: color 0.5s ease;
+    color: #095f79;
 }

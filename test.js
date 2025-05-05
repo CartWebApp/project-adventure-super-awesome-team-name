@@ -3,7 +3,7 @@
 // ====================================================
 // Global Variables & Canvas Setup
 // ====================================================
-var context, controller, player, loop, playerImage, coin, coinImage, fast;
+var context, controller, player, loop, coin, coinImage, fast, mom, mentor;
 
 context = document.querySelector("canvas").getContext("2d");
 context.canvas.height = innerHeight - 20;
@@ -54,7 +54,7 @@ let barrier = [];
 let enemy = [];
 let treasure = [];
 let interactable = [];
-let villager = [];
+
 
 // Inventory array
 let inventory = ["healingPotion"];
@@ -64,20 +64,18 @@ let inventory = ["healingPotion"];
 // ====================================================
 let treasureImage = new Image();
 let bg = new Image();
-
-
-
-playerImage = new Image();
 let fastImage = new Image();
+let playerImage = new Image();
+let momImage = new Image();
+let mentorImage = new Image();
 
 playerImage.src = 'img/player/idle.png';
 fastImage.src = 'img/enemies/boss/fastboss2.png';
-
 treasureImage.src = "img/rewards/coin.png";
 
-let villagerImage = new Image();
+momImage.src = 'img/characters/mom.png';
+mentorImage.src = 'img/characters/mentor.png';
 
-villagerImage.src = 'img/player/idle.png';
 
 // ====================================================
 // Player Object
@@ -118,6 +116,26 @@ fast = {
     cooldown: 0,
 }
 
+mom = {
+    width: 191 / 3.5,
+    height: 399 / 3.5,
+    x: 200,
+    y: 550,
+    image: momImage,
+}
+
+mentor = {
+    width: 191/3,
+    height: 399/3,
+    x: 500,
+    y: 700,
+    image: mentorImage,
+    moving: false,
+    targetX: 0,
+    targetY: 0,
+    touchObject: "none"
+}
+
 
 function createEnemy(width, height, xPosition, yPosition, Enemyimage) {
     const attackerImg = new Image();
@@ -141,9 +159,9 @@ function createEnemy(width, height, xPosition, yPosition, Enemyimage) {
     };
 }
 
-function createVillager(width, height, xPosition, yPosition) {
-    return { width: width, height: height, x: xPosition, y: yPosition, moving: false, targetX: 0, targetY: 0, touchObject: "none" };
-}
+
+
+
 
 function createGrass(width, height, xPosition, yPosition) {
     return { width: width, height: height, x: xPosition, y: yPosition };
@@ -253,7 +271,7 @@ const scenes = {
     ],
     mentorHelp: [
         { speaker: "???", face: "mark", text: "looks like you need help!" },
-        { action: () => villagerMove("touchPlayer") },
+        { action: () => mentorMove("touchPlayer") },
     ],
     mentorKillBug: [
         { speaker: "???", face: "mark", text: "AHHHHHHHH" },
@@ -271,20 +289,20 @@ const scenes = {
     showAround: [
         { speaker: "Mark", face: "mark", text: "Great!" },
         { speaker: "Mark", face: "mark", text: "First, let me take you to town" },
-        { action: () => villagerMove("moveHouse") },
+        { action: () => mentorMove("moveHouse") },
         { action: () => hudChange("town") },
 
     ],
     mentorMoveMore: [
         { action: () => hudChange("town") },
-        { action: () => villagerMove("moveSecond") },
+        { action: () => mentorMove("moveSecond") },
 
     ],
 
     MentorOutsidePotionShop: [
         { speaker: "Mark", face: "mark", text: "Man your slow, come inside the potion shop" },
         { action: () => hudChange("town") },
-        { action: () => villager[0].x = 4000 },
+        { action: () => mentor.x = 4000 },
         { action: () => waitingForChoice = false },
 
     ],
@@ -292,13 +310,13 @@ const scenes = {
     mentorInsidePotionShop: [
         { speaker: "Mark", face: "mark", text: "Heres the potion shop, you can buy magical potions" },
         { speaker: "Mark", face: "mark", text: "take a look around meet me outside" },
-        { action: () => villagerMove("leaveShop") },
+        { action: () => mentorMove("leaveShop") },
         { speaker: "jericho", face: "jericho", text: " " },
     ],
 
     bugFight: [
         { speaker: "Mark", face: "mark", text: "now the hard part, fighting the bugs" },
-        { action: () => villagerMove("bugLearn") },
+        { action: () => mentorMove("bugLearn") },
         { action: () => hudChange("town") },
 
     ],
@@ -421,12 +439,14 @@ function showChoices(choices) {
 
     choices.forEach((text, i) => {
         const el = document.getElementById(choiceIDs[i]);
-        if (!el) return;
+        const textEl = document.getElementById(textIDs[i]);
+        if (!el || !textEl) return;
 
         el.classList.remove("hidden");
         el.classList.add("show");
 
-        typeText(textIDs[i], text);
+        // Display the correct text for each choice
+        textEl.textContent = text; // Directly set the text
     });
 }
 
@@ -481,46 +501,46 @@ function onChoice(index) {
 
 }
 
-function villagerMove(condition) {
+function mentorMove(condition) {
     if (condition === "touchPlayer") {
-        villager[0].touchObject = "player";
-        villager[0].moving = true;
-        villager[0].targetX = player.x;
-        villager[0].targetY = player.y;
+        mentor.touchObject = "player";
+        mentor.moving = true;
+        mentor.targetX = player.x;
+        mentor.targetY = player.y;
 
     }
 
     if (condition === "moveHouse") {
-        villager[0].touchObject = "firstMove";
-        villager[0].moving = true;
-        villager[0].targetX = 1050;
-        villager[0].targetY = -100;
+        mentor.touchObject = "firstMove";
+        mentor.moving = true;
+        mentor.targetX = 1050;
+        mentor.targetY = -200;
     }
 
     if (condition === "moveSecond") {
-        villager[0].touchObject = "secondMove";
-        villager[0].y = 400;
-        villager[0].moving = true;
-        villager[0].targetX = 1050;
-        villager[0].targetY = -100;
+        mentor.touchObject = "secondMove";
+        mentor.y = 400;
+        mentor.moving = true;
+        mentor.targetX = 1050;
+        mentor.targetY = -200;
 
 
     }
 
     if (condition === "leaveShop") {
-        villager[0].touchObject = "leaveShop";
-        villager[0].moving = true;
-        villager[0].targetX = 1000;
-        villager[0].targetY = 1000;
+        mentor.touchObject = "leaveShop";
+        mentor.moving = true;
+        mentor.targetX = 1000;
+        mentor.targetY = 1000;
 
 
     }
 
     if (condition === "bugLearn") {
-        villager[0].touchObject = "bugLearn";
-        villager[0].moving = true;
-        villager[0].targetX = -150;
-        villager[0].targetY = 300;
+        mentor.touchObject = "bugLearn";
+        mentor.moving = true;
+        mentor.targetX = -150;
+        mentor.targetY = 300;
 
 
     }
@@ -545,8 +565,8 @@ function update() {
     }
 
     if (start) {
-        screen = 3;
-        screenChange(3);
+        screen = 1;
+        screenChange(1);
         start = false;
     }
 
@@ -556,7 +576,9 @@ function update() {
         screen = 2;
         screenChange(2);
         player.y = 909;
-        villager = [(createVillager(100, 100, 1050, 700))]
+        mentor.x = 1050
+        mentor.y = 700
+        
         startScene("mentorMoveMore");
     }
 
@@ -575,7 +597,9 @@ function update() {
         screen = 3;
         screenChange(3);
         player.y = 909;
-        villager = [(createVillager(100, 100, 1050, 700))]
+        mentor.x = 1050
+        mentor.y = 700
+        
         startScene("MentorOutsidePotionShop");
     }
 
@@ -595,7 +619,9 @@ function update() {
             screen = 3;
             screenChange(3);
             player.y = 680;
-            villager = [(createVillager(100, 100, 1050, 700))]
+            mentor.x = 1050
+            mentor.y = 700
+            
             player.health = 100;
 
 
@@ -614,7 +640,9 @@ function update() {
             screen = 4;
             screenChange(4);
             player.x = context.canvas.width - player.width;
-            villager = [(createVillager(100, 100, context.canvas.width - player.width, 600))]
+            mentor.x  = context.canvas.width - mentor.width
+            player.y = 600
+            
             enemy = [createEnemy(100, 100, 100, 300, "img/enemies/bugs/blueBug.png")]
             player.attackDamage = 20;
             enemy[0].attackDamage = 5;
@@ -705,77 +733,76 @@ function update() {
     }
 
 
-    // Smoothly move the villager toward the target position
-    villager.forEach(villager => {
-        if (villager.moving) {
-            if (villager.touchObject === "player") {
-                if (!collisionDetectionOverlap(player, villager)) {
-                    const villagerObj = villager;
-                    let dx = villagerObj.targetX - villagerObj.x;
-                    let dy = villagerObj.targetY - villagerObj.y;
-                    let distance = Math.sqrt(dx * dx + dy * dy);
-                    if (distance > 5) {
-                        let vx = (dx / distance) * 5;
-                        let vy = (dy / distance) * 5;
-                        villagerObj.x += vx;
-                        villagerObj.y += vy;
-                    }
 
+    if (mentor.moving) {
+        if (mentor.touchObject === "player") {
+            if (!collisionDetectionOverlap(player, mentor)) {
 
-
-
-                }
-                else {
-                    villager.moving = false; // Stop moving once the villager reaches the target
-                    if (currentScene === "mentorHelp") {
-                        startScene("mentorKillBug");
-
-                    }
-                }
-
-            }
-
-
-            if (villager.touchObject === "firstMove") {
-                // Check if within tolerance range of target position
-                if (Math.abs(villager.x - villager.targetX) > 2 || Math.abs(villager.y - villager.targetY) > 2) {
-                    const villagerObj = villager;
-                    let dx = villagerObj.targetX - villagerObj.x;
-                    let dy = villagerObj.targetY - villagerObj.y;
-                    let distance = Math.sqrt(dx * dx + dy * dy);
+                let dx = mentor.targetX - mentor.x;
+                let dy = mentor.targetY - mentor.y;
+                let distance = Math.sqrt(dx * dx + dy * dy);
+                if (distance > 5) {
                     let vx = (dx / distance) * 5;
                     let vy = (dy / distance) * 5;
-                    villagerObj.x += vx;
-                    villagerObj.y += vy;
-                } else {
-                    villager.moving = false;
-                    waitingForChoice = false;
+                    mentor.x += vx;
+                    mentor.y += vy;
+                }
+
+
+
+
+            }
+            else {
+                mentor.moving = false; // Stop moving once the mentor reaches the target
+                if (currentScene === "mentorHelp") {
+                    startScene("mentorKillBug");
+
                 }
             }
-
-
-            if (villager.touchObject === "secondMove" || villager.touchObject === "leaveShop" || villager.touchObject === "bugLearn") {
-                // Check if within tolerance range of target position
-                if (Math.abs(villager.x - villager.targetX) > 2 || Math.abs(villager.y - villager.targetY) > 2) {
-                    const villagerObj = villager;
-                    let dx = villagerObj.targetX - villagerObj.x;
-                    let dy = villagerObj.targetY - villagerObj.y;
-                    let distance = Math.sqrt(dx * dx + dy * dy);
-                    let vx = (dx / distance) * 5;
-                    let vy = (dy / distance) * 5;
-                    villagerObj.x += vx;
-                    villagerObj.y += vy;
-                } else {
-                    villager.moving = false;
-                    waitingForChoice = false;
-                }
-            }
-
-
-
 
         }
-    })
+
+
+        if (mentor.touchObject === "firstMove") {
+            // Check if within tolerance range of target position
+            if (Math.abs(mentor.x - mentor.targetX) > 2 || Math.abs(mentor.y - mentor.targetY) > 2) {
+                
+                let dx = mentor.targetX - mentor.x;
+                let dy = mentor.targetY - mentor.y;
+                let distance = Math.sqrt(dx * dx + dy * dy);
+                let vx = (dx / distance) * 5;
+                let vy = (dy / distance) * 5;
+                mentor.x += vx;
+                mentor.y += vy;
+            } else {
+                mentor.moving = false;
+                waitingForChoice = false;
+            }
+        }
+
+
+        if (mentor.touchObject === "secondMove" || mentor.touchObject === "leaveShop" || mentor.touchObject === "bugLearn") {
+            // Check if within tolerance range of target position
+            if (Math.abs(mentor.x - mentor.targetX) > 2 || Math.abs(mentor.y - mentor.targetY) > 2) {
+                
+                let dx = mentor.targetX - mentor.x;
+                let dy = mentor.targetY - mentor.y;
+                let distance = Math.sqrt(dx * dx + dy * dy);
+                let vx = (dx / distance) * 5;
+                let vy = (dy / distance) * 5;
+                mentor.x += vx;
+                mentor.y += vy;
+            } else {
+                mentor.moving = false;
+                waitingForChoice = false;
+            }
+        }
+
+
+
+
+    }
+
 
 
 
@@ -883,10 +910,12 @@ function update() {
 
         enemy[0].attackDamage = 50;
         hudChange("room");
-        // startScene("tutorialIntro");
+        startScene("tutorialIntro");
         // startScene("bugFight");
         choice = 1; // Mark it as triggered
-        villager = [(createVillager(100, 100, 1050, -100))]
+
+        mentor.x = 1050;
+        mentor.y = -300;
 
         console.log("apple")
     }
@@ -940,10 +969,12 @@ function render() {
         collisionDetection(player, bar);
     });
 
-    villager.forEach(villager => {
-        context.fillStyle = "blue";
-        context.fillRect(villager.x, villager.y, villager.width, villager.height);
-    });
+
+
+
+    context.drawImage(momImage, mom.x, mom.y, mom.width, mom.height);
+    context.drawImage(mentorImage, mentor.x, mentor.y, mentor.width, mentor.height);
+
     context.drawImage(
         playerImage,
         currentFrame * frameWidth,
@@ -955,6 +986,8 @@ function render() {
         scaledWidth,
         scaledHeight
     );
+
+
     window.addEventListener("mousedown", (e) => {
         if (e.button === 0) { playerAttack(); }
     });
@@ -1205,6 +1238,9 @@ function enemyDie(attacker) {
 // ====================================================
 function hudChange(form) {
     document.getElementById("moneyGained").innerText = player.money;
+    document.getElementById("faces").src = `img/hud/faces/jericho.png`;
+    document.getElementById("speakerName").innerText = "Jericho";
+    typeText("regularText", " ");
     if (form === "room") {
         document.getElementById("rightSide").style.animation = "stuff 2.5s forwards";
         setTimeout(() => document.getElementById("leftSide").style.animation = "Shrink 2s forwards", 800);
@@ -1425,14 +1461,23 @@ function startCountdown(duration, display, type) {
 // ====================================================
 let isBrowsingShop = false;
 
+
+
 document.addEventListener("keyup", (e) => {
     if (waitingForChoice) return;
+
     if (e.code === "KeyE") {
         if (isTyping) {
+            // Skip dialogue
             isTyping = false;
+
             document.getElementById("regularText").textContent = currentText;
             return;
         }
+
+
+
+        // Handle interactions with objects
         interactable.forEach((int) => {
             if (collisionDetectionOverlap(player, int)) {
                 switch (int.type) {
@@ -1455,14 +1500,18 @@ document.addEventListener("keyup", (e) => {
                         if (firstStorePotionEnter === true) {
                             typeText("regularText", "Hello, I am Jeremy the potion maker. I can make you potions to help you on your journey. If you have the money, of course. Press E to browse our selection of potions");
                             firstStorePotionEnter = false;
+
                         } else {
                             typeText("regularText", "Welcome back, would you like to browse our selection of potions?");
+
                         }
                         isBrowsingShop = true;
                         break;
                 }
             }
         });
+
+        // Handle interactions with doors
         door.forEach((door) => {
             if (collisionDetectionOverlap(player, door)) {
                 switch (door.houseNum) {
@@ -1474,10 +1523,11 @@ document.addEventListener("keyup", (e) => {
                         if (currentScene === "MentorOutsidePotionShop") {
                             screen = 105;
                             screenChange(105);
-                            villager = [(createVillager(100, 100, 600, 400))]
+                            mentor.x = 600
+                            mentor.y = 400
+                            
                             startScene("mentorInsidePotionShop");
-                        }
-                        else {
+                        } else {
                             screen = 105;
                             screenChange(105);
                         }
@@ -1486,6 +1536,7 @@ document.addEventListener("keyup", (e) => {
             }
         });
     }
+
     if (e.code === "KeyI") {
         document.getElementById("inventory").classList.toggle("show");
         document.getElementById("inventory").classList.toggle("hidden");
@@ -1497,10 +1548,13 @@ function openShop() {
     typeText("regularText", "Welcome to the potion shop! Here are the items available:");
     document.getElementById("PotionShop").classList.add("show");
     document.getElementById("PotionShop").classList.remove("hidden");
+
+    document.getElementById("hud").style.visibility = "hidden";
     document.getElementById("shopCoin").innerText = player.money;
 }
 
 function closeShop() {
+    document.getElementById("hud").style.visibility = "visible";
     document.getElementById("PotionShop").classList.remove("show");
     document.getElementById("PotionShop").classList.add("hidden");
     isBrowsingShop = false;
@@ -1534,12 +1588,13 @@ function typeText(elementOrId, text, callback, delay = 30) {
     element.textContent = "";
     let index = 0;
     isTyping = true;
-    currentText = text;  // <-- Save the full text for skip-to-end
+    currentText = text; // Save the full text for skipping
 
     const interval = setInterval(() => {
         if (!isTyping) {
             clearInterval(interval);
-            element.textContent = currentText;
+            element.textContent = currentText; // Display the full text
+            isTyping = false;
             if (callback) callback();
             return;
         }
@@ -1552,6 +1607,16 @@ function typeText(elementOrId, text, callback, delay = 30) {
             if (callback) callback();
         }
     }, delay);
+
+    // Add an event listener to skip typing
+    const skipTyping = (event) => {
+        if (event.code === "KeyE") {
+            isTyping = false; // Stop typing
+            window.removeEventListener("keydown", skipTyping); // Remove the listener
+        }
+    };
+
+    window.addEventListener("keydown", skipTyping);
 }
 
 
