@@ -291,6 +291,7 @@ const scenes = {
         { speaker: "Mark", face: "mark", text: "First, let me take you to town" },
         { action: () => mentorMove("moveHouse") },
         { action: () => hudChange("town") },
+        { action: () => waitingForChoice = false },
 
     ],
     mentorMoveMore: [
@@ -905,12 +906,12 @@ function update() {
         player.x = 217
         player.y = 370
         enemy = [
-            createEnemy(100, 100, 1900, 800, "img/enemies/bugs/blueBug.png")
+            createEnemy(100, 80, 1900, 800, "img/enemies/bugs/blueBug.png")
         ]
 
         enemy[0].attackDamage = 50;
         hudChange("room");
-        startScene("tutorialIntro");
+        // startScene("tutorialIntro");
         // startScene("bugFight");
         choice = 1; // Mark it as triggered
 
@@ -926,7 +927,7 @@ function render() {
     if (screen === 105) {
         scaleFactor = 0.7;
     } else {
-        scaleFactor = 0.4;
+        scaleFactor = 0.35;
     }
     scaledWidth = frameWidth * scaleFactor;
     scaledHeight = frameHeight * scaleFactor;
@@ -1027,52 +1028,28 @@ function screenChange(screen) {
     switch (screen) {
         case 1:
             bg = new Image();
-            bg.src = "img/bg/Homebg.png";
-            grass = [
-                createGrass(980, 409, 0, 0),
-                createGrass(1040, 409, 0, 560),
-                createGrass(830, 409, 1195, 0),
-                createGrass(840, 409, 1185, 560)
-            ];
-            homes = [
-                createHome(700, 600, -100, 50, "img/homes/home1.png"),
-                createHome(600, 600, 450, 85, "img/homes/home2.png"),
-                createHome(600, 600, 1100, 75, "img/homes/home3.png"),
-                createHome(600, 600, 1500, 40, "img/homes/home4.png")
-            ];
-            barrier = [createBarrier(280, 10, 110, 360)];
-            door = [createDoor(90, 90, 205, 370, 1)];
+            bg.src = "img/bg/home.png";
+            grass = [];
+            homes = [ ];
+            barrier = [];
+            door = [];
             interactable = [];
             enemy = [];
             break;
         case 2:
-            grass = [
-                createGrass(1020, 300, 0, 0),
-                createGrass(860, 300, 1165, 0),
-                createGrass(780, 90, 0, 510),
-                createGrass(810, 90, 1210, 510),
-                createGrass(1030, 210, 0, 785),
-                createGrass(830, 210, 1190, 785)
-            ];
+            grass = [ ];
             homes = [];
             barrier = [];
             door = [];
             enemy = [];
             interactable = [];
             bg = new Image();
-            bg.src = "img/bg/pathways.png";
+            bg.src = "img/bg/bg.png";
             break;
         case 3:
-            grass = [
-                createGrass(350, 550, 0, 470),
-                createGrass(350, 260, 0, 0),
-                createGrass(1520, 260, 505, 0),
-                createGrass(1355, 230, 505, 465),
-                createGrass(670, 90, 350, 900),
-                createGrass(850, 90, 1170, 900)
-            ];
+            grass = [];
             homes = [];
-            barrier = [createBarrier(90, 10, 1050, 670)];
+            barrier = [];
             door = [createDoor(90, 90, 1050, 670, 5)];
             enemy = [];
             interactable = [];
@@ -1088,7 +1065,7 @@ function screenChange(screen) {
             enemy = [];
             interactable = [];
             bg = new Image();
-            bg.src = "img/bg/bugspawner.png";
+            bg.src = "img/bg/enemySpawner.png";
             hudChange("town");
             break;
         case 101:
@@ -1237,19 +1214,19 @@ function enemyDie(attacker) {
 // HUD, Shop, and Potion Functions
 // ====================================================
 function hudChange(form) {
-    document.getElementById("moneyGained").innerText = player.money;
-    document.getElementById("faces").src = `img/hud/faces/jericho.png`;
-    document.getElementById("speakerName").innerText = "Jericho";
-    typeText("regularText", " ");
-    if (form === "room") {
-        document.getElementById("rightSide").style.animation = "stuff 2.5s forwards";
-        setTimeout(() => document.getElementById("leftSide").style.animation = "Shrink 2s forwards", 800);
-        setTimeout(() => document.getElementById("right").style.animation = "textWidth 1s forwards", 1200);
-    }
-    if (form === "town") {
-        document.getElementById("rightSide").style.animation = "gone 2.5s forwards";
-        setTimeout(() => document.getElementById("leftSide").style.animation = "grow 2s forwards", 800);
-    }
+    // document.getElementById("moneyGained").innerText = player.money;
+    // document.getElementById("faces").src = `img/hud/faces/jericho.png`;
+    // document.getElementById("speakerName").innerText = "Jericho";
+    // typeText("regularText", " ");
+    // if (form === "room") {
+    //     document.getElementById("rightSide").style.animation = "stuff 2.5s forwards";
+    //     setTimeout(() => document.getElementById("leftSide").style.animation = "Shrink 2s forwards", 800);
+    //     setTimeout(() => document.getElementById("right").style.animation = "textWidth 1s forwards", 1200);
+    // }
+    // if (form === "town") {
+    //     document.getElementById("rightSide").style.animation = "gone 2.5s forwards";
+    //     setTimeout(() => document.getElementById("leftSide").style.animation = "grow 2s forwards", 800);
+    // }
 }
 
 function potionBuy(type) {

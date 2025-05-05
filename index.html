@@ -9,82 +9,84 @@
 
 <body>
 
+
     <canvas id="mainCanvas"></canvas>
 
     <main>
-        <section id="hud">
-            <section id="leftSide">
-                <section id="bars">
-                    <div id="healthBarContainer">
-                        <img src="img/hud/heart2.png" alt="heart">
-                        <div id="healthBar">
-                            <div id="healthFill"></div>
-                            <div id="shieldFill"></div>
-                        </div>
-                    </div>
-                    <div id="attackCooldownContainer">
-                        <img src="img/hud/sword.png" alt="sword">
-                        <div id="cooldownBar">
-                            <div id="cooldownFillAccent"></div>
-                            <div id="cooldownFill"></div>
-                        </div>
-                    </div>
-                    <div id="levelContainer">
-                        <img src="img/hud/bolt.png" alt="lightning">
-                        <div id="levelBar">
-                            <div id="levelFill"></div>
-                        </div>
-                    </div>
-                </section>
-                <div id="column">
-                    <div class="Speedpotion">
-                        <img src="img/rewards/potions/greenPotion.png" alt="speed">
-                        <p id="timerSpeed">0:00</p>
-                    </div>
-                    <div id="coins">
-                        <p id="moneyGained">0</p>
-                        <img src="img/hud/coin.svg" alt="coin">
-                    </div>
-                    <div class="Strengthpotion">
-                        <img src="img/rewards/potions/purplePotion.png" alt="strength">
-                        <p id="timerStrength">0:00</p>
+        <section id="leftSide">
+            <section id="bars">
+                <div id="healthBarContainer">
+                    <img src="img/hud/heart2.png" alt="heart">
+                    <div id="healthBar">
+                        <div id="healthFill"></div>
+                        <div id="shieldFill"></div>
                     </div>
                 </div>
-            </section>
-            <section id="rightSide">
-
-                <div id="bottomSpot">
-                    <div id="column">
-                        <div id="left">
-                            <img src="img/hud/faces/jericho.png" alt="jericho" id="faces">
-
-                        </div>
-                        <div id="topSpot">
-                            <p id="speakerName">Jericho</p>
-                        </div>
-                    </div>
-                    <div id="right">
-                        <p id="regularText"></p>
-                        <div id="choiceOne" class="hidden">
-                            <p id="choiceTextone">
-
-                            </p>
-                        </div>
-                        <div id="choiceTwo" class="hidden">
-                            <p id="choiceTexttwo">
-
-                            </p>
-                        </div>
-                        <div id="choiceThree" class="hidden">
-                            <p id="choiceTextthree">
-
-                            </p>
-                        </div>
+                <div id="attackCooldownContainer">
+                    <img src="img/hud/sword.png" alt="sword">
+                    <div id="cooldownBar">
+                        <div id="cooldownFillAccent"></div>
+                        <div id="cooldownFill"></div>
                     </div>
                 </div>
-
+                <div id="levelContainer">
+                    <img src="img/hud/bolt.png" alt="lightning">
+                    <div id="levelBar">
+                        <div id="levelFill"></div>
+                    </div>
+                </div>
             </section>
         </section>
+
+        <div id="potionColumn">
+            <div class="Speedpotion">
+                <img src="img/rewards/potions/greenPotion.png" alt="speed">
+                <p id="timerSpeed">0:00</p>
+            </div>
+            <div id="coins">
+                <p id="moneyGained">0</p>
+                <img src="img/hud/coin.svg" alt="coin">
+            </div>
+            <div class="Strengthpotion">
+                <img src="img/rewards/potions/purplePotion.png" alt="strength">
+                <p id="timerStrength">0:00</p>
+            </div>
+        </div>
+
+        
+       
+
+            <div id="bottomSpot">
+                <div id="column">
+                    <div id="left">
+                        <img src="img/hud/faces/jericho.png" alt="jericho" id="faces">
+
+                    </div>
+                    <div id="topSpot">
+                        <p id="speakerName">Jericho</p>
+                    </div>
+                </div>
+                <div id="right">
+                    <p id="regularText"></p>
+                    <div id="choiceOne" class="hidden">
+                        <p id="choiceTextone">
+
+                        </p>
+                    </div>
+                    <div id="choiceTwo" class="hidden">
+                        <p id="choiceTexttwo">
+
+                        </p>
+                    </div>
+                    <div id="choiceThree" class="hidden">
+                        <p id="choiceTextthree">
+
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+
 
 
     </main>
