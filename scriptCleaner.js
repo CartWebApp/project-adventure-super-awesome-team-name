@@ -931,7 +931,7 @@ function render() {
         scaleFactor = 0.7;
     }
     else {
-        scaleFactor = 0.4;
+        scaleFactor = 5;
     }
 
 
@@ -1025,8 +1025,8 @@ function render() {
         playerImage,
         currentFrame * frameWidth,
         0,
-        frameWidth,
-        frameHeight,
+        player.width,
+        player.height,
         player.x,
         player.y,
         scaledWidth,
@@ -1053,20 +1053,20 @@ function updateAnimation() {
         frameCounter = 0;
         if (controller.right) {
             playerImage.src = 'img/player/right2.png';
-            frameWidth = 155
+            frameWidth = 270
             currentFrame = (currentFrame + 1) % 4;
             framesPerSecond = 9
         }
         else if (controller.left) {
             playerImage.src = 'img/player/left2.png';
-            frameWidth = 155
+            frameWidth = 270
             currentFrame = (currentFrame + 1) % 4;
             framesPerSecond = 9
         }
         else {
             playerImage.src = 'img/player/idle2.png';
-
-            frameWidth = 155
+            console.log(frameWidth)
+            frameWidth = 270
             currentFrame = (currentFrame + 1) % 4;
             framesPerSecond = 20
         }

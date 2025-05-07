@@ -9,6 +9,9 @@ context = document.querySelector("canvas").getContext("2d");
 context.canvas.height = innerHeight - 20;
 context.canvas.width = innerWidth - 20;
 
+
+
+
 var frameWidth = 270;
 var frameHeight = 250;
 var currentFrame = 0;
@@ -54,6 +57,7 @@ let barrier = [];
 let enemy = [];
 let treasure = [];
 let interactable = [];
+let circularBarrier = [];
 
 
 // Inventory array
@@ -125,8 +129,8 @@ mom = {
 }
 
 mentor = {
-    width: 191/3,
-    height: 399/3,
+    width: 191 / 3,
+    height: 399 / 3,
     x: 500,
     y: 700,
     image: mentorImage,
@@ -176,6 +180,19 @@ function createHome(width, height, x, y, img) {
 function createBarrier(width, height, x, y) {
     return { width, height, x, y };
 }
+
+function createEllipticalBarrier(width, height, centerX, centerY) {
+    return {
+        width: width,
+        height: height,
+        x: centerX,
+        y: centerY,
+        type: "elliptical"
+    };
+}
+
+
+
 
 function createDoor(width, height, x, y, houseNum) {
     return { width, height, x, y, houseNum };
@@ -579,7 +596,7 @@ function update() {
         player.y = 909;
         mentor.x = 1050
         mentor.y = 700
-        
+
         startScene("mentorMoveMore");
     }
 
@@ -600,7 +617,7 @@ function update() {
         player.y = 909;
         mentor.x = 1050
         mentor.y = 700
-        
+
         startScene("MentorOutsidePotionShop");
     }
 
@@ -622,7 +639,7 @@ function update() {
             player.y = 680;
             mentor.x = 1050
             mentor.y = 700
-            
+
             player.health = 100;
 
 
@@ -641,9 +658,9 @@ function update() {
             screen = 4;
             screenChange(4);
             player.x = context.canvas.width - player.width;
-            mentor.x  = context.canvas.width - mentor.width
+            mentor.x = context.canvas.width - mentor.width
             player.y = 600
-            
+
             enemy = [createEnemy(100, 100, 100, 300, "img/enemies/bugs/blueBug.png")]
             player.attackDamage = 20;
             enemy[0].attackDamage = 5;
@@ -767,7 +784,7 @@ function update() {
         if (mentor.touchObject === "firstMove") {
             // Check if within tolerance range of target position
             if (Math.abs(mentor.x - mentor.targetX) > 2 || Math.abs(mentor.y - mentor.targetY) > 2) {
-                
+
                 let dx = mentor.targetX - mentor.x;
                 let dy = mentor.targetY - mentor.y;
                 let distance = Math.sqrt(dx * dx + dy * dy);
@@ -785,7 +802,7 @@ function update() {
         if (mentor.touchObject === "secondMove" || mentor.touchObject === "leaveShop" || mentor.touchObject === "bugLearn") {
             // Check if within tolerance range of target position
             if (Math.abs(mentor.x - mentor.targetX) > 2 || Math.abs(mentor.y - mentor.targetY) > 2) {
-                
+
                 let dx = mentor.targetX - mentor.x;
                 let dy = mentor.targetY - mentor.y;
                 let distance = Math.sqrt(dx * dx + dy * dy);
@@ -898,6 +915,14 @@ function update() {
         }
     });
 
+    circularBarrier.forEach(ellipse => {
+        detectCircularCollision(player, ellipse)
+    });
+    
+    
+    
+
+
     // Example: Trigger dialogue for a branch (replace with your own condition).
     // For instance, when choice === -1 or when reaching a specific area.
     // Uncomment the next lines to start the dialogue sequence:
@@ -929,7 +954,7 @@ function render() {
     } else {
         scaleFactor = 0.35;
     }
-    scaledWidth = frameWidth * scaleFactor;
+    scaledWidth = frameWidth * scaleFactor * 1.2;
     scaledHeight = frameHeight * scaleFactor;
     player.width = scaledWidth;
     player.height = scaledHeight;
@@ -967,8 +992,30 @@ function render() {
 
     barrier.forEach(bar => {
         // Draw grass if needed; currently commented out.
+
+        context.fillStyle = "red";
+        context.fillRect(bar.x, bar.y, bar.width, bar.height);
+
         collisionDetection(player, bar);
     });
+
+    circularBarrier.forEach(ellipse => {
+        context.beginPath();
+        context.ellipse(
+            ellipse.x,
+            ellipse.y,
+            ellipse.width / 2,
+            ellipse.height / 2,
+            0,
+            0,
+            Math.PI * 2
+        );
+        context.strokeStyle = "blue";
+        context.lineWidth = 3;
+        context.stroke();
+    });
+    
+
 
 
 
@@ -1024,20 +1071,52 @@ function updateAnimation() {
 
 }
 
+function resetScreen() {
+    grass = [];
+    homes = [];
+    barrier = [];
+    door = [];
+    interactable = [];
+    enemy = [];
+    circularBarrier = []
+}
+
 function screenChange(screen) {
+    let left = context.canvas.width - context.canvas.width
+    let right = context.canvas.width
+    let top = context.canvas.height - context.canvas.height
+    let bottom = context.canvas.height
+
+
+
     switch (screen) {
         case 1:
             bg = new Image();
             bg.src = "img/bg/home.png";
-            grass = [];
-            homes = [ ];
-            barrier = [];
-            door = [];
-            interactable = [];
-            enemy = [];
+            barrier = [
+
+                //borders
+                createBarrier(10, context.canvas.height, right, top),
+                createBarrier(10, context.canvas.height, left, top),
+                createBarrier(context.canvas.width, 10, left, bottom),
+                createBarrier(context.canvas.width / 2.3, 10, left, top),
+                createBarrier(context.canvas.width / 2.3, 10, right - 870, top),
+
+                //house
+                createBarrier(350, 320, left + 500, top),
+
+                //other
+
+
+            ]
+
+            circularBarrier = [
+                createEllipticalBarrier(360, 250, 295, 130),
+                createEllipticalBarrier(430, 120, 320, 700)
+            ];
             break;
         case 2:
-            grass = [ ];
+            grass = [];
             homes = [];
             barrier = [];
             door = [];
@@ -1502,7 +1581,7 @@ document.addEventListener("keyup", (e) => {
                             screenChange(105);
                             mentor.x = 600
                             mentor.y = 400
-                            
+
                             startScene("mentorInsidePotionShop");
                         } else {
                             screen = 105;
@@ -1604,6 +1683,26 @@ function FastBoss() {
 
 }
 
+function detectCircularCollision(player, barrier) {
+    const playerCenterX = player.x + player.width / 2;
+    const playerCenterY = player.y + player.height / 2;
+
+    const dx = playerCenterX - barrier.x;
+    const dy = playerCenterY - barrier.y;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+
+    const playerRadius = Math.min(player.width, player.height) / 7;
+    const barrierRadius = Math.max(barrier.width, barrier.height) / 2;
+
+    if (distance < playerRadius + barrierRadius) {
+        console.log("Collision with circular barrier!");
+        return true;
+    }
+
+    return false;
+}
+
+  
 
 
 

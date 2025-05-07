@@ -86,10 +86,11 @@ main {
     width: 210px;
     display: flex;
     flex-flow: row nowrap;
-    border: solid 5px black;
-    border-left: solid 10px black;
+    border: solid 5px rgb(255, 255, 255);
+    /* border-left: solid 10px rgb(255, 255, 255); */
     margin-left: 51px;
     margin-bottom: 11px;
+    
 }
 
 #healthBar>div[id*='bar'] {
@@ -117,8 +118,8 @@ main {
 #cooldownBar {
     height: 35px;
     width: 235px;
-    border: solid 5px black;
-    border-left: solid 10px black;
+    border: solid 5px rgb(255, 255, 255);
+    
     margin-left: 25px;
 
 }
@@ -164,8 +165,8 @@ main {
 #levelBar {
     height: 35px;
     width: 230px;
-    border: solid 5px black;
-    border-left: solid 20px black;
+    border: solid 5px rgb(255, 255, 255);
+    
     margin-left: 20px;
 
 
@@ -204,10 +205,11 @@ main {
     flex-flow: column;
 
     justify-content: space-evenly;
-    align-items: flex-start;
+    align-items: flex-end;
 
     margin-left: 20px;
     /* transform: scale(0.8); */
+    
 }
 
 
@@ -507,8 +509,8 @@ header>aside {
     width: 150px;
     position: absolute;
 
-    right: 0;
-    top: 0;
+    right: 30px;
+    top: 20px;
 }
 
 /* .potion > img{
