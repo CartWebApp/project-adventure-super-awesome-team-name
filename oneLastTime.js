@@ -6,7 +6,7 @@ let path = "fastPath";
 let choice = 0;
 let sceneFinished = false
 let skills = [
-    ["uppercut", "left Hook", "right Hook", "left Hook"],
+    ["jab", "left Hook", "right Hook", "left Hook"],
     ["kick"],
     ["spit"]
 ]
