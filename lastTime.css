@@ -1,0 +1,190 @@
+@import url('https://fonts.googleapis.com/css2?family=Jersey+15&display=swap');
+
+* {
+    font-family: "Jersey 15", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+    color: white;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: black;
+    margin: 0;
+    height: 100%;
+}
+
+#gameContainer {
+    background-image: url(img/background/homes.png);
+    width: 800px;
+    height: 800px;
+    position: relative;
+}
+
+#textContainer {
+    position: absolute;
+    width: 99.7%;
+    height: 200px;
+    border: 2px solid white;
+    background-color: #0000009c;
+    border-radius: 10px;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    border-top-left-radius: 0;
+}
+
+
+#regularText {
+    color: white;
+    font-size: 50px;
+    margin: 0;
+    margin-left: 10px;
+}
+
+
+
+#choiceOne.show,
+#choiceTwo.show,
+#choiceThree.show {
+    position: absolute;
+
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+
+
+    transition: background-color 0.5s ease;
+    color: white;
+    font-size: 40px;
+    width: 265px;
+    height: 200px;
+    border-right: 2px solid white;
+}
+
+#choiceOne {}
+
+#choiceTwo {
+    left: 266.66px
+}
+
+#choiceThree {
+    right: 0;
+    border-right: 0px solid white !important;
+}
+
+#choiceOne.show:hover,
+#choiceTwo.show:hover,
+#choiceThree.show:hover {
+    background-color: #ffffff;
+    transition: background-color 0.5s ease;
+    color: #095f79;
+    
+}
+
+#choiceOne.hidden,
+#choiceTwo.hidden,
+#choiceThree.hidden {
+    display: none;
+}
+
+
+#choiceOne.show:hover>#ChoiceTextone,
+#choiceTwo.show:hover>#choiceTexttwo,
+#choiceThree.show:hover>#choiceTextthree {
+    transition: color 0.5s ease;
+    color: #095f79;
+    
+}
+
+
+#playerImgAttack {
+    position: absolute;
+    height: 400px;
+    bottom: 100px;
+    left: 0px;
+    transition: left 0.5s ease;
+}
+
+#playerImgAttack.hidden {
+    position: absolute;
+    height: 400px;
+    bottom: 100px;
+    left: -400px;
+    transition: left 0.5s ease;
+}
+
+#playerIdle {
+    position: absolute;
+    height: 400px;
+    bottom: 100px;
+    left: -50px;
+    transition: left 0.5s ease;
+    transform: scaleX(-1);
+}
+
+#playerIdle.hidden {
+    position: absolute;
+    height: 400px;
+    bottom: 100px;
+    left: -400px;
+    transition: left 0.5s ease;
+    transform: scaleX(-1);
+}
+
+
+
+
+#blocker{
+    height: 800px;
+    width: 600px;
+    z-index: 2;
+    background-color: black;
+}
+
+#mom, #bug{
+    position: absolute;
+    height: 400px;
+    bottom: 100px;
+    right: 0px;
+    transition: right 0.5s ease;
+    transform: scaleX(-1);
+}
+
+
+#mom.hidden, #bug.hidden {
+    position: absolute;
+    height: 400px;
+    bottom: 100px;
+    right: -400px;
+    transition: right 0.5s ease;
+    transform: scaleX(-1);
+}
+
+
+#bug, #bug.hidden{
+    transform: scaleX(1);
+}
+
+#speakerNameContainer{
+   
+    
+    background-color: #ffffff;
+    z-index: 2;
+    
+    position: absolute;
+    bottom: 201px;
+
+}
+
+#speakerName{
+    color: #095f79;
+    font-size: 35px;
+    margin: 0;
+    margin: 2px;
+    
+}
