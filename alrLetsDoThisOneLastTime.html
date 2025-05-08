@@ -13,10 +13,11 @@
     
 
     <div id="gameContainer">
+        <img src="img/enemies/bugs/blueBug.png" alt="bug" id="bug" class="hidden">
         <img src="img/characters/player.png" alt="player" id="playerImgAttack" class="hidden">
         <img src="img/characters/playerIdle.png" alt="player" id="playerIdle">
         <img src="img/characters/mom.png" alt="mom" id="mom">
-        <img src="img/enemies/bugs/blueBug.png" alt="bug" id="bug" class="hidden">
+        
         
         <div id="textContainer">
             <p id="regularText"></p>
@@ -37,12 +38,51 @@
             </div>
         </div>
 
+        <div id="fightContainer" class="hidden">
+            <div id="battleTextContainer">
+                <p id="battleText"></p>
+            </div>
+            
+            <div>
+                <button id="attackOne">Attack</button>
+                <button id="attackTwo">Secondary</button>
+                <button id="attackThree">Special</button>
+                <button id="Bag">Bag</buttton>
+            </div>
+        </div>
+
         <div id="speakerNameContainer">
             <p id="speakerName"></p>
         </div>
+
+        <div id="HealthContainerPlayer" class="hidden">
+            <div id="healthBarContainerPlayer">
+                <img src="img/hud/heart2.png" alt="heart">
+                <div id="healthBarPlayer">
+                    <div id="healthFillPlayer"></div>
+                    <div id="shieldFillPlayer"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="HealthContainerEnemy" class="hidden">
+            <div id="healthBarContainerEnemy">
+                <img src="img/hud/heart2.png" alt="heart">
+                <div id="healthBarEnemy">
+                    <div id="healthFillEnemy"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="flash-overlay"></div>
+        <div id="blackout-overlay"></div>
+
     </div>
 
     <div id="blocker"></div>
+
+
+    
 
     
     <script src="oneLastTime.js"></script>

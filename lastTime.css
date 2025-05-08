@@ -18,6 +18,7 @@ body {
 
 #gameContainer {
     background-image: url(img/background/homes.png);
+    /* background-image: url(img/background/battle.png); */
     width: 800px;
     height: 800px;
     position: relative;
@@ -83,7 +84,7 @@ body {
     background-color: #ffffff;
     transition: background-color 0.5s ease;
     color: #095f79;
-    
+
 }
 
 #choiceOne.hidden,
@@ -98,7 +99,7 @@ body {
 #choiceThree.show:hover>#choiceTextthree {
     transition: color 0.5s ease;
     color: #095f79;
-    
+
 }
 
 
@@ -139,14 +140,15 @@ body {
 
 
 
-#blocker{
+#blocker {
     height: 800px;
     width: 600px;
     z-index: 2;
     background-color: black;
 }
 
-#mom, #bug{
+#mom,
+#bug {
     position: absolute;
     height: 400px;
     bottom: 100px;
@@ -156,7 +158,8 @@ body {
 }
 
 
-#mom.hidden, #bug.hidden {
+#mom.hidden,
+#bug.hidden {
     position: absolute;
     height: 400px;
     bottom: 100px;
@@ -166,25 +169,285 @@ body {
 }
 
 
-#bug, #bug.hidden{
+#bug,
+#bug.hidden {
+    height: 300px;
     transform: scaleX(1);
 }
 
-#speakerNameContainer{
-   
-    
+#speakerNameContainer {
+
+
     background-color: #ffffff;
     z-index: 2;
-    
+
     position: absolute;
     bottom: 201px;
 
 }
 
-#speakerName{
+#speakerName {
     color: #095f79;
     font-size: 35px;
     margin: 0;
     margin: 2px;
+
+}
+
+#fightContainer {
+    position: absolute;
+    width: 800px;
+    height: 200px;
+
+    bottom: 0;
+    display: flex;
+    flex-flow: row nowrap;
+}
+
+#fightContainer>div>button {
+    border-radius: 30px;
+    width: 199px;
+    border: 5px solid black;
+    height: 98px;
+    font-size: 35px;
+
+}
+
+#fightContainer>div {
+    display: flex;
+    flex-flow: row wrap;
+    width: 400px;
+}
+
+#battleTextContainer {
+    display: flex;
+
+    align-items: center;
+    width: 50%;
+    font-size: 40px;
+
+}
+
+#battleText {
+    margin-left: 10px;
+}
+
+#fightContainer.hidden {
+    display: none;
+}
+
+#attackOne {
+    transition: background-color 0.5s ease, color 0.5s ease;
+    background-color: green;
+}
+
+#attackTwo {
+    transition: background-color 0.5s ease, color 0.5s ease;
+    background-color: rgb(23, 23, 172);
+}
+
+#attackThree {
+    transition: background-color 0.5s ease, color 0.5s ease;
+    background-color: rgb(161, 24, 24);
+}
+
+#Bag {
+    transition: background-color 0.5s ease, color 0.5s ease;
+    background-color: rgb(94, 63, 35);
+}
+
+#attackOne:hover {
+    transition: background-color 0.5s ease, color 0.5s ease;
+    background-color: rgb(255, 255, 255);
+    color: green;
+}
+
+#attackTwo:hover {
+    transition: background-color 0.5s ease, color 0.5s ease;
+    color: rgb(23, 23, 172);
+    background-color: white;
+}
+
+#attackThree:hover {
+    transition: background-color 0.5s ease, color 0.5s ease;
+    color: rgb(161, 24, 24);
+    background-color: white;
+}
+
+#Bag:hover {
+    transition: background-color 0.5s ease, color 0.5s ease;
+    color: rgb(94, 63, 35);
+    background-color: white;
+}
+
+
+#flash-overlay,
+#blackout-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+    pointer-events: none;
+    opacity: 0;
+}
+
+#flash-overlay {
+    background: black;
+}
+
+#blackout-overlay {
+    background: black;
+}
+
+/* Keyframes */
+@keyframes flash {
+
+    0%,
+    100% {
+        opacity: 0;
+    }
+
+    20%,
+    60% {
+        opacity: 1;
+    }
+
+    40%,
+    80% {
+        opacity: 0;
+    }
+}
+
+@keyframes shake {
+
+    0%,
+    100% {
+        transform: translate(0);
+    }
+
+    20% {
+        transform: translate(-30px, 0);
+    }
+
+    40% {
+        transform: translate(30px, 0);
+    }
+
+    60% {
+        transform: translate(-30px, 0);
+    }
+
+    80% {
+        transform: translate(30px, 0);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+    }
+
+    to {
+        opacity: 0;
+    }
+}
+
+
+#playerImgAttack.battleScene{
+    position: absolute;
+    height: 400px;
+    bottom: 150px;
+    left: 150px;
+    transition: left 0.5s ease;
+}
+
+#bug.battleScene{
+    position: absolute;
+    height: 200px;
+    bottom: 310px;
+    right: 120px;
+    transition: right 0.5s ease;
+}
+
+#HealthContainerPlayer.hidden, #HealthContainerEnemy.hidden{
+    display: none;
+}
+
+#HealthContainerPlayer, #HealthContainerEnemy{
+    position: absolute;
+    background-image: url(img/HealthBg.png);
+    width: 250px;
+    height: 150px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    bottom: 220px;
+    right: 10px;
+    background-position: bottom;
+}
+
+
+
+#HealthContainerEnemy{
+    position: absolute;
+    background-image: url(img/HealthBg.png);
+    width: 250px;
+    height: 150px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    top: 100px;
+    left: 200px;
+    background-position: bottom;
+    transform: scaleX(-1);
+}
+
+
+
+#healthBarContainerPlayer, #healthBarContainerEnemy{
+    width: 300px;
+    height: 100px;
+    display: flex;
+    margin-top: 40px;
+    margin-left: 25px;
+    align-items: center;
+}
+
+#healthBarContainerPlayer > img, #healthBarContainerEnemy > img{
+    width: 40px;
+    height: 40px;
+    margin-right: 5px;
+}
+
+#healthBarContainerEnemy > img{
+    order: 1;
+    margin-left: 5px;
+}
+
+#healthBarPlayer, #healthBarEnemy {
+    height: 20px;
+    width: 150px;
+    margin-top: 0;
+    border: solid 5px rgb(0, 0, 0);
+    /* border-left: solid 10px rgb(255, 255, 255); */
     
+    
+    
+}
+
+#healthFillPlayer, #healthFillEnemy{
+    width: 100% ;
+    height: 100%;
+   
+    background-color: rgb(214, 69, 69);
 }
