@@ -1,183 +1,93 @@
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Game Display</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="lastTime.css">
+    <title>Game</title>
 </head>
-
 <body>
 
+    <div id="blocker"></div>
 
-    <canvas id="mainCanvas"></canvas>
 
-    <main>
-        <section id="leftSide">
-            <section id="bars">
-                <div id="healthBarContainer">
-                    <img src="img/hud/heart2.png" alt="heart">
-                    <div id="healthBar">
-                        <div id="healthFill"></div>
-                        <div id="shieldFill"></div>
-                    </div>
-                </div>
-                <div id="attackCooldownContainer">
-                    <img src="img/hud/sword.png" alt="sword">
-                    <div id="cooldownBar">
-                        <div id="cooldownFillAccent"></div>
-                        <div id="cooldownFill"></div>
-                    </div>
-                </div>
-                <div id="levelContainer">
-                    <img src="img/hud/bolt.png" alt="lightning">
-                    <div id="levelBar">
-                        <div id="levelFill"></div>
-                    </div>
-                </div>
-            </section>
-        </section>
+    
 
-        <div id="potionColumn">
-            <div class="Speedpotion">
-                <img src="img/rewards/potions/greenPotion.png" alt="speed">
-                <p id="timerSpeed">0:00</p>
+    <div id="gameContainer">
+        <img src="img/enemies/bugs/blueBug.png" alt="bug" id="bug" class="hidden">
+        <img src="img/characters/player.png" alt="player" id="playerImgAttack" class="hidden">
+        <img src="img/characters/playerIdle.png" alt="player" id="playerIdle">
+        <img src="img/characters/mom.png" alt="mom" id="mom">
+        <img src="img/characters/mentor.png" alt="mentor" id="mentor" class="hidden">
+        <img src="img/characters/ironGiant.png" alt="ironGiant" id="ironGiant" class="hidden">
+        <img src="img/characters/BossFast.png" alt="BossFast" id="BossFast" class="hidden">
+        
+        
+        <div id="textContainer">
+            <p id="regularText"></p>
+            <div id="choiceOne" class="hidden">
+                <p id="choiceTextone">
+    
+                </p>
             </div>
-            <div id="coins">
-                <p id="moneyGained">0</p>
-                <img src="img/hud/coin.svg" alt="coin">
+            <div id="choiceTwo" class="hidden">
+                <p id="choiceTexttwo">
+    
+                </p>
             </div>
-            <div class="Strengthpotion">
-                <img src="img/rewards/potions/purplePotion.png" alt="strength">
-                <p id="timerStrength">0:00</p>
+            <div id="choiceThree" class="hidden">
+                <p id="choiceTextthree">
+    
+                </p>
             </div>
         </div>
 
-        
-       
+        <div id="fightContainer" class="hidden">
+            <div id="battleTextContainer">
+                <p id="battleText"></p>
+            </div>
+            
+            <div>
+                <button id="attackOne">Attack</button>
+                <button id="attackTwo">Secondary</button>
+                <button id="attackThree">Special</button>
+                <button id="Bag">Bag</buttton>
+            </div>
+        </div>
 
-            <div id="bottomSpot">
-                <div id="column">
-                    <div id="left">
-                        <img src="img/hud/faces/jericho.png" alt="jericho" id="faces">
+        <div id="speakerNameContainer">
+            <p id="speakerName"></p>
+        </div>
 
-                    </div>
-                    <div id="topSpot">
-                        <p id="speakerName">Jericho</p>
-                    </div>
-                </div>
-                <div id="right">
-                    <p id="regularText"></p>
-                    <div id="choiceOne" class="hidden">
-                        <p id="choiceTextone">
-
-                        </p>
-                    </div>
-                    <div id="choiceTwo" class="hidden">
-                        <p id="choiceTexttwo">
-
-                        </p>
-                    </div>
-                    <div id="choiceThree" class="hidden">
-                        <p id="choiceTextthree">
-
-                        </p>
-                    </div>
+        <div id="HealthContainerPlayer" class="hidden">
+            <div id="healthBarContainerPlayer">
+                <img src="img/hud/heart2.png" alt="heart">
+                <div id="healthBarPlayer">
+                    <div id="healthFillPlayer"></div>
+                    <div id="shieldFillPlayer"></div>
                 </div>
             </div>
+        </div>
 
-
-
-
-    </main>
-    <section id="PotionShop" class="hidden">
-        <header>
-            <aside>
-                <img src="img/potionShop/coin.svg" alt="coin">
-                <p id="shopCoin">0</p>
-            </aside>
-            <h2>Potion Shop</h2>
-            <button id="Close">X</button>
-
-        </header>
-
-        <section>
-            <aside>
-                <div>
-                    <div>
-                        <img src="img/rewards/potions/redPotion.png" alt="healing potion">
-                    </div>
-                    <div>
-                        <p>This is a healing potion</p>
-                        <p>It heals for 5 health points</p>
-                        <p>$5</p>
-                        <img src="img/potionShop/buyButton.png" alt="buyButton" id="potionHealing">
-                    </div>
+        <div id="HealthContainerEnemy" class="hidden">
+            <div id="healthBarContainerEnemy">
+                <img src="img/hud/heart2.png" alt="heart">
+                <div id="healthBarEnemy">
+                    <div id="healthFillEnemy"></div>
                 </div>
+            </div>
+        </div>
 
-                <div>
-                    <div>
-                        <img src="img/rewards/potions/bluePotion.png" alt="Shield potion">
-                    </div>
-                    <div>
-                        <p>This is a shield potion</p>
-                        <p>It adds 5 shield to your health</p>
-                        <p>$5</p>
-                        <img src="img/potionShop/buyButton.png" alt="buyButton" id="potionShield">
-                    </div>
-                </div>
-            </aside>
+        <div id="flash-overlay"></div>
+        <div id="blackout-overlay"></div>
 
-            <aside>
-                <div>
-                    <div>
-                        <img src="img/rewards/potions/greenPotion.png" alt="Speed potion">
-                    </div>
-                    <div>
-                        <p>This is a speed potion</p>
-                        <p>It lasts 3 min</p>
-                        <p>$5</p>
-                        <img src="img/potionShop/buyButton.png" alt="buyButton" id="potionSpeed">
-                    </div>
-                </div>
+    </div>
 
-                <div>
-                    <div>
-                        <img src="img/rewards/potions/purplePotion.png" alt="Strength potion">
-                    </div>
-                    <div>
-                        <p>This is a strength potion</p>
-                        <p>It lasts 3 min</p>
-                        <p>$5</p>
-                        <img src="img/potionShop/buyButton.png" alt="buyButton" id="potionStrength">
-                    </div>
-                </div>
-            </aside>
-        </section>
+    <div id="blocker"></div>
 
-    </section>
 
-    <section id="inventory" class="hidden">
-        <p>Inventory</p>
+    
 
-        <section id="items">
-            <img src="img/rewards/potions/redPotion.png" alt="Healing Potion" id="healingPotionInventory">
-            <img src="img/rewards/potions/bluePotion.png" alt="Shield Potion" id="shieldPotionInventory">
-            <img src="img/rewards/potions/greenPotion.png" alt="Speed Potion" id="speedPotionInventory">
-            <img src="img/rewards/potions/purplePotion.png" alt="Strength Potion" id="strengthPotionInventory">
-        </section>
-
-        <section id="Count">
-            <p id="healingCount">1</p>
-            <p id="shieldingCount">1</p>
-            <p id="speedCount">1</p>
-            <p id="strengthCount">1</p>
-        </section>
-
-    </section>
-
-    <script src="test.js"></script>
-
+    
+    <script src="oneLastTime.js"></script>
 </body>
-
 </html>

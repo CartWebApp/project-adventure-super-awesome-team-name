@@ -474,3 +474,49 @@ body {
 }
 
 
+#ironGiant{
+    position: absolute;
+    height: 400px;
+    bottom: 100px;
+    right: 0px;
+    transition: right 0.5s ease;
+    transform: scaleX(-1);
+}
+
+
+#ironGiant.hidden {
+    position: absolute;
+    height: 400px;
+    bottom: 100px;
+    right: -400px;
+    transition: right 0.5s ease;
+    transform: scaleX(-1);
+}
+
+
+#BossFast{
+    position: absolute;
+    height: 400px;
+    bottom: 100px;
+    right: 0px;
+    transition: right 0.5s ease;
+    
+}
+
+
+#BossFast.hidden {
+    position: absolute;
+    height: 400px;
+    bottom: 100px;
+    right: -400px;
+    transition: right 0.5s ease;
+    
+}
+
+#BossFast.battleScene{
+    position: absolute;
+    height: 200px;
+    bottom: 310px;
+    right: 120px;
+    transition: right 0.5s ease;
+}

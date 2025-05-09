@@ -22,9 +22,17 @@ let enemyAttacks = [
 let battle = false;
 let menuSelectedTwice = false
 let menu = 0;
+let Target = false;
+let mall = false;
 
+let healingPotion = 0;
+let strengthPotion = 0;
 
+let mallEntire = false;
+let cartEntire = false;
 
+let igd = false;
+let ux = false;
 
 
 // Updated choice event listeners use the new dialogue system's director function:
@@ -39,11 +47,14 @@ document.getElementById("Bag").addEventListener("click", () => battleOptionSelec
 
 
 let player = {
-    health: 100
+    health: 100,
+    money: 0
 }
 
 let enemy = {
-    health: 100
+    health: 100,
+    maxHealth: 100,
+    name: bug
 }
 
 // ====================================================
@@ -86,32 +97,32 @@ const scenes = {
         { action: () => moveCharacter("bug") },
         { action: () => moveCharacter("playerIdle") },
         { action: () => moveCharacter("mentor") },
-       
+
         { speaker: "Mentor", text: "Hi you must be Jericho" },
         { speaker: "Jericho", text: "Oh hi" },
         { speaker: "Mentor", text: "that bug is crazy how'd you beat him" },
         { speaker: "Jericho", text: "I don't know, it was crazy" },
         { speaker: "Mentor", text: "Hey, you want to see the town" },
-        { speaker: "Jericho", choices: ["Yes", "No"]},
+        { speaker: "Jericho", choices: ["Yes", "No"] },
     ],
-    LookThroughTown : [
+    LookThroughTown: [
         { action: () => document.getElementById("gameContainer").style.backgroundImage = "url(img/background/town.png)" },
         { speaker: "Mentor", text: "Welcome, to the town" },
         { speaker: "Jericho", text: "Wow, its pretty cool" },
         { speaker: "Mentor", text: "Yup, lets check out the store" },
         { action: () => document.getElementById("gameContainer").style.backgroundImage = "url(img/background/potionshop.png)" },
         { speaker: "Mentor", text: "this is the potion shop, you can buy lots of potions" },
-        { action: () => document.getElementById("gameContainer").style.backgroundImage = "url(img/background/potionshop.png)" },
+        { action: () => document.getElementById("gameContainer").style.backgroundImage = "url(img/background/weaponsShop.png)" },
         { speaker: "Mentor", text: "this is the weapons shop, you can buy lots of weapons" },
-        { action: () => document.getElementById("gameContainer").style.backgroundImage = "url(img/background/potionshop.png)" },
+        { action: () => document.getElementById("gameContainer").style.backgroundImage = "url(img/background/armorShop.png)" },
         { speaker: "Mentor", text: "this is the armor shop, you can buy lots of armor" },
-        
-        
+
+
         { action: () => document.getElementById("gameContainer").style.backgroundImage = "url(img/background/town.png)" },
         { action: () => moveCharacter("mentor") },
         { action: () => moveCharacter("mom") },
         { speaker: "Mom", text: "Jerichoooo, wow you look like dad" },
-        { speaker: "Jericho", choices: ["I can save him", "..."]},
+        { speaker: "Jericho", choices: ["I can save him", "..."] },
     ],
 
     noYouCant: [
@@ -128,22 +139,205 @@ const scenes = {
         { action: () => moveCharacter("mom") },
         { action: () => document.getElementById("gameContainer").style.backgroundImage = "url(img/background/homes.png)" },
         { speaker: "Jericho", text: "Where should I go" },
-        { speaker: "Jericho", choices: ["Cart", "Mall"]},
+        { action: () => setTimeout(() => { }, 1000) },
+        { speaker: "Jericho", choices: ["Cart", "Mall"] },
     ],
 
     cart: [
         { action: () => document.getElementById("gameContainer").style.backgroundImage = "url(img/background/cart.png)" },
         { speaker: "Jericho", text: "Okay I made it, time to go inside" },
         { action: () => document.getElementById("gameContainer").style.backgroundImage = "url(img/background/InsideCart.png)" },
+        { action: () => moveCharacter("playerIdle") },
+        { action: () => moveCharacter("playerAttack") },
+        { action: () => moveCharacter("bug") },
+        { speaker: "bug", text: "$&*#&*#" },
+
+        { action: () => startBattleTransition("bug") },
+
+        { action: () => battle = true },
+        { speaker: "narrator", text: "You prepare for battle" },
+
     ],
 
     mall: [
         { action: () => document.getElementById("gameContainer").style.backgroundImage = "url(img/background/mall.png)" },
-        { speaker: "Jericho", text: "Okay I made it, time to go inside" },
-        { action: () => document.getElementById("gameContainer").style.backgroundImage = "url(img/background/cart.png)" },
+        { speaker: "Jericho", text: "Okay I made it, now where should i go" },
+
+        { speaker: "Jericho", choices: ["Inside the mall", "Target", "Movies"] },
     ],
 
+    cartExplore: [
+        { action: () => battle = false },
+        { action: () => moveCharacter("playerAttack") },
+
+        { action: () => moveCharacter("bug") },
+        { action: () => moveCharacter("playerIdle") },
+        { speaker: "Jericho", text: "Which room should I go too" },
+        { speaker: "Jericho", choices: ["Web", "IGD", "UX"] },
+
+    ],
+
+    target: [
+        { action: () => Target = true },
+        { action: () => document.getElementById("gameContainer").style.backgroundImage = "url(img/background/insideTarget.png)" },
+        { speaker: "Jericho", text: "Wow their are potions and money" },
+        { action: () => player.money = player.money + 10 },
+        { action: () => strengthPotion = strengthPotion + 1 },
+        { action: () => healingPotion = healingPotion + 1 },
+        { action: () => setTimeout(() => { checkIfVisited() }, 1000) },
+
+    ],
+
+    insideMall: [
+        { action: () => mall = true },
+        { action: () => document.getElementById("gameContainer").style.backgroundImage = "url(img/background/insideMall.png)" },
+        { speaker: "Jericho", text: "Wow their are potions and money" },
+        { action: () => player.money = player.money + 10 },
+        { action: () => strengthPotion = strengthPotion + 1 },
+        { action: () => healingPotion = healingPotion + 1 },
+        { action: () => setTimeout(() => { checkIfVisited() }, 1000) },
+    ],
+
+    VisitTarget: [
+        { speaker: "Jericho", text: "now where should i go" },
+        { speaker: "Jericho", choices: ["Target", "Movies"] },
+    ],
+
+    Visitmall: [
+        { speaker: "Jericho", text: "now where should i go" },
+        { speaker: "Jericho", choices: ["Inside the mall", "Movies"] },
+    ],
+
+    VisitIGD: [
+        { speaker: "Jericho", text: "now where should i go" },
+        { speaker: "Jericho", choices: ["Web", "igd"] },
+    ],
+
+    VisitUx: [
+        { speaker: "Jericho", text: "now where should i go" },
+        { speaker: "Jericho", choices: ["Web", "UX"] },
+    ],
+
+
+    movie: [
+        { action: () => mall = false },
+        { action: () => Target = false },
+        { speaker: "Jericho", text: "Im going to head to the movies now" },
+        { action: () => document.getElementById("gameContainer").style.backgroundImage = "url(img/background/insideMovies.png)" },
+        { speaker: "Jericho", text: "Now, what to do" },
+        { action: () => moveCharacter("ironGiant") },
+        { speaker: "Iron Giant", text: "Hello, I am here to help" },
+        { speaker: "Jericho", text: "wow, cool" },
+        { speaker: "Iron Giant", text: "I know, heres a map to help you" },
+        { speaker: "Jericho", text: "Won't you join me" },
+        { speaker: "Iron Giant", text: "I can't goodbye" },
+        { action: () => moveCharacter("ironGiant") },
+        { action: () => mallEntire = true },
+        { action: () => setTimeout(() => { checkIfVisited() }, 1000) },
+    ],
+
+    cartExploreWeb: [
+        { action: () => ux = false },
+        { action: () => igd = false },
+        { speaker: "Jericho", text: "Im going to check out web" },
+        { action: () => document.getElementById("gameContainer").style.backgroundImage = "url(img/background/webRoom.png)" },
+        { speaker: "Jericho", text: "Oh look a map" },
+        { action: () => cartEntire = true },
+        { action: () => setTimeout(() => { checkIfVisited() }, 1000) },
+    ],
+
+    cartExploreIGD: [
+        { action: () => igd = true },
+        { action: () => document.getElementById("gameContainer").style.backgroundImage = "url(img/background/igdRoom.png)" },
+        { speaker: "Jericho", text: "Wow their are potions and money" },
+        { action: () => player.money = player.money + 10 },
+        { action: () => strengthPotion = strengthPotion + 1 },
+        { action: () => healingPotion = healingPotion + 1 },
+        { action: () => setTimeout(() => { checkIfVisited() }, 1000) },
+    ],
+
+    cartExploreUX: [
+        { action: () => ux = true },
+        { action: () => document.getElementById("gameContainer").style.backgroundImage = "url(img/background/uxRoom.png)" },
+        { speaker: "Jericho", text: "Wow their are potions and money" },
+        { action: () => player.money = player.money + 10 },
+        { action: () => strengthPotion = strengthPotion + 1 },
+        { action: () => healingPotion = healingPotion + 1 },
+        { action: () => setTimeout(() => { checkIfVisited() }, 1000) },
+    ],
+
+    GotoBoss: [
+        { speaker: "Jericho", text: "Okay I know where he's hiding, Its time to go" },
+        { action: () => document.getElementById("gameContainer").style.backgroundImage = "url(img/background/caveOne.png)" },
+        { speaker: "Jericho", text: "wow this is crazy" },
+        { action: () => document.getElementById("gameContainer").style.backgroundImage = "url(img/background/caveBoss.png)" },
+        { speaker: "??", text: "I've been expecting you..." },
+        { speaker: "Jericho", text: "Who are you??" },
+        { speaker: "??", text: "Isn't it obvious" },
+        { speaker: "Fast", text: "I'm your father" },
+        { action: () => moveCharacter("fast") },
+        { speaker: "Jericho", text: "No, I'll take you down" },
+        { action: () => moveCharacter("playerIdle") },
+        { action: () => moveCharacter("playerAttack") },
+        { action: () => startBattleTransition("Fast") },
+    ]
+
 };
+
+function checkIfVisited() {
+    if (mall) {
+        if (Target) {
+            startScene("movie")
+        }
+        else {
+            startScene("VisitTarget")
+        }
+    }
+    else if (Target) {
+        if (mall) {
+            startScene("movie")
+        }
+        else {
+            startScene("Visitmall")
+        }
+    }
+
+    else if (ux) {
+        if (igd) {
+            startScene("cartExploreWeb")
+        }
+        else {
+            startScene("VisitIGD")
+        }
+    }
+    else if (igd) {
+        if (ux) {
+            startScene("cartExploreWeb")
+        }
+        else {
+            startScene("VisitUx")
+        }
+    }
+    //
+
+    else if (mallEntire) {
+        if (cartEntire) {
+            startScene("GotoBoss")
+        }
+        else {
+            startScene("cart")
+        }
+    }
+    else if (cartEntire) {
+        if (mallEntire) {
+            startScene("GotoBoss")
+        }
+        else {
+            startScene("mall")
+        }
+    }
+
+}
 
 
 
@@ -172,9 +366,11 @@ function processDialogue() {
             startScene("bugAttackScene");
         }
 
+
+
         // if(currentScene === "noYouCant" || currentScene === "dotdotdot"){
         //     startScene("sneakOut");
-            
+
         // }
 
         return;
@@ -244,51 +440,145 @@ function onChoice(index) {
     });
     currentChoice = index;
     console.log("Choice made:", currentChoice);
+    console.log("Current Scene:", currentScene);
     // For this example, we branch from the tutorial scene:
     if (currentScene === "bugEncounter") {
         if (currentChoice === 0 || currentChoice === 1) {
             startScene("bugResponse");
+            currentChoice = -1
         }
         else if (currentChoice === 2) {
             startScene("bugResponseOffered");
+            currentChoice = -1
         }
 
     }
 
-    if(currentScene === "bugTutorialEnd"){
-        if(currentChoice === 0){
+    if (currentScene === "bugTutorialEnd") {
+        if (currentChoice === 0) {
             startScene("LookThroughTown")
             currentChoice = -1
         }
-        if(currentChoice === 1){
-            
+        if (currentChoice === 1) {
+
         }
     }
 
-    if(currentScene === "LookThroughTown"){
-        if(currentChoice === 0){
+    if (currentScene === "LookThroughTown") {
+        if (currentChoice === 0) {
             startScene("noYouCant")
+            currentChoice = -1
         }
-        if(currentChoice === 1){
+        if (currentChoice === 1) {
             startScene("dotdotdot")
-            
+            currentChoice = -1
+
         }
     }
 
-    if(currentScene === "sneakOut"){
-        if(currentChoice === 0){
+    if (currentScene === "sneakOut") {
+        if (currentChoice === 0) {
             startScene("cart")
+            currentChoice = -1
         }
-        if(currentChoice === 1){
+        if (currentChoice === 1) {
             startScene("mall")
-            
+            currentChoice = -1
+
         }
     }
 
-    
+    if (currentScene === "mall") {
+        if (currentChoice === 0) {
+            startScene("insideMall")
+            currentChoice = -1
+        }
+        if (currentChoice === 1) {
+            startScene("target")
+            currentChoice = -1
+
+        }
+        if (currentChoice === 2) {
+            startScene("movie")
+            currentChoice = -1
+
+        }
+    }
+
+    if (currentScene === "cartExplore") {
+        if (currentChoice === 0) {
+            startScene("cartExploreWeb")
+            currentChoice = -1
+        }
+        if (currentChoice === 1) {
+            startScene("cartExploreIGD")
+            currentChoice = -1
+
+        }
+        if (currentChoice === 2) {
+            startScene("cartExploreUX")
+            currentChoice = -1
+
+        }
+    }
+
+    if (currentScene === "VisitTarget") {
+        if (currentChoice === 0) {
+            startScene("target")
+            currentChoice = -1
+        }
+        if (currentChoice === 1) {
+            console.log("test")
+            startScene("movie")
+            currentChoice = -1
+
+        }
+
+    }
+
+    if (currentScene === "Visitmall") {
+        if (currentChoice === 0) {
+            startScene("insideMall")
+            currentChoice = -1
+        }
+        if (currentChoice === 1) {
+            startScene("movie")
+            currentChoice = -1
+
+        }
+
+    }
+
+    if (currentScene === "VisitIGD") {
+        if (currentChoice === 0) {
+            startScene("cartExploreWeb")
+            currentChoice = -1
+        }
+        if (currentChoice === 1) {
+            startScene("cartExploreIGD")
+            currentChoice = -1
+
+        }
+
+    }
+
+    if (currentScene === "VisitUx") {
+        if (currentChoice === 0) {
+            startScene("cartExploreWeb")
+            currentChoice = -1
+        }
+        if (currentChoice === 1) {
+            startScene("cartExploreUX")
+            currentChoice = -1
+
+        }
+
+    }
 
 
-    
+
+
+
 
 }
 
@@ -309,13 +599,18 @@ function update() {
         enemy.health = 0
         enemyDie()
     }
+
+    const healthPercent = enemy.health / enemy.maxHealth;
+
     document.getElementById("healthFillPlayer").style.width = player.health + "%";
-    document.getElementById("healthFillEnemy").style.width = enemy.health + "%";
+    document.getElementById("healthFillEnemy").style.width = 100 * healthPercent + "%";
 
 
     if (!isProcessingDialogue && path === "fastPath" && choice === 0) {
-        startScene("bugEncounter");
-        choice = 1;
+        // startScene("bugEncounter");
+        moveCharacter("mom")
+        startScene("GotoBoss")
+        choice = -1;
     }
 }
 
@@ -389,8 +684,16 @@ function moveCharacter(character) {
         document.getElementById("bug").classList.toggle("hidden")
     }
 
-    if(character === "mentor"){
+    if (character === "mentor") {
         document.getElementById("mentor").classList.toggle("hidden")
+    }
+
+    if (character === "ironGiant") {
+        document.getElementById("ironGiant").classList.toggle("hidden")
+    }
+
+    if (character === "fast") {
+        document.getElementById("BossFast").classList.toggle("hidden")
     }
 
 
@@ -401,11 +704,26 @@ function battleScene(type) {
     document.getElementById("fightContainer").classList.toggle("hidden")
     if (type === "bug") {
         enemy.health = 100
+        enemy.maxHealth = 100
+        enemy.name = "bug"
         document.getElementById("gameContainer").style.backgroundImage = "url(img/background/battle.png)"
         document.getElementById("bug").classList.toggle("battleScene")
         document.getElementById("playerImgAttack").classList.toggle("battleScene")
         document.getElementById("HealthContainerPlayer").classList.toggle("hidden")
         document.getElementById("HealthContainerEnemy").classList.toggle("hidden")
+    }
+
+    if (type === "fast") {
+        enemy.health = 500
+        enemy.maxHealth = 500
+        enemy.name = "fast"
+        document.getElementById("gameContainer").style.backgroundImage = "url(img/background/battle.png)"
+        document.getElementById("BossFast").classList.toggle("battleScene")
+        document.getElementById("playerImgAttack").classList.toggle("battleScene")
+        document.getElementById("HealthContainerPlayer").classList.toggle("hidden")
+        document.getElementById("HealthContainerEnemy").classList.toggle("hidden")
+
+        FastBoss()
     }
 }
 
@@ -416,6 +734,14 @@ function removeBattleScene(type) {
         enemy.health = 1
         document.getElementById("bug").classList.toggle("battleScene")
         document.getElementById("gameContainer").style.backgroundImage = "url(img/background/homes.png)"
+        document.getElementById("playerImgAttack").classList.toggle("battleScene")
+        document.getElementById("HealthContainerPlayer").classList.toggle("hidden")
+        document.getElementById("HealthContainerEnemy").classList.toggle("hidden")
+    }
+    if (type === "cartFight") {
+        enemy.health = 1
+        document.getElementById("bug").classList.toggle("battleScene")
+        document.getElementById("gameContainer").style.backgroundImage = "url(img/background/InsideCart.png)"
         document.getElementById("playerImgAttack").classList.toggle("battleScene")
         document.getElementById("HealthContainerPlayer").classList.toggle("hidden")
         document.getElementById("HealthContainerEnemy").classList.toggle("hidden")
@@ -458,8 +784,15 @@ function battleOptionSelected(optionSelected) {
                         document.getElementById("attackThree").innerText = "Special"
                         document.getElementById("Bag").innerText = "Bag"
 
+
                         setTimeout(() => {
-                            enemyAttack("bug")
+                            if (enemy.name === "fast") {
+                                FastBoss()
+                            }
+                            else {
+                                enemyAttack("bug")
+                            }
+
                         }, 2500);
 
 
@@ -495,7 +828,13 @@ function battleOptionSelected(optionSelected) {
                         document.getElementById("Bag").innerText = "Bag"
 
                         setTimeout(() => {
-                            enemyAttack("bug")
+                            if (enemy.name === "fast") {
+                                FastBoss()
+                            }
+                            else {
+                                enemyAttack("bug")
+                            }
+
                         }, 2500);
                     }
 
@@ -528,8 +867,15 @@ function battleOptionSelected(optionSelected) {
                         document.getElementById("attackThree").innerText = "Special"
                         document.getElementById("Bag").innerText = "Bag"
 
+
                         setTimeout(() => {
-                            enemyAttack("bug")
+                            if (enemy.name === "fast") {
+                                FastBoss()
+                            }
+                            else {
+                                enemyAttack("bug")
+                            }
+
                         }, 2500);
                     }
 
@@ -591,8 +937,15 @@ function battleOptionSelected(optionSelected) {
                         document.getElementById("attackThree").innerText = "Special"
                         document.getElementById("Bag").innerText = "Bag"
 
+
                         setTimeout(() => {
-                            enemyAttack("bug")
+                            if (enemy.name === "fast") {
+                                FastBoss()
+                            }
+                            else {
+                                enemyAttack("bug")
+                            }
+
                         }, 2500);
 
                     }
@@ -632,8 +985,15 @@ function battleOptionSelected(optionSelected) {
                         document.getElementById("attackThree").innerText = "Special"
                         document.getElementById("Bag").innerText = "Bag"
 
+
                         setTimeout(() => {
-                            enemyAttack("bug")
+                            if (enemy.name === "fast") {
+                                FastBoss()
+                            }
+                            else {
+                                enemyAttack("bug")
+                            }
+
                         }, 2500);
                     }
 
@@ -667,8 +1027,15 @@ function battleOptionSelected(optionSelected) {
                         document.getElementById("attackThree").innerText = "Special"
                         document.getElementById("Bag").innerText = "Bag"
 
+
                         setTimeout(() => {
-                            enemyAttack("bug")
+                            if (enemy.name === "fast") {
+                                FastBoss()
+                            }
+                            else {
+                                enemyAttack("bug")
+                            }
+
                         }, 2500);
                     }
 
@@ -737,8 +1104,15 @@ function battleOptionSelected(optionSelected) {
                         document.getElementById("attackThree").innerText = "Special"
                         document.getElementById("Bag").innerText = "Bag"
 
+
                         setTimeout(() => {
-                            enemyAttack("bug")
+                            if (enemy.name === "fast") {
+                                FastBoss()
+                            }
+                            else {
+                                enemyAttack("bug")
+                            }
+
                         }, 2500);
 
                     }
@@ -767,8 +1141,15 @@ function battleOptionSelected(optionSelected) {
                         document.getElementById("attackThree").innerText = "Special"
                         document.getElementById("Bag").innerText = "Bag"
 
+
                         setTimeout(() => {
-                            enemyAttack("bug")
+                            if (enemy.name === "fast") {
+                                FastBoss()
+                            }
+                            else {
+                                enemyAttack("bug")
+                            }
+
                         }, 2500);
                     }
 
@@ -794,8 +1175,15 @@ function battleOptionSelected(optionSelected) {
                         document.getElementById("attackThree").innerText = "Special"
                         document.getElementById("Bag").innerText = "Bag"
 
+
                         setTimeout(() => {
-                            enemyAttack("bug")
+                            if (enemy.name === "fast") {
+                                FastBoss()
+                            }
+                            else {
+                                enemyAttack("bug")
+                            }
+
                         }, 2500);
 
                     }
@@ -844,8 +1232,15 @@ function battleOptionSelected(optionSelected) {
                         document.getElementById("attackThree").innerText = "Special"
                         document.getElementById("Bag").innerText = "Bag"
 
+
                         setTimeout(() => {
-                            enemyAttack("bug")
+                            if (enemy.name === "fast") {
+                                FastBoss()
+                            }
+                            else {
+                                enemyAttack("bug")
+                            }
+
                         }, 2500);
 
                     }
@@ -880,8 +1275,15 @@ function battleOptionSelected(optionSelected) {
                         document.getElementById("attackThree").innerText = "Special"
                         document.getElementById("Bag").innerText = "Bag"
 
+
                         setTimeout(() => {
-                            enemyAttack("bug")
+                            if (enemy.name === "fast") {
+                                FastBoss()
+                            }
+                            else {
+                                enemyAttack("bug")
+                            }
+
                         }, 2500);
                     }
                 }
@@ -916,8 +1318,15 @@ function battleOptionSelected(optionSelected) {
                         document.getElementById("attackThree").innerText = "Special"
                         document.getElementById("Bag").innerText = "Bag"
 
+
                         setTimeout(() => {
-                            enemyAttack("bug")
+                            if (enemy.name === "fast") {
+                                FastBoss()
+                            }
+                            else {
+                                enemyAttack("bug")
+                            }
+
                         }, 2500);
 
                     }
@@ -987,6 +1396,15 @@ function startBattleTransition(type) {
             startScene("bugTutorialEnd")
         }
 
+        if (type === "cartFight") {
+            removeBattleScene("cartFight")
+            startScene("cartExplore")
+        }
+
+        if (type === "Fast") {
+            battleScene("fast")
+        }
+
         blackout.style.animation = 'fadeOut 0.8s ease forwards';
     }, 1800);
 }
@@ -995,6 +1413,10 @@ function enemyDie() {
     if (currentScene === "bugAttackScene") {
         enemy.health = 1
         startBattleTransition("bugTutorialEnd")
+    }
+    else if (currentScene === "cart") {
+        enemy.health = 1
+        startBattleTransition("cartFight")
     }
 }
 
@@ -1149,3 +1571,7 @@ function enemyAttack(type) {
     }
 }
 
+
+function FastBoss() {
+
+}
