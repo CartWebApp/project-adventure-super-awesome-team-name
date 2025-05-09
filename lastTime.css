@@ -451,3 +451,26 @@ body {
    
     background-color: rgb(214, 69, 69);
 }
+
+
+
+#mentor{
+    position: absolute;
+    height: 400px;
+    bottom: 100px;
+    right: 0px;
+    transition: right 0.5s ease;
+    transform: scaleX(-1);
+}
+
+
+#mentor.hidden {
+    position: absolute;
+    height: 400px;
+    bottom: 100px;
+    right: -400px;
+    transition: right 0.5s ease;
+    transform: scaleX(-1);
+}
+
+

@@ -1,3 +1,4 @@
+let paralyzed = false;
 let dialogueQueue = [];
 let currentScene = "";
 let currentChoice = -1;
@@ -6,12 +7,24 @@ let path = "fastPath";
 let choice = 0;
 let sceneFinished = false
 let skills = [
-    ["jab", "left Hook", "right Hook", "left Hook"],
-    ["kick"],
-    ["spit"]
+    ["jab", "Power Punch", "Paralyzing Punch", "Flurry Punch"],
+    ["kick", "spinning kick", "curb stomp", "vaulting strike"],
+    ["spit", "dirt toss", "rest", "screech",]
 ]
+
+let enemyAttacks = [
+    "glitch Scratch",
+    "glitchRay",
+    "404 Bite",
+    "Blue Screen"
+]
+
 let battle = false;
 let menuSelectedTwice = false
+let menu = 0;
+
+
+
 
 
 // Updated choice event listeners use the new dialogue system's director function:
@@ -26,11 +39,11 @@ document.getElementById("Bag").addEventListener("click", () => battleOptionSelec
 
 
 let player = {
-    health : 100
+    health: 100
 }
 
 let enemy = {
-    health : 100
+    health: 100
 }
 
 // ====================================================
@@ -67,6 +80,68 @@ const scenes = {
         { action: () => battle = true },
         { speaker: "narrator", text: "You prepare for battle" },
     ],
+    bugTutorialEnd: [
+        { action: () => battle = false },
+        { action: () => moveCharacter("playerAttack") },
+        { action: () => moveCharacter("bug") },
+        { action: () => moveCharacter("playerIdle") },
+        { action: () => moveCharacter("mentor") },
+       
+        { speaker: "Mentor", text: "Hi you must be Jericho" },
+        { speaker: "Jericho", text: "Oh hi" },
+        { speaker: "Mentor", text: "that bug is crazy how'd you beat him" },
+        { speaker: "Jericho", text: "I don't know, it was crazy" },
+        { speaker: "Mentor", text: "Hey, you want to see the town" },
+        { speaker: "Jericho", choices: ["Yes", "No"]},
+    ],
+    LookThroughTown : [
+        { action: () => document.getElementById("gameContainer").style.backgroundImage = "url(img/background/town.png)" },
+        { speaker: "Mentor", text: "Welcome, to the town" },
+        { speaker: "Jericho", text: "Wow, its pretty cool" },
+        { speaker: "Mentor", text: "Yup, lets check out the store" },
+        { action: () => document.getElementById("gameContainer").style.backgroundImage = "url(img/background/potionshop.png)" },
+        { speaker: "Mentor", text: "this is the potion shop, you can buy lots of potions" },
+        { action: () => document.getElementById("gameContainer").style.backgroundImage = "url(img/background/potionshop.png)" },
+        { speaker: "Mentor", text: "this is the weapons shop, you can buy lots of weapons" },
+        { action: () => document.getElementById("gameContainer").style.backgroundImage = "url(img/background/potionshop.png)" },
+        { speaker: "Mentor", text: "this is the armor shop, you can buy lots of armor" },
+        
+        
+        { action: () => document.getElementById("gameContainer").style.backgroundImage = "url(img/background/town.png)" },
+        { action: () => moveCharacter("mentor") },
+        { action: () => moveCharacter("mom") },
+        { speaker: "Mom", text: "Jerichoooo, wow you look like dad" },
+        { speaker: "Jericho", choices: ["I can save him", "..."]},
+    ],
+
+    noYouCant: [
+        { speaker: "Mom", text: "No you cant lets go" },
+        { action: () => startScene("sneakOut") },
+    ],
+
+    dotdotdot: [
+        { speaker: "Mom", text: "lets go home" },
+        { action: () => startScene("sneakOut") },
+    ],
+
+    sneakOut: [
+        { action: () => moveCharacter("mom") },
+        { action: () => document.getElementById("gameContainer").style.backgroundImage = "url(img/background/homes.png)" },
+        { speaker: "Jericho", text: "Where should I go" },
+        { speaker: "Jericho", choices: ["Cart", "Mall"]},
+    ],
+
+    cart: [
+        { action: () => document.getElementById("gameContainer").style.backgroundImage = "url(img/background/cart.png)" },
+        { speaker: "Jericho", text: "Okay I made it, time to go inside" },
+        { action: () => document.getElementById("gameContainer").style.backgroundImage = "url(img/background/InsideCart.png)" },
+    ],
+
+    mall: [
+        { action: () => document.getElementById("gameContainer").style.backgroundImage = "url(img/background/mall.png)" },
+        { speaker: "Jericho", text: "Okay I made it, time to go inside" },
+        { action: () => document.getElementById("gameContainer").style.backgroundImage = "url(img/background/cart.png)" },
+    ],
 
 };
 
@@ -96,6 +171,11 @@ function processDialogue() {
 
             startScene("bugAttackScene");
         }
+
+        // if(currentScene === "noYouCant" || currentScene === "dotdotdot"){
+        //     startScene("sneakOut");
+            
+        // }
 
         return;
     }
@@ -175,8 +255,40 @@ function onChoice(index) {
 
     }
 
+    if(currentScene === "bugTutorialEnd"){
+        if(currentChoice === 0){
+            startScene("LookThroughTown")
+            currentChoice = -1
+        }
+        if(currentChoice === 1){
+            
+        }
+    }
+
+    if(currentScene === "LookThroughTown"){
+        if(currentChoice === 0){
+            startScene("noYouCant")
+        }
+        if(currentChoice === 1){
+            startScene("dotdotdot")
+            
+        }
+    }
+
+    if(currentScene === "sneakOut"){
+        if(currentChoice === 0){
+            startScene("cart")
+        }
+        if(currentChoice === 1){
+            startScene("mall")
+            
+        }
+    }
+
+    
 
 
+    
 
 }
 
@@ -190,8 +302,15 @@ function loop() {
 }
 
 function update() {
+    if (player.health > 100) {
+        player.health = 100
+    }
+    if (enemy.health <= 0) {
+        enemy.health = 0
+        enemyDie()
+    }
     document.getElementById("healthFillPlayer").style.width = player.health + "%";
-    document.getElementById("healthFillEnemy").style.width = player.health + "%";
+    document.getElementById("healthFillEnemy").style.width = enemy.health + "%";
 
 
     if (!isProcessingDialogue && path === "fastPath" && choice === 0) {
@@ -270,6 +389,10 @@ function moveCharacter(character) {
         document.getElementById("bug").classList.toggle("hidden")
     }
 
+    if(character === "mentor"){
+        document.getElementById("mentor").classList.toggle("hidden")
+    }
+
 
 }
 
@@ -286,49 +409,541 @@ function battleScene(type) {
     }
 }
 
+function removeBattleScene(type) {
+    typeText("regularText", " ");
+    document.getElementById("fightContainer").classList.toggle("hidden")
+    if (type === "bugTutorial") {
+        enemy.health = 1
+        document.getElementById("bug").classList.toggle("battleScene")
+        document.getElementById("gameContainer").style.backgroundImage = "url(img/background/homes.png)"
+        document.getElementById("playerImgAttack").classList.toggle("battleScene")
+        document.getElementById("HealthContainerPlayer").classList.toggle("hidden")
+        document.getElementById("HealthContainerEnemy").classList.toggle("hidden")
+    }
+}
+
+//Math.floor(Math.random() * (max - min + 1)) + min;
+
+
 
 
 function battleOptionSelected(optionSelected) {
     let attackDamage = 0;
-    if (optionSelected === "one") {
-        if (menuSelectedTwice) {
+    if (!paralyzed) {
+        if (optionSelected === "one") {
+            if (menuSelectedTwice) {
+                if (menu === 1) {
+                    if (skills[0][0] === "jab") {
+                        typeText("battleText", "You use Jab Punch");
+                        attackDamage = Math.floor(Math.random() * (10 - 5 + 1)) + 5;
+                        let ran = Math.floor(Math.random() * (20 - 0 + 1)) + 0;
+                        if (ran === 1) {
+                            attackDamage = attackDamage * 2
+                            enemy.health = enemy.health - attackDamage
+                            setTimeout(() => {
+                                typeText("battleText", `It did ${attackDamage} HP, critical hit!`)
+                            }, 1000);
+                        }
+                        else {
+                            enemy.health = enemy.health - attackDamage
 
-            if(skills[0][0] === "jab"){
-                typeText("battleText", "You use Jab Punch");
-                attackDamage = Math.floor(Math.random() * 10) + 5;
+                            setTimeout(() => {
+                                typeText("battleText", `It did ${attackDamage} HP`)
+                            }, 1000);
+                        }
+                        menuSelectedTwice = false
 
-                
+                        document.getElementById("attackOne").innerText = "Attack"
+                        document.getElementById("attackTwo").innerText = "Secondary"
+                        document.getElementById("attackThree").innerText = "Special"
+                        document.getElementById("Bag").innerText = "Bag"
 
-                if(Math.floor(Math.random() * 20) === 1){
-                    attackDamage = attackDamage * 2
-                    enemy.health = enemy.health - attackDamage
-                    typeText("battleText", `It did ${attackDamage}, critical hit!`);
-                    
+                        setTimeout(() => {
+                            enemyAttack("bug")
+                        }, 2500);
+
+
+                    }
+
                 }
-                else{
-                    enemy.health = enemy.health - attackDamage
-                    typeText("battleText", `It did ${attackDamage}`);
+                else if (menu === 2) {
+
+                    if (skills[1][0] === "kick") {
+                        typeText("battleText", "You use kick");
+                        attackDamage = Math.floor(Math.random() * (15 - 10 + 1)) + 10;
+
+                        let ran = Math.floor(Math.random() * (20 - 0 + 1)) + 0;
+                        if (ran === 1) {
+                            attackDamage = attackDamage * 2
+                            enemy.health = enemy.health - attackDamage
+                            setTimeout(() => {
+                                typeText("battleText", `It did ${attackDamage} HP, critical hit!`)
+                            }, 1000);
+                        }
+                        else {
+                            enemy.health = enemy.health - attackDamage
+
+                            setTimeout(() => {
+                                typeText("battleText", `It did ${attackDamage} HP`)
+                            }, 1000);
+                        }
+                        menuSelectedTwice = false
+
+                        document.getElementById("attackOne").innerText = "Attack"
+                        document.getElementById("attackTwo").innerText = "Secondary"
+                        document.getElementById("attackThree").innerText = "Special"
+                        document.getElementById("Bag").innerText = "Bag"
+
+                        setTimeout(() => {
+                            enemyAttack("bug")
+                        }, 2500);
+                    }
+
+                }
+                else if (menu === 3) {
+
+                    if (skills[2][0] === "spit") {
+                        typeText("battleText", "You use spit");
+                        attackDamage = Math.floor(Math.random() * (5 - 0 + 1)) + 0;
+
+                        let ran = Math.floor(Math.random() * (20 - 0 + 1)) + 0;
+                        if (ran === 1) {
+                            attackDamage = attackDamage * 2
+                            enemy.health = enemy.health - attackDamage
+                            setTimeout(() => {
+                                typeText("battleText", `It did ${attackDamage} HP, the bug looks suprised it did that much`)
+                            }, 1000);
+                        }
+                        else {
+                            enemy.health = enemy.health - attackDamage
+
+                            setTimeout(() => {
+                                typeText("battleText", `It did ${attackDamage} HP, the bug... enjoyed it?`)
+                            }, 1000);
+                        }
+                        menuSelectedTwice = false
+
+                        document.getElementById("attackOne").innerText = "Attack"
+                        document.getElementById("attackTwo").innerText = "Secondary"
+                        document.getElementById("attackThree").innerText = "Special"
+                        document.getElementById("Bag").innerText = "Bag"
+
+                        setTimeout(() => {
+                            enemyAttack("bug")
+                        }, 2500);
+                    }
+
                 }
 
 
-                
+            } else {
+                document.getElementById("attackOne").innerText = skills[0][0]
+                document.getElementById("attackTwo").innerText = skills[0][1]
+                document.getElementById("attackThree").innerText = skills[0][2]
+                document.getElementById("Bag").innerText = skills[0][3]
+                menu = 1
+                menuSelectedTwice = true
             }
-                
-            
 
-        } else {
-            document.getElementById("attackOne").innerText = "Jab Punch"
-            document.getElementById("attackTwo").innerText = "Power Punch"
-            document.getElementById("attackThree").innerText = "Paralyzing Punch"
-            document.getElementById("Bag").innerText = "Flurry Punch"
-            
-           
 
-            menuSelectedTwice = true
 
         }
+        else if (optionSelected === "two") {
+            if (menuSelectedTwice) {
+                if (menu === 1) {
+
+
+                    if (skills[0][1] === "Power Punch") {
+
+                        let CHT = Math.floor(Math.random() * (10 - 0 + 1)) + 0;
+
+                        if (CHT <= 2) {
+                            typeText("battleText", "You slip and completly miss");
+                        }
+                        else {
+
+                            typeText("battleText", "You use Power Punch");
+
+                            attackDamage = Math.floor(Math.random() * (30 - 15 + 1)) + 15;
+
+                            let ran = Math.floor(Math.random() * (20 - 0 + 1)) + 0;
+
+                            if (ran === 1) {
+                                attackDamage = attackDamage * 2
+                                enemy.health = enemy.health - attackDamage
+                                setTimeout(() => {
+                                    typeText("battleText", `It did ${attackDamage} HP, critical hit!`)
+                                }, 1000);
+                            }
+                            else {
+                                enemy.health = enemy.health - attackDamage
+
+                                setTimeout(() => {
+                                    typeText("battleText", `It did ${attackDamage} HP`)
+                                }, 1000);
+                            }
+
+
+                        }
+                        menuSelectedTwice = false
+                        document.getElementById("attackOne").innerText = "Attack"
+                        document.getElementById("attackTwo").innerText = "Secondary"
+                        document.getElementById("attackThree").innerText = "Special"
+                        document.getElementById("Bag").innerText = "Bag"
+
+                        setTimeout(() => {
+                            enemyAttack("bug")
+                        }, 2500);
+
+                    }
+                }
+                else if (menu === 2) {
+
+                    if (skills[1][1] === "spinning kick") {
+                        typeText("battleText", "You use spinning kick");
+                        attackDamage = Math.floor(Math.random() * (20 - 10 + 1)) + 10;
+
+                        let ran = Math.floor(Math.random() * (20 - 0 + 1)) + 0;
+                        if (ran === 1) {
+                            attackDamage = attackDamage * 2
+                            enemy.health = enemy.health - attackDamage
+                            setTimeout(() => {
+                                typeText("battleText", `It did ${attackDamage} HP, critical hit!`)
+                            }, 1000);
+                        }
+                        else if (ran === 2 || ran === 3) {
+                            attackDamage = attackDamage * 3
+                            enemy.health = enemy.health - attackDamage
+                            setTimeout(() => {
+                                typeText("battleText", `It did ${attackDamage} HP, TRIPLE hit!`)
+                            }, 1000);
+                        }
+                        else {
+                            enemy.health = enemy.health - attackDamage
+
+                            setTimeout(() => {
+                                typeText("battleText", `It did ${attackDamage} HP`)
+                            }, 1000);
+                        }
+                        menuSelectedTwice = false
+
+                        document.getElementById("attackOne").innerText = "Attack"
+                        document.getElementById("attackTwo").innerText = "Secondary"
+                        document.getElementById("attackThree").innerText = "Special"
+                        document.getElementById("Bag").innerText = "Bag"
+
+                        setTimeout(() => {
+                            enemyAttack("bug")
+                        }, 2500);
+                    }
+
+                }
+                else if (menu === 3) {
+
+                    if (skills[2][1] === "dirt toss") {
+                        typeText("battleText", "You use Dirt Toss");
+                        attackDamage = Math.floor(Math.random() * (5 - 0 + 1)) + 0;
+
+                        let ran = Math.floor(Math.random() * (1 - 0 + 1)) + 0;
+
+                        if (ran === 1) {
+                            paralyzed = true
+                            enemy.health = enemy.health - attackDamage
+                            setTimeout(() => {
+                                typeText("battleText", `It did ${attackDamage} HP, It also paralyzed`)
+                            }, 1000);
+                        }
+                        else {
+                            enemy.health = enemy.health - attackDamage
+
+                            setTimeout(() => {
+                                typeText("battleText", `It did ${attackDamage} HP`)
+                            }, 1000);
+                        }
+                        menuSelectedTwice = false
+
+                        document.getElementById("attackOne").innerText = "Attack"
+                        document.getElementById("attackTwo").innerText = "Secondary"
+                        document.getElementById("attackThree").innerText = "Special"
+                        document.getElementById("Bag").innerText = "Bag"
+
+                        setTimeout(() => {
+                            enemyAttack("bug")
+                        }, 2500);
+                    }
+
+                }
+
+
+            } else {
+                document.getElementById("attackOne").innerText = skills[1][0]
+                document.getElementById("attackTwo").innerText = skills[1][1]
+                document.getElementById("attackThree").innerText = skills[1][2]
+                document.getElementById("Bag").innerText = skills[1][3]
+                menuSelectedTwice = true
+                menu = 2
+            }
+        }
+        else if (optionSelected === "three") {
+            if (menuSelectedTwice) {
+
+                if (menu === 1) {
+
+                    if (skills[0][2] === "Paralyzing Punch") {
+
+                        let CHT = Math.floor(Math.random() * (10 - 0 + 1)) + 0;
+
+                        if (CHT <= 2) {
+                            typeText("battleText", "You slip and completly miss");
+                        }
+                        else {
+
+                            typeText("battleText", "You use Paralyzing Punch");
+
+                            attackDamage = Math.floor(Math.random() * (20 - 10 + 1)) + 10;
+
+                            let ran = Math.floor(Math.random() * (20 - 0 + 1)) + 0;
+
+                            if (ran === 1) {
+                                attackDamage = attackDamage * 2
+                                enemy.health = enemy.health - attackDamage
+                                setTimeout(() => {
+                                    typeText("battleText", `It did ${attackDamage} HP, critical hit!`)
+                                }, 1000);
+                            }
+                            else if (ran === 2 || ran === 3) {
+
+                                paralyzed = true;
+
+                                enemy.health = enemy.health - attackDamage
+
+                                setTimeout(() => {
+                                    typeText("battleText", `It did ${attackDamage} HP, It also paralyzed him!`)
+                                }, 1000);
+                            }
+                            else {
+                                enemy.health = enemy.health - attackDamage
+
+                                setTimeout(() => {
+                                    typeText("battleText", `It did ${attackDamage} HP`)
+                                }, 1000);
+                            }
+
+
+                        }
+                        menuSelectedTwice = false
+                        document.getElementById("attackOne").innerText = "Attack"
+                        document.getElementById("attackTwo").innerText = "Secondary"
+                        document.getElementById("attackThree").innerText = "Special"
+                        document.getElementById("Bag").innerText = "Bag"
+
+                        setTimeout(() => {
+                            enemyAttack("bug")
+                        }, 2500);
+
+                    }
+                }
+                else if (menu === 2) {
+
+                    if (skills[1][2] === "curb stomp") {
+                        typeText("battleText", "You use curb stomp");
+                        attackDamage = Math.floor(Math.random() * (20 - 0 + 1)) + 0;
+
+                        if (player.health < 51) {
+                            attackDamage * 2
+                        }
+
+                        enemy.health = enemy.health - attackDamage
+
+                        setTimeout(() => {
+                            typeText("battleText", `It did ${attackDamage} HP`)
+                        }, 1000);
+
+
+                        menuSelectedTwice = false
+
+                        document.getElementById("attackOne").innerText = "Attack"
+                        document.getElementById("attackTwo").innerText = "Secondary"
+                        document.getElementById("attackThree").innerText = "Special"
+                        document.getElementById("Bag").innerText = "Bag"
+
+                        setTimeout(() => {
+                            enemyAttack("bug")
+                        }, 2500);
+                    }
+
+
+                }
+                else if (menu === 3) {
+
+                    if (skills[2][2] === "rest") {
+                        typeText("battleText", "You use rest");
+                        attackDamage = Math.floor(Math.random() * (20 - 0 + 1)) + 0;
+
+
+                        player.health = player.health + attackDamage
+
+                        setTimeout(() => {
+                            typeText("battleText", `It healed ${attackDamage} HP`)
+                        }, 1000);
+
+                        menuSelectedTwice = false
+
+                        document.getElementById("attackOne").innerText = "Attack"
+                        document.getElementById("attackTwo").innerText = "Secondary"
+                        document.getElementById("attackThree").innerText = "Special"
+                        document.getElementById("Bag").innerText = "Bag"
+
+                        setTimeout(() => {
+                            enemyAttack("bug")
+                        }, 2500);
+
+                    }
+
+
+                }
+
+
+            } else {
+                console.log("yesysad")
+                document.getElementById("attackOne").innerText = skills[2][0]
+                document.getElementById("attackTwo").innerText = skills[2][1]
+                document.getElementById("attackThree").innerText = skills[2][2]
+                document.getElementById("Bag").innerText = skills[2][3]
+                menuSelectedTwice = true
+                menu = 3
+            }
+        }
+        else if (optionSelected === "four") {
+            if (menuSelectedTwice) {
+                if (menu === 1) {
+                    if (skills[0][3] === "Flurry Punch") {
+
+                        let fightCount = Math.floor(Math.random() * (5 - 2 + 1)) + 2;
+                        let totalDamage = 0;
+
+                        typeText("battleText", "You use flurry Punch");
+
+                        for (i = 0; i < fightCount; i++) {
+                            attackDamage = Math.floor(Math.random() * (10 - 0 + 1)) + 0;
+                            totalDamage = totalDamage + attackDamage
+                        }
+
+                        enemy.health = enemy.health - totalDamage
+
+                        setTimeout(() => {
+                            typeText("battleText", `It did ${totalDamage} HP`)
+                        }, 1000);
+
+
+
+
+                        menuSelectedTwice = false
+                        document.getElementById("attackOne").innerText = "Attack"
+                        document.getElementById("attackTwo").innerText = "Secondary"
+                        document.getElementById("attackThree").innerText = "Special"
+                        document.getElementById("Bag").innerText = "Bag"
+
+                        setTimeout(() => {
+                            enemyAttack("bug")
+                        }, 2500);
+
+                    }
+                }
+                else if (menu === 2) {
+                    if (skills[1][3] === "vaulting strike") {
+                        typeText("battleText", "You use vaulting strike");
+                        attackDamage = Math.floor(Math.random() * (15 - 5 + 1)) + 5;
+
+                        let ran = Math.floor(Math.random() * (2 - 0 + 1)) + 0;
+
+
+
+                        if (enemy.health < 51) {
+                            attackDamage * 0.5
+                            enemy.health = enemy.health - attackDamage
+                            setTimeout(() => {
+                                typeText("battleText", `It did ${attackDamage} HP`)
+                            }, 1000);
+                        }
+                        else {
+                            enemy.health = enemy.health - attackDamage
+
+                            setTimeout(() => {
+                                typeText("battleText", `It did ${attackDamage} HP`)
+                            }, 1000);
+                        }
+                        menuSelectedTwice = false
+
+                        document.getElementById("attackOne").innerText = "Attack"
+                        document.getElementById("attackTwo").innerText = "Secondary"
+                        document.getElementById("attackThree").innerText = "Special"
+                        document.getElementById("Bag").innerText = "Bag"
+
+                        setTimeout(() => {
+                            enemyAttack("bug")
+                        }, 2500);
+                    }
+                }
+                else if (menu === 3) {
+                    if (skills[2][3] === "screech") {
+                        typeText("battleText", "You use screech");
+                        attackDamage = Math.floor(Math.random() * (20 - 0 + 1)) + 0;
+
+
+                        let ran = Math.floor(Math.random() * (2 - 0 + 2)) + 0;
+
+                        enemy.health = enemy.health - attackDamage
+
+                        if (ran === 1) {
+                            paralyzed = true
+                            setTimeout(() => {
+                                typeText("battleText", `It did ${attackDamage} HP, It also paralyzed`)
+                            }, 1000);
+                        }
+                        else {
+
+
+                            setTimeout(() => {
+                                typeText("battleText", `It did ${attackDamage} HP`)
+                            }, 1000);
+                        }
+
+                        menuSelectedTwice = false
+
+                        document.getElementById("attackOne").innerText = "Attack"
+                        document.getElementById("attackTwo").innerText = "Secondary"
+                        document.getElementById("attackThree").innerText = "Special"
+                        document.getElementById("Bag").innerText = "Bag"
+
+                        setTimeout(() => {
+                            enemyAttack("bug")
+                        }, 2500);
+
+                    }
+                }
+            }
+            else {
+                document.getElementById("attackOne").innerText = "Jab awd"
+                document.getElementById("attackTwo").innerText = "Power qewwqe"
+                document.getElementById("attackThree").innerText = "qwewqeew Punch"
+                document.getElementById("Bag").innerText = "Flurry yukyuk"
+                menuSelectedTwice = true
+            }
+        }
+    }
+    else {
+        setTimeout(() => {
+            typeText("battleText", `your paralyzed`)
+        }, 2000);
+        paralyzed = false;
+        enemyAttack("bug")
     }
 }
+
+
+
+
 
 // ====================================================
 // Final: Setup Event Listeners and Start Main Loop
@@ -360,11 +975,177 @@ function startBattleTransition(type) {
 
     setTimeout(() => {
         blackout.style.animation = '';
-        
-        if(type === "bug"){
+
+        if (type === "bug") {
             battleScene("bug")
         }
+
+        if (type === "bugTutorialEnd") {
+
+            removeBattleScene("bugTutorial")
+
+            startScene("bugTutorialEnd")
+        }
+
         blackout.style.animation = 'fadeOut 0.8s ease forwards';
     }, 1800);
+}
+
+function enemyDie() {
+    if (currentScene === "bugAttackScene") {
+        enemy.health = 1
+        startBattleTransition("bugTutorialEnd")
+    }
+}
+
+
+function enemyAttack(type) {
+
+    if (enemy.health >= 0) {
+
+
+
+        typeText("battleText", ``);
+
+        if (!paralyzed) {
+
+            if (type === "bug") {
+
+                let attackDamage = 0;
+                let ran = Math.floor(Math.random() * (10 - 0 + 1)) + 0;
+                let enemyAttackChoice;
+
+                if (ran <= 3) {
+
+                    enemyAttackChoice = enemyAttacks[0]
+
+                    typeText("battleText", `Bug used ${enemyAttackChoice}`);
+
+
+                    attackDamage = Math.floor(Math.random() * (10 - 0 + 1)) + 0;
+                    let ran = Math.floor(Math.random() * (20 - 0 + 1)) + 0;
+                    if (ran === 1) {
+
+                        attackDamage = attackDamage * 2
+                        player.health = player.health - attackDamage
+
+                        setTimeout(() => {
+                            typeText("battleText", `It did ${attackDamage} HP, critical hit!`)
+                        }, 1000);
+                    }
+                    else {
+                        player.health = player.health - attackDamage
+
+                        setTimeout(() => {
+                            typeText("battleText", `It did ${attackDamage} HP`)
+                        }, 1000);
+                    }
+
+                }
+                else if (ran >= 4 && ran <= 6) {
+                    enemyAttackChoice = enemyAttacks[1]
+
+
+                    let CHT = Math.floor(Math.random() * (10 - 0 + 1)) + 0;
+
+                    if (CHT <= 2) {
+                        typeText("battleText", "He slips and misses");
+                    }
+                    else {
+
+                        typeText("battleText", `Bug used ${enemyAttackChoice}`);
+
+                        attackDamage = Math.floor(Math.random() * (30 - 15 + 1)) + 15;
+
+                        let ran = Math.floor(Math.random() * (20 - 0 + 1)) + 0;
+
+                        if (ran === 1) {
+                            attackDamage = attackDamage * 2
+                            player.health = player.health - attackDamage
+                            setTimeout(() => {
+                                typeText("battleText", `It did ${attackDamage} HP, critical hit!`)
+                            }, 1000);
+                        }
+                        else {
+                            player.health = player.health - attackDamage
+
+                            setTimeout(() => {
+                                typeText("battleText", `It did ${attackDamage} HP`)
+                            }, 1000);
+                        }
+                    }
+
+                }
+                else if (ran >= 7 && ran <= 9) {
+                    enemyAttackChoice = enemyAttacks[2]
+
+                    let CHT = Math.floor(Math.random() * (10 - 0 + 1)) + 0;
+
+                    if (CHT <= 2) {
+                        typeText("battleText", "He slips and misses");
+                    }
+                    else {
+
+                        typeText("battleText", `Bug used ${enemyAttackChoice}`);
+
+                        attackDamage = Math.floor(Math.random() * (10 - 0 + 1)) + 0;
+
+                        let ran = Math.floor(Math.random() * (20 - 0 + 1)) + 0;
+
+                        if (ran === 1) {
+                            attackDamage = attackDamage * 2
+                            player.health = player.health - attackDamage
+                            setTimeout(() => {
+                                typeText("battleText", `It did ${attackDamage} HP, critical hit!`)
+                            }, 1000);
+                        }
+                        else {
+                            player.health = player.health - attackDamage
+
+                            setTimeout(() => {
+                                typeText("battleText", `It did ${attackDamage} HP`)
+                            }, 1000);
+                        }
+                    }
+
+                }
+                else if (ran === 10) {
+                    enemyAttackChoice = enemyAttacks[3]
+
+
+                    typeText("battleText", `Bug used ${enemyAttackChoice}`);
+                    attackDamage = Math.floor(Math.random() * (10 - 0 + 1)) + 0;
+                    let ran = Math.floor(Math.random() * (20 - 0 + 1)) + 0;
+                    if (ran === 1) {
+
+                        attackDamage = attackDamage * 2
+                        player.health = player.health - attackDamage
+
+                        setTimeout(() => {
+                            typeText("battleText", `It did ${attackDamage} HP, critical hit! Your also Paralyzed`)
+                        }, 1000);
+                    }
+                    else {
+                        player.health = player.health - attackDamage
+
+                        setTimeout(() => {
+                            typeText("battleText", `It did ${attackDamage} HP, Your also Paralyzed`)
+                        }, 1000);
+                    }
+
+                    paralyzed = true
+
+                }
+            }
+
+        }
+        else {
+            setTimeout(() => {
+                typeText("battleText", `Hes paralyzed`)
+            }, 1000);
+            paralyzed = false;
+        }
+
+    }
 }
 
