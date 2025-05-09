@@ -607,8 +607,8 @@ function update() {
 
 
     if (!isProcessingDialogue && path === "fastPath" && choice === 0) {
-        // startScene("bugEncounter");
-        moveCharacter("mom")
+        startScene("bugEncounter");
+        // moveCharacter("mom")
         startScene("GotoBoss")
         choice = -1;
     }
