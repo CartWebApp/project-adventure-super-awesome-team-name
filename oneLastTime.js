@@ -27,12 +27,19 @@ let mall = false;
 
 let healingPotion = 0;
 let strengthPotion = 0;
+let luckPotions = 0;
+
+let luckPotionUsed = false;
+let strengthPotionUsed = false;
 
 let mallEntire = false;
 let cartEntire = false;
 
 let igd = false;
 let ux = false;
+let chaos = false;
+
+let battling = false;
 
 
 // Updated choice event listeners use the new dialogue system's director function:
@@ -54,7 +61,7 @@ let player = {
 let enemy = {
     health: 100,
     maxHealth: 100,
-    name: bug
+    name: "bug"
 }
 
 // ====================================================
@@ -65,12 +72,39 @@ let enemy = {
 
 
 const scenes = {
+
+    death: [
+        { action: () => battle = false },
+        { speaker: "Jericho", text: "Sorry you died, time to restart" },
+        { action: () => setTimeout(() => { startScene("Start") }, 2000) },
+        
+    ],
+
+    Start: [
+        { action: () => document.getElementById("gameContainer").style.backgroundImage = "url(img/background/houseUp.png)" },
+        { speaker: "Jericho", text: "Today sucks" },
+        { speaker: "Jericho", text: "I should check on mom, shes probably sad" },
+        { action: () => document.getElementById("gameContainer").style.backgroundImage = "url(img/background/houseDown.png)" },
+        { action: () => moveCharacter("mom") },
+        { speaker: "Jericho", text: "Hi Mom" },
+        { speaker: "Mom", text: "Hi Jericho" },
+        { speaker: "Jericho", text: "How are you doing" },
+        { speaker: "Mom", text: "Good, I just hope- " },
+        { speaker: "Mom", text: "What is that?" },
+        { speaker: "Jericho", text: "I don't know, lets check" },
+        { action: () => setTimeout(() => { startScene("bugEncounter") }, 2000) },
+    ],
+
+
+
     bugEncounter: [
+        { action: () => document.getElementById("gameContainer").style.backgroundImage = "url(img/background/homes.png)" },
         { speaker: "Mom", text: "What is that?" },
         { speaker: "Jericho", choices: ["I'm not sure", "I think it's a bug", "I'll check it out"] },
 
     ],
     bugResponse: [
+
         { speaker: "Mom", text: "You should check it out, be careful though!" },
 
     ],
@@ -184,6 +218,7 @@ const scenes = {
         { action: () => player.money = player.money + 10 },
         { action: () => strengthPotion = strengthPotion + 1 },
         { action: () => healingPotion = healingPotion + 1 },
+        { action: () => luckPotions = luckPotions + 1 },
         { action: () => setTimeout(() => { checkIfVisited() }, 1000) },
 
     ],
@@ -195,6 +230,7 @@ const scenes = {
         { action: () => player.money = player.money + 10 },
         { action: () => strengthPotion = strengthPotion + 1 },
         { action: () => healingPotion = healingPotion + 1 },
+        { action: () => luckPotions = luckPotions + 1 },
         { action: () => setTimeout(() => { checkIfVisited() }, 1000) },
     ],
 
@@ -253,6 +289,7 @@ const scenes = {
         { action: () => player.money = player.money + 10 },
         { action: () => strengthPotion = strengthPotion + 1 },
         { action: () => healingPotion = healingPotion + 1 },
+        { action: () => luckPotions = luckPotions + 1 },
         { action: () => setTimeout(() => { checkIfVisited() }, 1000) },
     ],
 
@@ -263,6 +300,7 @@ const scenes = {
         { action: () => player.money = player.money + 10 },
         { action: () => strengthPotion = strengthPotion + 1 },
         { action: () => healingPotion = healingPotion + 1 },
+        { action: () => luckPotions = luckPotions + 1 },
         { action: () => setTimeout(() => { checkIfVisited() }, 1000) },
     ],
 
@@ -280,7 +318,18 @@ const scenes = {
         { action: () => moveCharacter("playerIdle") },
         { action: () => moveCharacter("playerAttack") },
         { action: () => startBattleTransition("Fast") },
-    ]
+    ],
+
+    ending: [
+        { action: () => document.getElementById("BossFast").src = "img/characters/Fast.png" },
+        { action: () => moveCharacter("playerIdle") },
+        { action: () => moveCharacter("playerAttack") },
+        { action: () => enemy.name = "afds" },
+        { action: () => battle = false },
+        { speaker: "Jericho", text: "Dad, are you okay?" },
+        { speaker: "Fast", text: "Yes, lets go home" },
+        { action: () => document.getElementById("EndCredits").style.zIndex = "1000000" },
+    ],
 
 };
 
@@ -599,6 +648,10 @@ function update() {
         enemy.health = 0
         enemyDie()
     }
+    if (player.health <= 0) {
+        player.health = 0
+        playerDie()
+    }
 
     const healthPercent = enemy.health / enemy.maxHealth;
 
@@ -607,7 +660,7 @@ function update() {
 
 
     if (!isProcessingDialogue && path === "fastPath" && choice === 0) {
-        startScene("bugEncounter");
+        startScene("Start");
         // moveCharacter("mom")
         // startScene("GotoBoss")
         choice = -1;
@@ -695,12 +748,25 @@ function moveCharacter(character) {
     if (character === "fast") {
         document.getElementById("BossFast").classList.toggle("hidden")
     }
+    
+    if(character === "fastHid"){
+        
+        document.getElementById("BossFast").classList.add("hidden")
+        document.getElementById("BossFast").classList.remove("battleScene")
+    }
+
+    if(character === "bugHid"){
+        document.getElementById("bug").classList.add("hidden")
+        document.getElementById("bug").classList.remove("battleScene")
+    }
 
 
 }
 
 function battleScene(type) {
+    battling = true
     typeText("regularText", " ");
+    player.health = 100
     document.getElementById("fightContainer").classList.toggle("hidden")
     if (type === "bug") {
         enemy.health = 100
@@ -723,11 +789,12 @@ function battleScene(type) {
         document.getElementById("HealthContainerPlayer").classList.toggle("hidden")
         document.getElementById("HealthContainerEnemy").classList.toggle("hidden")
 
-        FastBoss()
+
     }
 }
 
 function removeBattleScene(type) {
+    battling = false
     typeText("regularText", " ");
     document.getElementById("fightContainer").classList.toggle("hidden")
     if (type === "bugTutorial") {
@@ -742,6 +809,22 @@ function removeBattleScene(type) {
         enemy.health = 1
         document.getElementById("bug").classList.toggle("battleScene")
         document.getElementById("gameContainer").style.backgroundImage = "url(img/background/InsideCart.png)"
+        document.getElementById("playerImgAttack").classList.toggle("battleScene")
+        document.getElementById("HealthContainerPlayer").classList.toggle("hidden")
+        document.getElementById("HealthContainerEnemy").classList.toggle("hidden")
+    }
+    if (type === "apple") {
+        enemy.health = 1
+        document.getElementById("BossFast").classList.toggle("battleScene")
+        document.getElementById("gameContainer").style.backgroundImage = "url(img/background/caveBoss.png)"
+        document.getElementById("playerImgAttack").classList.toggle("battleScene")
+        document.getElementById("HealthContainerPlayer").classList.toggle("hidden")
+        document.getElementById("HealthContainerEnemy").classList.toggle("hidden")
+    }
+    if (type === "death") {
+        enemy.health = 1
+        document.getElementById("BossFast").classList.toggle("battleScene")
+        document.getElementById("gameContainer").style.backgroundImage = "url(img/background/black.jpg)"
         document.getElementById("playerImgAttack").classList.toggle("battleScene")
         document.getElementById("HealthContainerPlayer").classList.toggle("hidden")
         document.getElementById("HealthContainerEnemy").classList.toggle("hidden")
@@ -762,7 +845,21 @@ function battleOptionSelected(optionSelected) {
                     if (skills[0][0] === "jab") {
                         typeText("battleText", "You use Jab Punch");
                         attackDamage = Math.floor(Math.random() * (10 - 5 + 1)) + 5;
-                        let ran = Math.floor(Math.random() * (20 - 0 + 1)) + 0;
+
+                        if (strengthPotionUsed) {
+                            attackDamage = attackDamage + 10
+                            strengthPotionUsed = false
+                        }
+
+                        let ran = 0
+                        if (luckPotionUsed) {
+                            ran = Math.floor(Math.random() * (10 - 0 + 1)) + 0;
+                            luckPotionUsed = false
+                        }
+                        else {
+                            ran = Math.floor(Math.random() * (20 - 0 + 1)) + 0;
+                        }
+
                         if (ran === 1) {
                             attackDamage = attackDamage * 2
                             enemy.health = enemy.health - attackDamage
@@ -805,7 +902,20 @@ function battleOptionSelected(optionSelected) {
                         typeText("battleText", "You use kick");
                         attackDamage = Math.floor(Math.random() * (15 - 10 + 1)) + 10;
 
-                        let ran = Math.floor(Math.random() * (20 - 0 + 1)) + 0;
+                        if (strengthPotionUsed) {
+                            attackDamage = attackDamage + 10
+                            strengthPotionUsed = false
+                        }
+
+                        let ran = 0
+                        if (luckPotionUsed) {
+                            ran = Math.floor(Math.random() * (10 - 0 + 1)) + 0;
+                            luckPotionUsed = false
+                        }
+                        else {
+                            ran = Math.floor(Math.random() * (20 - 0 + 1)) + 0;
+                        }
+
                         if (ran === 1) {
                             attackDamage = attackDamage * 2
                             enemy.health = enemy.health - attackDamage
@@ -845,7 +955,20 @@ function battleOptionSelected(optionSelected) {
                         typeText("battleText", "You use spit");
                         attackDamage = Math.floor(Math.random() * (5 - 0 + 1)) + 0;
 
-                        let ran = Math.floor(Math.random() * (20 - 0 + 1)) + 0;
+                        if (strengthPotionUsed) {
+                            attackDamage = attackDamage + 10
+                            strengthPotionUsed = false
+                        }
+
+                        let ran = 0
+                        if (luckPotionUsed) {
+                            ran = Math.floor(Math.random() * (10 - 0 + 1)) + 0;
+                            luckPotionUsed = false
+                        }
+                        else {
+                            ran = Math.floor(Math.random() * (20 - 0 + 1)) + 0;
+                        }
+
                         if (ran === 1) {
                             attackDamage = attackDamage * 2
                             enemy.health = enemy.health - attackDamage
@@ -880,6 +1003,35 @@ function battleOptionSelected(optionSelected) {
                     }
 
                 }
+                else if (menu === 4) {
+
+
+
+                    if (!(healingPotion === 0)) {
+
+                        if (player.health >= 100) {
+                            typeText("battleText", "You are already full health");
+                            healingPotion = healingPotion - 1
+                        }
+                        else {
+                            player.health = player.health + 20
+                            typeText("battleText", "You feel better");
+                            healingPotion = healingPotion - 1
+                        }
+
+
+                    }
+                    else {
+                        typeText("battleText", "You have none");
+                    }
+
+                    menuSelectedTwice = false
+
+                    document.getElementById("attackOne").innerText = "Attack"
+                    document.getElementById("attackTwo").innerText = "Secondary"
+                    document.getElementById("attackThree").innerText = "Special"
+                    document.getElementById("Bag").innerText = "Bag"
+                }
 
 
             } else {
@@ -912,7 +1064,20 @@ function battleOptionSelected(optionSelected) {
 
                             attackDamage = Math.floor(Math.random() * (30 - 15 + 1)) + 15;
 
-                            let ran = Math.floor(Math.random() * (20 - 0 + 1)) + 0;
+                            if (strengthPotionUsed) {
+                                attackDamage = attackDamage + 10
+                                strengthPotionUsed = false
+                            }
+
+                            let ran = 0
+                            if (luckPotionUsed) {
+                                ran = Math.floor(Math.random() * (10 - 0 + 1)) + 0;
+                                luckPotionUsed = false
+                            }
+                            else {
+                                ran = Math.floor(Math.random() * (20 - 0 + 1)) + 0;
+                            }
+
 
                             if (ran === 1) {
                                 attackDamage = attackDamage * 2
@@ -956,7 +1121,20 @@ function battleOptionSelected(optionSelected) {
                         typeText("battleText", "You use spinning kick");
                         attackDamage = Math.floor(Math.random() * (20 - 10 + 1)) + 10;
 
-                        let ran = Math.floor(Math.random() * (20 - 0 + 1)) + 0;
+                        if (strengthPotionUsed) {
+                            attackDamage = attackDamage + 10
+                            strengthPotionUsed = false
+                        }
+
+                        let ran = 0
+                        if (luckPotionUsed) {
+                            ran = Math.floor(Math.random() * (10 - 0 + 1)) + 0;
+                            luckPotionUsed = false
+                        }
+                        else {
+                            ran = Math.floor(Math.random() * (20 - 0 + 1)) + 0;
+                        }
+
                         if (ran === 1) {
                             attackDamage = attackDamage * 2
                             enemy.health = enemy.health - attackDamage
@@ -1002,9 +1180,25 @@ function battleOptionSelected(optionSelected) {
 
                     if (skills[2][1] === "dirt toss") {
                         typeText("battleText", "You use Dirt Toss");
+
+
                         attackDamage = Math.floor(Math.random() * (5 - 0 + 1)) + 0;
 
-                        let ran = Math.floor(Math.random() * (1 - 0 + 1)) + 0;
+
+
+                        if (strengthPotionUsed) {
+                            attackDamage = attackDamage + 10
+                            strengthPotionUsed = false
+                        }
+
+                        let ran = 0
+                        if (luckPotionUsed) {
+                            ran = Math.floor(Math.random() * (1 - 1 + 1)) + 1;
+                            luckPotionUsed = false
+                        }
+                        else {
+                            ran = Math.floor(Math.random() * (1 - 0 + 1)) + 0;
+                        }
 
                         if (ran === 1) {
                             paralyzed = true
@@ -1040,6 +1234,26 @@ function battleOptionSelected(optionSelected) {
                     }
 
                 }
+                else if (menu === 4) {
+
+
+
+                    if (!(strengthPotion === 0)) {
+                        strengthPotionUsed = true
+                        strengthPotion = strengthPotion - 1
+                        typeText("battleText", "You feel stronger");
+                    }
+                    else {
+                        typeText("battleText", "You have none");
+                    }
+
+                    menuSelectedTwice = false
+
+                    document.getElementById("attackOne").innerText = "Attack"
+                    document.getElementById("attackTwo").innerText = "Secondary"
+                    document.getElementById("attackThree").innerText = "Special"
+                    document.getElementById("Bag").innerText = "Bag"
+                }
 
 
             } else {
@@ -1069,7 +1283,19 @@ function battleOptionSelected(optionSelected) {
 
                             attackDamage = Math.floor(Math.random() * (20 - 10 + 1)) + 10;
 
-                            let ran = Math.floor(Math.random() * (20 - 0 + 1)) + 0;
+                            if (strengthPotionUsed) {
+                                attackDamage = attackDamage + 10
+                                strengthPotionUsed = false
+                            }
+
+                            let ran = 0
+                            if (luckPotionUsed) {
+                                ran = Math.floor(Math.random() * (10 - 0 + 1)) + 0;
+                                luckPotionUsed = false
+                            }
+                            else {
+                                ran = Math.floor(Math.random() * (20 - 0 + 1)) + 0;
+                            }
 
                             if (ran === 1) {
                                 attackDamage = attackDamage * 2
@@ -1123,6 +1349,11 @@ function battleOptionSelected(optionSelected) {
                         typeText("battleText", "You use curb stomp");
                         attackDamage = Math.floor(Math.random() * (20 - 0 + 1)) + 0;
 
+                        if (strengthPotionUsed) {
+                            attackDamage = attackDamage + 10
+                            strengthPotionUsed = false
+                        }
+
                         if (player.health < 51) {
                             attackDamage * 2
                         }
@@ -1159,7 +1390,12 @@ function battleOptionSelected(optionSelected) {
 
                     if (skills[2][2] === "rest") {
                         typeText("battleText", "You use rest");
-                        attackDamage = Math.floor(Math.random() * (20 - 0 + 1)) + 0;
+                        attackDamage = Math.floor(Math.random() * (5 - 0 + 1)) + 0;
+
+                        if (strengthPotionUsed) {
+                            attackDamage = attackDamage + 10
+                            strengthPotionUsed = false
+                        }
 
 
                         player.health = player.health + attackDamage
@@ -1190,6 +1426,26 @@ function battleOptionSelected(optionSelected) {
 
 
                 }
+                else if (menu === 4) {
+
+
+
+                    if (!(luckPotions === 0)) {
+                        luckPotionUsed = true
+                        luckPotions = luckPotions - 1
+                        typeText("battleText", "You feel more lucky");
+                    }
+                    else {
+                        typeText("battleText", "You have none");
+                    }
+
+                    menuSelectedTwice = false
+
+                    document.getElementById("attackOne").innerText = "Attack"
+                    document.getElementById("attackTwo").innerText = "Secondary"
+                    document.getElementById("attackThree").innerText = "Special"
+                    document.getElementById("Bag").innerText = "Bag"
+                }
 
 
             } else {
@@ -1214,6 +1470,12 @@ function battleOptionSelected(optionSelected) {
 
                         for (i = 0; i < fightCount; i++) {
                             attackDamage = Math.floor(Math.random() * (10 - 0 + 1)) + 0;
+
+                            if (strengthPotionUsed) {
+                                attackDamage = attackDamage + 10
+                                strengthPotionUsed = false
+                            }
+
                             totalDamage = totalDamage + attackDamage
                         }
 
@@ -1250,7 +1512,10 @@ function battleOptionSelected(optionSelected) {
                         typeText("battleText", "You use vaulting strike");
                         attackDamage = Math.floor(Math.random() * (15 - 5 + 1)) + 5;
 
-                        let ran = Math.floor(Math.random() * (2 - 0 + 1)) + 0;
+                        if (strengthPotionUsed) {
+                            attackDamage = attackDamage + 10
+                            strengthPotionUsed = false
+                        }
 
 
 
@@ -1292,8 +1557,20 @@ function battleOptionSelected(optionSelected) {
                         typeText("battleText", "You use screech");
                         attackDamage = Math.floor(Math.random() * (20 - 0 + 1)) + 0;
 
+                        if (strengthPotionUsed) {
+                            attackDamage = attackDamage + 10
+                            strengthPotionUsed = false
+                        }
 
-                        let ran = Math.floor(Math.random() * (2 - 0 + 2)) + 0;
+
+                        let ran = 0
+                        if (luckPotionUsed) {
+                            ran = Math.floor(Math.random() * (1 - 0 + 1)) + 0;
+                            luckPotionUsed = false
+                        }
+                        else {
+                            ran = Math.floor(Math.random() * (2 - 0 + 1)) + 0;
+                        }
 
                         enemy.health = enemy.health - attackDamage
 
@@ -1331,13 +1608,22 @@ function battleOptionSelected(optionSelected) {
 
                     }
                 }
+                else if (menu === 4) {
+                    menuSelectedTwice = false
+
+                    document.getElementById("attackOne").innerText = "Attack"
+                    document.getElementById("attackTwo").innerText = "Secondary"
+                    document.getElementById("attackThree").innerText = "Special"
+                    document.getElementById("Bag").innerText = "Bag"
+                }
             }
             else {
-                document.getElementById("attackOne").innerText = "Jab awd"
-                document.getElementById("attackTwo").innerText = "Power qewwqe"
-                document.getElementById("attackThree").innerText = "qwewqeew Punch"
-                document.getElementById("Bag").innerText = "Flurry yukyuk"
+                document.getElementById("attackOne").innerText = `${healingPotion} Healing Potions`
+                document.getElementById("attackTwo").innerText = `${strengthPotion} Strength Potions`
+                document.getElementById("attackThree").innerText = `${luckPotions} Luck Potions`
+                document.getElementById("Bag").innerText = "back"
                 menuSelectedTwice = true
+                menu = 4
             }
         }
     }
@@ -1346,7 +1632,12 @@ function battleOptionSelected(optionSelected) {
             typeText("battleText", `your paralyzed`)
         }, 2000);
         paralyzed = false;
-        enemyAttack("bug")
+        if (enemy.name === "fast") {
+            FastBoss()
+        }
+        else {
+            enemyAttack("bug")
+        }
     }
 }
 
@@ -1405,6 +1696,28 @@ function startBattleTransition(type) {
             battleScene("fast")
         }
 
+        if (type === "apple") {
+            removeBattleScene("apple")
+            startScene("ending")
+        }
+
+        if (type === "death") {
+            removeBattleScene("death")
+
+
+            moveCharacter("fastHid")
+            
+
+            moveCharacter("bugHid")
+            
+
+            moveCharacter("playerIdle")
+            moveCharacter("playerAttack")
+            
+
+            startScene("death")
+        }
+
         blackout.style.animation = 'fadeOut 0.8s ease forwards';
     }, 1800);
 }
@@ -1418,148 +1731,239 @@ function enemyDie() {
         enemy.health = 1
         startBattleTransition("cartFight")
     }
+
+    if (enemy.name === "fast") {
+        enemy.health = 1
+        startBattleTransition("apple")
+    }
 }
 
 
 function enemyAttack(type) {
 
+    if (battling) {
+
+
+        if (enemy.health >= 0) {
+
+
+
+            typeText("battleText", ``);
+
+            if (!paralyzed) {
+
+                if (type === "bug") {
+
+                    let attackDamage = 0;
+
+                    let ran = Math.floor(Math.random() * (10 - 0 + 1)) + 0;
+
+
+                    let enemyAttackChoice;
+
+
+
+                    if (ran <= 3) {
+
+                        enemyAttackChoice = enemyAttacks[0]
+
+                        typeText("battleText", `Bug used ${enemyAttackChoice}`);
+
+
+                        attackDamage = Math.floor(Math.random() * (10 - 0 + 1)) + 0;
+                        let ran = Math.floor(Math.random() * (20 - 0 + 1)) + 0;
+                        if (ran === 1) {
+
+                            attackDamage = attackDamage * 2
+                            player.health = player.health - attackDamage
+
+                            setTimeout(() => {
+                                typeText("battleText", `It did ${attackDamage} HP, critical hit!`)
+                            }, 1000);
+                        }
+                        else {
+                            player.health = player.health - attackDamage
+
+                            setTimeout(() => {
+                                typeText("battleText", `It did ${attackDamage} HP`)
+                            }, 1000);
+                        }
+
+                    }
+                    else if (ran >= 4 && ran <= 6) {
+                        enemyAttackChoice = enemyAttacks[1]
+
+
+                        let CHT = Math.floor(Math.random() * (10 - 0 + 1)) + 0;
+
+                        if (CHT <= 2) {
+                            typeText("battleText", "He slips and misses");
+                        }
+                        else {
+
+                            typeText("battleText", `Bug used ${enemyAttackChoice}`);
+
+                            attackDamage = Math.floor(Math.random() * (30 - 15 + 1)) + 15;
+
+                            let ran = Math.floor(Math.random() * (20 - 0 + 1)) + 0;
+
+                            if (ran === 1) {
+                                attackDamage = attackDamage * 2
+                                player.health = player.health - attackDamage
+                                setTimeout(() => {
+                                    typeText("battleText", `It did ${attackDamage} HP, critical hit!`)
+                                }, 1000);
+                            }
+                            else {
+                                player.health = player.health - attackDamage
+
+                                setTimeout(() => {
+                                    typeText("battleText", `It did ${attackDamage} HP`)
+                                }, 1000);
+                            }
+                        }
+
+                    }
+                    else if (ran >= 7 && ran <= 9) {
+                        enemyAttackChoice = enemyAttacks[2]
+
+                        let CHT = Math.floor(Math.random() * (10 - 0 + 1)) + 0;
+
+                        if (CHT <= 2) {
+                            typeText("battleText", "He slips and misses");
+                        }
+                        else {
+
+                            typeText("battleText", `Bug used ${enemyAttackChoice}`);
+
+                            attackDamage = Math.floor(Math.random() * (10 - 0 + 1)) + 0;
+
+                            let ran = Math.floor(Math.random() * (20 - 0 + 1)) + 0;
+
+                            if (ran === 1) {
+                                attackDamage = attackDamage * 2
+                                player.health = player.health - attackDamage
+                                setTimeout(() => {
+                                    typeText("battleText", `It did ${attackDamage} HP, critical hit!`)
+                                }, 1000);
+                            }
+                            else {
+                                player.health = player.health - attackDamage
+
+                                setTimeout(() => {
+                                    typeText("battleText", `It did ${attackDamage} HP`)
+                                }, 1000);
+                            }
+                        }
+
+                    }
+                    else if (ran === 10) {
+                        enemyAttackChoice = enemyAttacks[3]
+
+
+                        typeText("battleText", `Bug used ${enemyAttackChoice}`);
+                        attackDamage = Math.floor(Math.random() * (10 - 0 + 1)) + 0;
+                        let ran = Math.floor(Math.random() * (20 - 0 + 1)) + 0;
+                        if (ran === 1) {
+
+                            attackDamage = attackDamage * 2
+                            player.health = player.health - attackDamage
+
+                            setTimeout(() => {
+                                typeText("battleText", `It did ${attackDamage} HP, critical hit! Your also Paralyzed`)
+                            }, 1000);
+                        }
+                        else {
+                            player.health = player.health - attackDamage
+
+                            setTimeout(() => {
+                                typeText("battleText", `It did ${attackDamage} HP, Your also Paralyzed`)
+                            }, 1000);
+                        }
+
+                        paralyzed = true
+
+                    }
+                }
+
+            }
+            else {
+                setTimeout(() => {
+                    typeText("battleText", `Hes paralyzed`)
+                }, 1000);
+                paralyzed = false;
+            }
+
+        }
+    }
+}
+
+
+function FastBoss() {
+    console.log("tets")
     if (enemy.health >= 0) {
-
-
-
-        typeText("battleText", ``);
 
         if (!paralyzed) {
 
-            if (type === "bug") {
+            let ran = Math.floor(Math.random() * (6 - 0 + 1)) + 0;
+            let attackDamage = 0;
 
-                let attackDamage = 0;
-                let ran = Math.floor(Math.random() * (10 - 0 + 1)) + 0;
-                let enemyAttackChoice;
+            if (ran === 0 || ran === 1 || ran === 2) {
 
-                if (ran <= 3) {
-
-                    enemyAttackChoice = enemyAttacks[0]
-
-                    typeText("battleText", `Bug used ${enemyAttackChoice}`);
+                typeText("battleText", `fast used LightSaber throw`);
 
 
-                    attackDamage = Math.floor(Math.random() * (10 - 0 + 1)) + 0;
-                    let ran = Math.floor(Math.random() * (20 - 0 + 1)) + 0;
-                    if (ran === 1) {
+                attackDamage = Math.floor(Math.random() * (15 - 10 + 1)) + 10;
+                let ran = Math.floor(Math.random() * (20 - 0 + 1)) + 0;
+                if (ran === 1) {
 
-                        attackDamage = attackDamage * 2
-                        player.health = player.health - attackDamage
+                    attackDamage = attackDamage * 2
+                    player.health = player.health - attackDamage
 
-                        setTimeout(() => {
-                            typeText("battleText", `It did ${attackDamage} HP, critical hit!`)
-                        }, 1000);
-                    }
-                    else {
-                        player.health = player.health - attackDamage
-
-                        setTimeout(() => {
-                            typeText("battleText", `It did ${attackDamage} HP`)
-                        }, 1000);
-                    }
-
+                    setTimeout(() => {
+                        typeText("battleText", `It did ${attackDamage} HP, critical hit!`)
+                    }, 1000);
                 }
-                else if (ran >= 4 && ran <= 6) {
-                    enemyAttackChoice = enemyAttacks[1]
+                else {
+                    player.health = player.health - attackDamage
 
-
-                    let CHT = Math.floor(Math.random() * (10 - 0 + 1)) + 0;
-
-                    if (CHT <= 2) {
-                        typeText("battleText", "He slips and misses");
-                    }
-                    else {
-
-                        typeText("battleText", `Bug used ${enemyAttackChoice}`);
-
-                        attackDamage = Math.floor(Math.random() * (30 - 15 + 1)) + 15;
-
-                        let ran = Math.floor(Math.random() * (20 - 0 + 1)) + 0;
-
-                        if (ran === 1) {
-                            attackDamage = attackDamage * 2
-                            player.health = player.health - attackDamage
-                            setTimeout(() => {
-                                typeText("battleText", `It did ${attackDamage} HP, critical hit!`)
-                            }, 1000);
-                        }
-                        else {
-                            player.health = player.health - attackDamage
-
-                            setTimeout(() => {
-                                typeText("battleText", `It did ${attackDamage} HP`)
-                            }, 1000);
-                        }
-                    }
-
+                    setTimeout(() => {
+                        typeText("battleText", `It did ${attackDamage} HP`)
+                    }, 1000);
                 }
-                else if (ran >= 7 && ran <= 9) {
-                    enemyAttackChoice = enemyAttacks[2]
 
-                    let CHT = Math.floor(Math.random() * (10 - 0 + 1)) + 0;
-
-                    if (CHT <= 2) {
-                        typeText("battleText", "He slips and misses");
-                    }
-                    else {
-
-                        typeText("battleText", `Bug used ${enemyAttackChoice}`);
-
-                        attackDamage = Math.floor(Math.random() * (10 - 0 + 1)) + 0;
-
-                        let ran = Math.floor(Math.random() * (20 - 0 + 1)) + 0;
-
-                        if (ran === 1) {
-                            attackDamage = attackDamage * 2
-                            player.health = player.health - attackDamage
-                            setTimeout(() => {
-                                typeText("battleText", `It did ${attackDamage} HP, critical hit!`)
-                            }, 1000);
-                        }
-                        else {
-                            player.health = player.health - attackDamage
-
-                            setTimeout(() => {
-                                typeText("battleText", `It did ${attackDamage} HP`)
-                            }, 1000);
-                        }
-                    }
-
-                }
-                else if (ran === 10) {
-                    enemyAttackChoice = enemyAttacks[3]
-
-
-                    typeText("battleText", `Bug used ${enemyAttackChoice}`);
-                    attackDamage = Math.floor(Math.random() * (10 - 0 + 1)) + 0;
-                    let ran = Math.floor(Math.random() * (20 - 0 + 1)) + 0;
-                    if (ran === 1) {
-
-                        attackDamage = attackDamage * 2
-                        player.health = player.health - attackDamage
-
-                        setTimeout(() => {
-                            typeText("battleText", `It did ${attackDamage} HP, critical hit! Your also Paralyzed`)
-                        }, 1000);
-                    }
-                    else {
-                        player.health = player.health - attackDamage
-
-                        setTimeout(() => {
-                            typeText("battleText", `It did ${attackDamage} HP, Your also Paralyzed`)
-                        }, 1000);
-                    }
-
-                    paralyzed = true
-
-                }
             }
+            else if (ran === 3 || ran === 4 || ran === 5) {
 
+                let fightCount = Math.floor(Math.random() * (5 - 2 + 1)) + 2;
+                let totalDamage = 0;
+
+                typeText("battleText", "Fast used bug attack");
+
+                for (i = 0; i < fightCount; i++) {
+                    attackDamage = Math.floor(Math.random() * (10 - 0 + 1)) + 0;
+                    totalDamage = totalDamage + attackDamage
+                }
+
+                player.health = player.health - totalDamage
+
+                setTimeout(() => {
+                    typeText("battleText", `It did ${totalDamage} HP`)
+                }, 1000);
+
+            }
+            else if (ran === 6) {
+                typeText("battleText", "Fast used complex code");
+                let totalDamage = 0
+                attackDamage = Math.floor(Math.random() * (10 - 0 + 1)) + 0;
+
+                player.health = player.health - totalDamage
+
+                setTimeout(() => {
+                    paralyzed = true
+                    typeText("battleText", `It did ${totalDamage} HP, You also got so confused you got paralyzed`)
+                }, 1000);
+            }
         }
         else {
             setTimeout(() => {
@@ -1567,11 +1971,11 @@ function enemyAttack(type) {
             }, 1000);
             paralyzed = false;
         }
-
     }
 }
 
-
-function FastBoss() {
-
+function playerDie() {
+    battling = false
+    player.health = 100
+    startBattleTransition("death")
 }
